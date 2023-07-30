@@ -1,29 +1,16 @@
 # ProjectDisplayPlatform
+> 基于Vue的前后端项目展示平台
 
-This template should help get you started developing with Vue 3 in Vite.
+### Vue3 + FLask + BootStrap5 + MySql
 
-## Recommended IDE Setup
+### 项目信息
 
-[VSCode](https://code.visualstudio.com/) + [Volar](https://marketplace.visualstudio.com/items?itemName=Vue.volar) (and disable Vetur) + [TypeScript Vue Plugin (Volar)](https://marketplace.visualstudio.com/items?itemName=Vue.vscode-typescript-vue-plugin).
+- 作者：Godxu
+- 博客：godxu.top
+- 完成日期
+    - 开发中
 
-## Customize configuration
+### 开发环境
 
-See [Vite Configuration Reference](https://vitejs.dev/config/).
-
-## Project Setup
-
-```sh
-npm install
-```
-
-### Compile and Hot-Reload for Development
-
-```sh
-npm run dev
-```
-
-### Compile and Minify for Production
-
-```sh
-npm run build
-```
+- Windows 10
+- VS Code
