@@ -1,5 +1,5 @@
 <script setup>
-	let currentRoute = 'home'
+let currentRoute = 'home'
 
 </script>
 
@@ -14,7 +14,7 @@
 			<div class="collapse navbar-collapse" id="navbarTogglerDemo03">
 				<ul class="navbar-nav me-auto mb-2 mb-lg-0">
 					<li class="nav-item activelink px-2 pt-3">
-						<a class="nav-link active" aria-current="page" href="#">Home</a>
+						<a class="nav-link" aria-current="page" href="#">Home</a>
 					</li>
 					<li class="nav-item px-2 pt-3">
 						<a class="nav-link" href="#/projects">Projects</a>
@@ -34,16 +34,26 @@
 </template>
 
 <style scoped>
-	.logoimg {
-		width: 300px;
-	}
-	.navborder {
-		padding: 0;
-		background-color: #fff !important;
-		box-shadow: inset 0 -1px #888888;
-	}
+.logoimg {
+	width: 300px;
+}
 
-	.activelink {
-		border-bottom: 2px solid orangered; 
-	}
+.navborder {
+	padding: 0;
+	background-color: #fff !important;
+	box-shadow: inset 0 -1px #888888;
+}
+
+.activelink {
+	border-bottom: 2px solid orangered;
+	font-weight: bold;
+}
+
+.btn:focus {
+	box-shadow: none !important;
+}
+
+.navbar-toggler:focus {
+	box-shadow: none !important;
+}
 </style>
