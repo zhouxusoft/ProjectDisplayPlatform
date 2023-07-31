@@ -1,38 +1,49 @@
 <script setup>
-	import { ref } from 'vue'
-	const projects = ref([
-		{
-			name: "Godxu聊天室",
-			main: "Nodejs",
-			content: "这是一个简易的线上聊天室项目"
-		},
-		{
-			name: "Godxu云盘",
-			main: "Flask",
-			content: "这是一个基于超星云盘的云盘"
-		},
-		{
-			name: "Godxu电商平台",
-			main: "Nodejs",
-			content: "这是一个简易的电商平台项目"
-		}
-	])
-	function clickbtn() {
-		projects.value.push({
-			name: "Godxu字体库",
-			main: "Flask",
-			content: "这是一个字体库预览及下载项目"
-		})
-	}
+	let currentRoute = 'home'
+
 </script>
 
 <template>
-	<div v-for="project in projects">
-		<h1 class="text-primary">{{ project.name }}</h1>
-		<h2>{{ project.main }}</h2>
-		<h3>{{ project.content }}</h3>
-	</div>
-	<button class="btn btn-success" @click="clickbtn()">add</button>
+	<nav class="navbar navbar-expand-lg bg-body-tertiary navborder mb-2">
+		<div class="container-fluid">
+			<button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarTogglerDemo03"
+				aria-controls="navbarTogglerDemo03" aria-expanded="false" aria-label="Toggle navigation">
+				<span class="navbar-toggler-icon"></span>
+			</button>
+			<a class="navbar-brand" href="#"><img src="../public/hublogo.jfif" alt="" class="logoimg"></a>
+			<div class="collapse navbar-collapse" id="navbarTogglerDemo03">
+				<ul class="navbar-nav me-auto mb-2 mb-lg-0">
+					<li class="nav-item activelink px-2 pt-3">
+						<a class="nav-link active" aria-current="page" href="#">Home</a>
+					</li>
+					<li class="nav-item px-2 pt-3">
+						<a class="nav-link" href="#/projects">Projects</a>
+					</li>
+					<li class="nav-item px-2 pt-3">
+						<a class="nav-link" href="#/about">About</a>
+					</li>
+				</ul>
+				<form class="d-flex p-2" role="search">
+					<input class="form-control me-2" type="search" placeholder="Search" aria-label="Search">
+					<button class="btn btn-outline-success" type="submit">Search</button>
+				</form>
+			</div>
+		</div>
+	</nav>
+	<router-view></router-view>
 </template>
 
-<style scoped></style>
+<style scoped>
+	.logoimg {
+		width: 300px;
+	}
+	.navborder {
+		padding: 0;
+		background-color: #fff !important;
+		box-shadow: inset 0 -1px #888888;
+	}
+
+	.activelink {
+		border-bottom: 2px solid orangered; 
+	}
+</style>
