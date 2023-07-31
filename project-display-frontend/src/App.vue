@@ -28,7 +28,7 @@
 
 <template>
 	<div v-for="project in projects">
-		<h1>{{ project.name }}</h1>
+		<h1 class="text-primary">{{ project.name }}</h1>
 		<h2>{{ project.main }}</h2>
 		<h3>{{ project.content }}</h3>
 	</div>
