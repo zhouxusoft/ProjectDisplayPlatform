@@ -1,6 +1,6 @@
 <script setup>
-import { onMounted, defineProps } from 'vue';
-import { useRouter } from 'vue-router';
+import { onMounted, defineProps } from 'vue'
+import { useRouter } from 'vue-router'
 
 const props = defineProps()
 
