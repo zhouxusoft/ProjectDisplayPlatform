@@ -1,8 +1,8 @@
 <template>
     <div class="container">
         <div class="notloginbox">
-            <img src="../../public/你还未登录哦.png" alt="" class="notloginimg img-fluid">
-            <div class="notlogincontent mb-3">你还未登录哦</div>
+            <img src="../../public/notlogin.png" alt="" class="notloginimg img-fluid">
+            <div class="notlogincontent mb-4">你还未登录哦</div>
             <div class="notloginbtngroup">
                 <button class="btn btn-outline-success m-1 notloginbtn">去登录</button>
                 <button class="btn btn-outline-primary m-1 notloginbtn">去注册</button>
