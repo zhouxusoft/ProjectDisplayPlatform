@@ -17,7 +17,7 @@
 			content: "这是一个简易的电商平台项目"
 		}
 	])
-	function clickbtn() {
+	const clickbtn = () => {
 		projects.value.push({
 			name: "Godxu字体库",
 			main: "Flask",
