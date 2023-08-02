@@ -124,17 +124,6 @@ onMounted(() => {
     border: 1px solid #20252c;
 }
 
-.rtop {
-    margin: auto;
-    margin-top: 20px;
-    padding: 5px;
-    font-size: 24px;
-    width: 300px;
-    border-radius: 0.25rem;
-    text-align: center;
-    border: 1px solid #20252c;
-}
-
 .top a {
     display: inline-block;
     position: relative;
@@ -228,12 +217,14 @@ onMounted(() => {
     font-size: 16px;
     border: 1px solid #20252c;
     width: 120px;
-    display: inline-block;
     position: relative;
     text-decoration: none;
     padding: 8px;
     transition: 0.3s;
     background-color: white;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 
 .sbtn:after {
@@ -282,7 +273,7 @@ onMounted(() => {
 
 .sbottom .about {
     display: inline-block;
-    border-radius: 10px;
+    border-radius: 0.25rem;
     transition: 0.3s;
     margin-bottom: 10px;
     border: 1px solid white;
@@ -331,75 +322,6 @@ onMounted(() => {
 
 .yqlj:hover {
     text-decoration-line: underline;
-}
-
-.validation {
-    padding: 20px;
-    border-radius: 8px;
-    margin-bottom: 10px;
-    border: 1px solid #20252c;
-}
-
-.validation ul {
-    position: relative;
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-    padding: 0;
-    margin: 0;
-}
-
-.validation ul li {
-    position: relative;
-    font-size: 16px;
-    font-weight: lighter;
-    list-style: none;
-    transition: 0.3s;
-}
-
-.validation ul li.valid {
-    color: #0349b4;
-}
-
-.validation ul li::before {
-    content: "\f192";
-    font-family: fontAwesome;
-    width: 22px;
-    display: inline-flex;
-}
-
-.validation ul li.valid::before {
-    content: "\f00c";
-    font-family: fontAwesome;
-    transition: 0.1s;
-}
-
-.default {
-    cursor: not-allowed;
-    background-color: white;
-    color: black;
-    border-radius: 8px;
-    font-size: 16px;
-    border: none;
-    width: 120px;
-    display: inline-block;
-    position: relative;
-    text-decoration: none;
-    padding: 8px;
-    transition: 0.5s;
-    border: 1px solid #20252c;
-}
-
-.box .checkBox {
-    display: flex;
-    align-items: center;
-    position: relative;
-    width: 100%;
-    padding: 5px;
-    border-radius: 6px;
-    margin-bottom: 12px;
-    border: 1px solid #20252c;
-    font-weight: normal;
 }
 
 .hidden {

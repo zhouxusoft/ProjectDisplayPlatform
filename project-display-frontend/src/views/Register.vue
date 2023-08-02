@@ -164,17 +164,6 @@ onMounted(() => {
     transform: scaleY(0.5);
 }
 
-.ltop {
-    margin: auto;
-    margin-top: 80px;
-    padding: 5px;
-    font-size: 24px;
-    width: 300px;
-    border-radius: 0.25rem;
-    text-align: center;
-    border: 1px solid #20252c;
-}
-
 .rtop {
     margin: auto;
     margin-top: 20px;
@@ -279,7 +268,9 @@ onMounted(() => {
     font-size: 16px;
     border: 1px solid #20252c;
     width: 120px;
-    display: inline-block;
+    display: flex;
+    justify-content: center;
+    align-items: center;
     position: relative;
     text-decoration: none;
     padding: 8px;
@@ -303,85 +294,6 @@ onMounted(() => {
 .sbtn:hover:after {
     opacity: 1;
     right: 14px;
-}
-
-.godxu {
-    width: 300px;
-    border: 1px solid #20252c;
-    border-radius: 0.25rem;
-    padding: 5px;
-    color: #20252c;
-}
-
-.msg {
-    min-height: 42px;
-    user-select: text;
-}
-
-.from {
-    text-align: right;
-    user-select: text;
-}
-
-.sbottom {
-    position: absolute;
-    bottom: 10px;
-    text-align: center;
-    margin: 0 57px;
-    transition: 0.5s;
-}
-
-.sbottom .about {
-    display: inline-block;
-    border-radius: 10px;
-    transition: 0.3s;
-    margin-bottom: 10px;
-    border: 1px solid white;
-}
-
-.sbottom .about .icon {
-    margin: 0 10px;
-    background-color: white;
-    border-radius: 50%;
-    transition: 0.3s;
-    padding: 1px;
-}
-
-.sbottom .about .code {
-    border-radius: 0.25rem;
-    padding-top: 5px;
-    transition: 0.3s;
-}
-
-.sbottom .about:hover {
-    background-color: white;
-    border: 1px solid black;
-}
-
-.vcode {
-    width: 40px;
-}
-
-.sbottom .about .code .erweicodeimg {
-    width: 0px;
-    transition: 0.3s;
-}
-
-.sbottom .about:hover .code .erweicodeimg {
-    width: 100px;
-}
-
-.sbottom .about:hover .icon {
-    margin: 0 35px;
-}
-
-.yqlj {
-    color: black;
-    text-decoration-line: none;
-}
-
-.yqlj:hover {
-    text-decoration-line: underline;
 }
 
 .validation {
