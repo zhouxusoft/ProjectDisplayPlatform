@@ -1,12 +1,505 @@
+<script setup>
+import { onMounted } from 'vue';
+
+onMounted(() => {
+    // 密码框小眼睛切换
+    const passwords = document.querySelectorAll('.passwordBox')
+    const logoButtons = document.querySelectorAll('.logoButton')
+    for (let i = 0; i < logoButtons.length; i++) {
+        logoButtons[i].onclick = function () {
+            if (passwords[i].type === 'password') {
+                passwords[i].setAttribute('type', 'text')
+                logoButtons[i].classList.add('hide')
+            }
+            else {
+                passwords[i].setAttribute('type', 'password')
+                logoButtons[i].classList.remove('hide')
+            }
+        }
+    }
+
+    const msg = document.getElementsByClassName("msg")[0]
+    const from = document.getElementsByClassName("from")[0]
+    // 获取每日一言
+    const xhr = new XMLHttpRequest()
+    xhr.open('POST', 'https://v1.hitokoto.cn/', false)
+    xhr.send()
+    const resData = JSON.parse(xhr.responseText)
+    let datamsg = resData.hitokoto
+    let datafrom = '—— 「 ' + resData.from + ' 」'
+    // 修改每日一言内容
+    msg.textContent = datamsg
+    from.textContent = datafrom
+
+    // 判断注册框内容合法性
+    const userLengthCase = document.getElementById('nameLength')
+    const lengthCase = document.getElementById('length')
+    const recheckCase = document.getElementById('recheck')
+    const rbtn = document.getElementById('registerbtn')
+    let pwd
+    let rpwd
+    let username
+    let userNameOK, checkPasswordOK, recheckPasswordOK = 0
+
+    // 判断输入是否都正确
+    function inputOK(userNameOK, checkPasswordOK, recheckPasswordOK) {
+        let a = userNameOK
+        let b = checkPasswordOK
+        let c = recheckPasswordOK
+        if (a == 1 && b == 1 && c == 1) {
+            rbtn.disabled = false;
+            rbtn.classList.remove('default')
+            rbtn.classList.add('sbtn')
+        } else {
+            rbtn.disabled = true;
+            rbtn.classList.remove('sbtn')
+            rbtn.classList.add('default')
+        }
+    }
+    //用于检测输入是否有空白符
+    function hasWhiteSpace(str) {
+        return /\s/g.test(str);
+    }
+    // 检测用户名是否合法
+    function userName(data) {
+        username = data
+        //用于判断用户名长度是否在1-12字符之间
+        const length = new RegExp('(^.{1,12}$)')
+
+        if (length.test(data) && !hasWhiteSpace(data)) {
+            userLengthCase.classList.add('valid')
+            userNameOK = 1;
+        }
+        else {
+            userLengthCase.classList.remove('valid')
+            userNameOK = 0;
+        }
+
+        inputOK(userNameOK, checkPasswordOK, recheckPasswordOK)
+    }
+    // 检测密码是否合法
+    function checkPassword(data) {
+        pwd = data
+
+        const length = new RegExp('(?=.{6,})')
+
+        if (length.test(data) && !hasWhiteSpace(data)) {
+            lengthCase.classList.add('valid')
+            checkPasswordOK = 1;
+        }
+        else {
+            lengthCase.classList.remove('valid')
+            checkPasswordOK = 0;
+        }
+
+        recheckPassword(rpwd)
+
+        inputOK(userNameOK, checkPasswordOK, recheckPasswordOK)
+    }
+    // 检测两次输入密码是否相同
+    function recheckPassword(data) {
+        rpwd = data
+
+        if (data === '') {
+            recheckCase.classList.remove('valid')
+        }
+        else if (data === pwd) {
+            recheckCase.classList.add('valid')
+            recheckPasswordOK = 1;
+        }
+        else {
+            recheckCase.classList.remove('valid')
+            recheckPasswordOK = 0;
+        }
+
+        inputOK(userNameOK, checkPasswordOK, recheckPasswordOK)
+    }
+})
+</script>
+
 <template>
     <div class="container">
-        <div class="welcomebox">Welcome to GodxuHub</div>
+        <div class="borderbox">
+            <div class="ltop top">
+                <a href="#/">GodxuHub 登录</a>
+            </div>
+            <div class="hr"></div>
+            <div class="box">
+                <div class="inputBox">
+                    <input type="text" id="usernameInput" class="nameBox" placeholder="用户名">
+                </div>
+                <div class="inputBox">
+                    <input type="password" id="passwordInput" class="passwordBox" placeholder="密码">
+                    <span class="logoButton"></span>
+                </div>
+                <div class="btnbox">
+                    <button type="submit" class="sbtn" id="loginbtn">确认登录</button>
+                    <button type="button" class="sbtn" onclick="location='#/register'">前往注册</button>
+                </div>
+            </div>
+            <div class="hr"></div>
+            <div class="godxu">
+                <div class="msg">
+                    用代码表达言语的魅力，用代码书写山河的壮丽。
+                </div>
+                <div class="from">
+                    ——「 一言开发者中心 」
+                </div>
+            </div>
+        </div>
+        <div class="sbottom">
+            <div class="about">
+                <div class="code">
+                    <img referrerPolicy="no-referrer" class="erweicodeimg"
+                        src="https://p.ananas.chaoxing.com/star3/origin/64788dea4b89070135e7a13dda096b4f.png" alt="">
+                </div>
+                <img referrerPolicy="no-referrer"
+                    src="https://p.ananas.chaoxing.com/star3/origin/835444af1e238fbd95acd92723451c95.png" alt=""
+                    class="icon vcode">
+            </div>
+            <div class="about">
+                <div class="code">
+                    <img referrerPolicy="no-referrer" class="erweicodeimg"
+                        src="https://p.ananas.chaoxing.com/star3/origin/6e967dd18a4198bd62f20f79c373ce6a.png" alt="">
+                </div>
+                <img referrerPolicy="no-referrer"
+                    src="https://p.ananas.chaoxing.com/star3/origin/217a4ae91d62e76707716d614eb38c31.png" alt=""
+                    class="icon vcode">
+            </div>
+            <div>友情链接：
+                <a href="https://hitokoto.cn/" class="yqlj" target="_blank">Hitokoto-一言</a>
+            </div>
+        </div>
     </div>
 </template>
 
 <style scoped>
-    .welcomebox{
-        width: fit-content;
-        margin: auto;
-    }
+.container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding-top: 80px;
+}
+
+.borderbox {
+    position: relative;
+    top: -60px;
+    min-height: 323px;
+    background-color: white;
+    width: fit-content;
+    margin: auto;
+}
+
+.hr {
+    margin: 10px 6px;
+    border: none;
+    border-top: 1px solid #20252c;
+    transform: scaleY(0.5);
+}
+
+.ltop {
+    margin: auto;
+    margin-top: 80px;
+    padding: 5px;
+    font-size: 24px;
+    width: 300px;
+    border-radius: 0.25rem;
+    text-align: center;
+    border: 1px solid #20252c;
+}
+
+.rtop {
+    margin: auto;
+    margin-top: 20px;
+    padding: 5px;
+    font-size: 24px;
+    width: 300px;
+    border-radius: 0.25rem;
+    text-align: center;
+    border: 1px solid #20252c;
+}
+
+.top a {
+    display: inline-block;
+    position: relative;
+    text-decoration: none;
+    padding: 8px;
+    transition: 0.5s;
+    color: black;
+}
+
+.top a:after {
+    position: absolute;
+    right: -15px;
+    content: '»';
+    opacity: 0;
+    transition: 0.5s;
+}
+
+.top:hover a {
+    padding-right: 30px;
+}
+
+.top:hover a:after {
+    opacity: 1;
+    right: 0;
+}
+
+.box {
+    position: relative;
+    width: 300px;
+}
+
+.box .inputBox {
+    display: flex;
+    align-items: center;
+    position: relative;
+    width: 100%;
+    padding: 5px;
+    border-radius: 0.25rem;
+    margin-bottom: 12px;
+    border: 1px solid #20252c;
+}
+
+.box .nameBox {
+    font-size: 16px;
+    flex: 1;
+    outline: none;
+    border: none;
+    padding: 5px;
+    font-weight: normal;
+    color: #333;
+}
+
+.box .passwordBox {
+    font-size: 16px;
+    flex: 1;
+    outline: none;
+    border: none;
+    padding: 5px;
+    font-weight: normal;
+    color: #333;
+}
+
+.box .logoButton {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.box .logoButton::before {
+    content: "\f06e";
+    font-size: 16px;
+    font-family: fontAwesome;
+}
+
+.box .hide::before {
+    content: "\f070";
+    font-family: fontAwesome;
+}
+
+.btnbox {
+    display: flex;
+    justify-content: space-between;
+}
+
+.sbtn {
+    border-radius: 0.25rem;
+    font-size: 16px;
+    border: 1px solid #20252c;
+    width: 120px;
+    display: inline-block;
+    position: relative;
+    text-decoration: none;
+    padding: 8px;
+    transition: 0.3s;
+    background-color: white;
+}
+
+.sbtn:after {
+    font-size: 18px;
+    position: absolute;
+    right: 10px;
+    content: '»';
+    opacity: 0;
+    transition: 0.3s;
+}
+
+.sbtn:hover {
+    padding-right: 15px;
+}
+
+.sbtn:hover:after {
+    opacity: 1;
+    right: 14px;
+}
+
+.godxu {
+    width: 300px;
+    border: 1px solid #20252c;
+    border-radius: 0.25rem;
+    padding: 5px;
+    color: #20252c;
+}
+
+.msg {
+    min-height: 42px;
+    user-select: text;
+}
+
+.from {
+    text-align: right;
+    user-select: text;
+}
+
+.sbottom {
+    position: absolute;
+    bottom: 10px;
+    text-align: center;
+    margin: 0 57px;
+    transition: 0.5s;
+}
+
+.sbottom .about {
+    display: inline-block;
+    border-radius: 10px;
+    transition: 0.3s;
+    margin-bottom: 10px;
+    border: 1px solid white;
+}
+
+.sbottom .about .icon {
+    margin: 0 10px;
+    background-color: white;
+    border-radius: 50%;
+    transition: 0.3s;
+    padding: 1px;
+}
+
+.sbottom .about .code {
+    border-radius: 0.25rem;
+    padding-top: 5px;
+    transition: 0.3s;
+}
+
+.sbottom .about:hover {
+    background-color: white;
+    border: 1px solid black;
+}
+
+.vcode {
+    width: 40px;
+}
+
+.sbottom .about .code .erweicodeimg {
+    width: 0px;
+    transition: 0.3s;
+}
+
+.sbottom .about:hover .code .erweicodeimg {
+    width: 100px;
+}
+
+.sbottom .about:hover .icon {
+    margin: 0 35px;
+}
+
+.yqlj {
+    color: black;
+    text-decoration-line: none;
+}
+
+.yqlj:hover {
+    text-decoration-line: underline;
+}
+
+.validation {
+    padding: 20px;
+    border-radius: 8px;
+    margin-bottom: 10px;
+    border: 1px solid #20252c;
+}
+
+.validation ul {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding: 0;
+    margin: 0;
+}
+
+.validation ul li {
+    position: relative;
+    font-size: 16px;
+    font-weight: lighter;
+    list-style: none;
+    transition: 0.3s;
+}
+
+.validation ul li.valid {
+    color: #0349b4;
+}
+
+.validation ul li::before {
+    content: "\f192";
+    font-family: fontAwesome;
+    width: 22px;
+    display: inline-flex;
+}
+
+.validation ul li.valid::before {
+    content: "\f00c";
+    font-family: fontAwesome;
+    transition: 0.1s;
+}
+
+.default {
+    cursor: not-allowed;
+    background-color: white;
+    color: black;
+    border-radius: 8px;
+    font-size: 16px;
+    border: none;
+    width: 120px;
+    display: inline-block;
+    position: relative;
+    text-decoration: none;
+    padding: 8px;
+    transition: 0.5s;
+    border: 1px solid #20252c;
+}
+
+.box .checkBox {
+    display: flex;
+    align-items: center;
+    position: relative;
+    width: 100%;
+    padding: 5px;
+    border-radius: 6px;
+    margin-bottom: 12px;
+    border: 1px solid #20252c;
+    font-weight: normal;
+}
+
+.hidden {
+    z-index: 5;
+}
+
+/*用于消除edge密码框的默认小眼睛*/
+input[type="password"]::-ms-reveal {
+    display: none;
+}
+
+input[type="password"]::-ms-clear {
+    display: none;
+}
+
+input[type="password"]::-o-clear {
+    display: none;
+}
 </style>
