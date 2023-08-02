@@ -7,14 +7,13 @@ const props = defineProps()
 const currentroute = ref('/')
 const isinputfocus = ref(false)
 
+// 当搜索框获得焦点时
 const inputFocus = () => {
   isinputfocus.value = true
-  console.log(isinputfocus.value)
 }
-
+// 当搜索框失去焦点时
 const inputBlur = () => {
   isinputfocus.value = false
-  console.log(isinputfocus.value)
 }
 
 onMounted(() => {
@@ -25,7 +24,7 @@ onMounted(() => {
 	/** 刷新路由时，激活对应的导航显示状态 */
 	router.afterEach((to, from) => {
 		currentroute.value = to.path
-		console.log(currentroute.value)
+		// console.log(currentroute.value)
 		if (to.path === '/') {
 			homelink.classList.add('activelink')
 			projectslink.classList.remove('activelink')
@@ -65,17 +64,15 @@ onMounted(() => {
 						<a class="nav-link" href="#/about">About</a>
 					</li>
 				</ul>
-				<div class="d-flex p-2">
+				<div class="p-2" v-show="currentroute != '/login' && currentroute != '/register'">
 					<div class="searchinputbox d-flex me-1" :class="{ focused: isinputfocus }">
 						<div class="form-control form-control-sm searchlogo"></div>
 						<input class="form-control form-control-sm searchinput p-0"
 							type="search" placeholder="Search"
 							aria-label="Search"
 							@focus="inputFocus()"
-      						@blur="inputBlur()"
-							v-show="currentroute != '/login' && currentroute != '/register'">
-						<button class="searchbutton" type="submit"
-							v-show="currentroute != '/login' && currentroute != '/register'"></button>
+      						@blur="inputBlur()">
+						<button class="searchbutton" type="submit"></button>
 					</div>
 				</div>
 			</div>
