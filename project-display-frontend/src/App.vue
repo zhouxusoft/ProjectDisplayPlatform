@@ -1,30 +1,34 @@
 <script setup>
-import { onMounted, defineProps } from 'vue'
+import { onMounted, defineProps, ref } from 'vue'
 import { useRouter } from 'vue-router'
 
 const props = defineProps()
+//当前所处的路由
+const currentroute = ref('/')
 
 onMounted(() => {
-  const router = useRouter()
-  const homelink = document.getElementById("homelink")
-  const projectslink = document.getElementById("projectslink")
-  const aboutlink = document.getElementById("aboutlink")
-
-  router.afterEach((to, from) => {
-    if (to.path === '/') {
-      homelink.classList.add('activelink')
-      projectslink.classList.remove('activelink')
-      aboutlink.classList.remove('activelink')
-    } else if (to.path === '/projects') {
-      homelink.classList.remove('activelink')
-      projectslink.classList.add('activelink')
-      aboutlink.classList.remove('activelink')
-    } else if (to.path === '/about') {
-      homelink.classList.remove('activelink')
-      projectslink.classList.remove('activelink')
-      aboutlink.classList.add('activelink')
-    }
-  })
+	const router = useRouter()
+	const homelink = document.getElementById("homelink")
+	const projectslink = document.getElementById("projectslink")
+	const aboutlink = document.getElementById("aboutlink")
+	/** 刷新路由时，激活对应的导航显示状态 */
+	router.afterEach((to, from) => {
+		currentroute.value = to.path
+		console.log(currentroute.value)
+		if (to.path === '/') {
+			homelink.classList.add('activelink')
+			projectslink.classList.remove('activelink')
+			aboutlink.classList.remove('activelink')
+		} else if (to.path === '/projects') {
+			homelink.classList.remove('activelink')
+			projectslink.classList.add('activelink')
+			aboutlink.classList.remove('activelink')
+		} else if (to.path === '/about') {
+			homelink.classList.remove('activelink')
+			projectslink.classList.remove('activelink')
+			aboutlink.classList.add('activelink')
+		}
+	})
 })
 </script>
 
@@ -35,10 +39,11 @@ onMounted(() => {
 				aria-controls="navbarTogglerDemo03" aria-expanded="false" aria-label="Toggle navigation">
 				<span class="navbar-toggler-icon"></span>
 			</button>
-			<a class="navbar-brand" href="https://godxu.top" target="_blank"><img src="../public/hublogo.jfif" alt=""
+			<a class="navbar-brand py-2" href="https://godxu.top" target="_blank"><img src="../public/hublogo.jfif" alt=""
 					class="logoimg"></a>
 			<div class="collapse navbar-collapse" id="navbarTogglerDemo03">
-				<ul class="navbar-nav me-auto mb-2 mb-lg-0">
+				<ul class="navbar-nav me-auto mb-2 mb-lg-0"
+					v-show="currentroute != '/login' && currentroute != '/register'">
 					<li class="nav-item px-2 pt-3" id="homelink">
 						<a class="nav-link" aria-current="page" href="#">Home</a>
 					</li>
@@ -50,8 +55,10 @@ onMounted(() => {
 					</li>
 				</ul>
 				<form class="d-flex p-2" role="search">
-					<input class="form-control me-2" type="search" placeholder="Search" aria-label="Search">
-					<button class="btn btn-outline-success" type="submit">Search</button>
+					<input class="form-control me-2" type="search" placeholder="Search" aria-label="Search"
+						v-show="currentroute != '/login' && currentroute != '/register'">
+					<button class="btn btn-outline-success" type="submit"
+						v-show="currentroute != '/login' && currentroute != '/register'">Search</button>
 				</form>
 			</div>
 		</div>
@@ -90,5 +97,4 @@ onMounted(() => {
 
 .navbar-toggler:focus {
 	box-shadow: none !important;
-}
-</style>
+}</style>

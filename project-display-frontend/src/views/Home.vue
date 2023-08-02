@@ -2,8 +2,11 @@
 import { useRouter } from 'vue-router'
 
 const router = useRouter()
-const gologin = () => {
+const goLogin = () => {
     router.push({ path: '/login' })
+}
+const goRegister = () => {
+    router.push({ path: '/register' })
 }
 </script>
 
@@ -13,8 +16,8 @@ const gologin = () => {
             <img src="../../public/notlogin.png" alt="" class="notloginimg img-fluid">
             <div class="notlogincontent mb-4">你还未登录哦</div>
             <div class="notloginbtngroup">
-                <button @click="gologin()" class="btn btn-outline-success m-1 notloginbtn">去登录</button>
-                <button class="btn btn-outline-primary m-1 notloginbtn">去注册</button>
+                <button @click="goLogin()" class="btn btn-outline-success m-1 notloginbtn">去登录</button>
+                <button @click="goRegister()" class="btn btn-outline-primary m-1 notloginbtn">去注册</button>
             </div>
         </div>
     </div>

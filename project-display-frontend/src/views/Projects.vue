@@ -33,5 +33,4 @@
 		<h3>{{ project.content }}</h3>
 	</div>
 	<button class="btn btn-success" @click="clickbtn()">add</button>
-	<router-view></router-view>
 </template>
