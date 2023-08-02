@@ -5,6 +5,17 @@ import { useRouter } from 'vue-router'
 const props = defineProps()
 //当前所处的路由
 const currentroute = ref('/')
+const isinputfocus = ref(false)
+
+const inputFocus = () => {
+  isinputfocus.value = true
+  console.log(isinputfocus.value)
+}
+
+const inputBlur = () => {
+  isinputfocus.value = false
+  console.log(isinputfocus.value)
+}
 
 onMounted(() => {
 	const router = useRouter()
@@ -54,12 +65,19 @@ onMounted(() => {
 						<a class="nav-link" href="#/about">About</a>
 					</li>
 				</ul>
-				<form class="d-flex p-2" role="search">
-					<input class="form-control me-2" type="search" placeholder="Search" aria-label="Search"
-						v-show="currentroute != '/login' && currentroute != '/register'">
-					<button class="btn btn-outline-success" type="submit"
-						v-show="currentroute != '/login' && currentroute != '/register'">Search</button>
-				</form>
+				<div class="d-flex p-2">
+					<div class="searchinputbox d-flex me-1" :class="{ focused: isinputfocus }">
+						<div class="form-control form-control-sm searchlogo"></div>
+						<input class="form-control form-control-sm searchinput p-0"
+							type="search" placeholder="Search"
+							aria-label="Search"
+							@focus="inputFocus()"
+      						@blur="inputBlur()"
+							v-show="currentroute != '/login' && currentroute != '/register'">
+						<button class="searchbutton" type="submit"
+							v-show="currentroute != '/login' && currentroute != '/register'"></button>
+					</div>
+				</div>
 			</div>
 		</div>
 	</nav>
@@ -97,4 +115,48 @@ onMounted(() => {
 
 .navbar-toggler:focus {
 	box-shadow: none !important;
-}</style>
+}
+
+.searchlogo {
+	width: 30px;
+	border: none;
+	border-radius: 0.25rem 0 0 0.25rem;
+}
+
+.searchinput {
+	border: none;
+	border-radius: 0 0.25rem 0.25rem 0;
+}
+
+.searchinput:focus {
+	box-shadow: none !important;
+}
+
+.focused {
+	outline: 1px solid #0349b4;	
+}
+
+.searchinputbox {
+	border: 1px solid #727272;
+	border-radius: 0.25rem;
+}
+
+.searchlogo::before {
+	content: '\f002';
+	font-family: 'Font Awesome 6 Free';
+	font-weight: 600;
+}
+
+.searchbutton {
+	border: none;
+	border-radius: 0 0.25rem 0.25rem 0;
+	background-color: white;
+	width: 36px;
+}
+
+.searchbutton::before {
+	content: '\f105';
+	font-family: 'Font Awesome 6 Free';
+	font-weight: 600;
+}
+</style>
