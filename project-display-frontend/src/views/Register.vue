@@ -158,7 +158,7 @@ onMounted(() => {
 }
 
 .hr {
-    margin: 10px 6px;
+    margin: 10px 2px;
     border: none;
     border-top: 1px solid #20252c;
     transform: scaleY(0.5);

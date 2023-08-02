@@ -83,7 +83,7 @@ onMounted(() => {
                     class="icon vcode">
             </div>
             <div>友情链接：
-                <a href="https://hitokoto.cn/" class="yqlj" target="_blank">Hitokoto-一言</a>
+                <a href="https://apee.top/" class="yqlj" target="_blank">Apee-鹏优创</a>
             </div>
         </div>
     </div>
@@ -107,7 +107,7 @@ onMounted(() => {
 }
 
 .hr {
-    margin: 10px 6px;
+    margin: 10px 4px;
     border: none;
     border-top: 1px solid #20252c;
     transform: scaleY(0.5);
