@@ -146,9 +146,15 @@ onMounted(() => {
 
 .searchbutton {
 	border: none;
-	border-radius: 0 0.25rem 0.25rem 0;
+	border-radius: 0.25rem;
 	background-color: white;
-	width: 36px;
+	width: 30px;
+	height: 26px;
+	margin: 2px;
+}
+
+.searchbutton:hover {
+	background-color: #e7ecf0;
 }
 
 .searchbutton::before {
