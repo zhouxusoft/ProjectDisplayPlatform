@@ -16,7 +16,7 @@ const login = () => {
     console.log(username, password)
     if (username && password) {
         // 发送登录请求
-        fetch('https://127.0.0.1:5000/login', {
+        fetch('http://127.0.0.1:5000/login', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json', // 设置请求头
@@ -30,6 +30,8 @@ const login = () => {
             console.error('Error:', error)
         })
     }
+    usernameInput.value = ''
+    passwordInput.value = ''
 }
 
 
