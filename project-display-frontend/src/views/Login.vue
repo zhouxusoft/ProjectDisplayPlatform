@@ -7,6 +7,33 @@ const shouldDisplayBottom = () => {
     return pageheight.value >= 630
 }
 
+let usernameInput
+let passwordInput
+
+const login = () => {
+    let username = usernameInput.value
+    let password = passwordInput.value
+    console.log(username, password)
+    if (username && password) {
+        // 发送登录请求
+        fetch('https://127.0.0.1:5000/login', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json', // 设置请求头
+            },
+            body: JSON.stringify({ username: username, password: password }), // 设置请求体（如果需要）
+        }).then(response => response.json()).then(data => {
+            // 处理获取的数据
+            console.log(data)
+        }).catch(error => {
+            // 处理请求错误
+            console.error('Error:', error)
+        })
+    }
+}
+
+
+
 onMounted(() => {
     // 密码框小眼睛切换
     const passwords = document.querySelectorAll('.passwordBox')
@@ -42,27 +69,8 @@ onMounted(() => {
         // console.log(pageheight.value >= 630)
     })
 
-    const usernameInput = document.getElementById("usernameInput")
-    const passwordInput = document.getElementById("passwordInput")
-
-    const login = () => {
-        
-    }
-
-    // 发送登录请求
-    fetch('https://api.example.com/data', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json', // 设置请求头
-        },
-        body: JSON.stringify({ key: 'value' }), // 设置请求体（如果需要）
-    }).then(response => response.json()).then(data => {
-        // 处理获取的数据
-        console.log(data)
-    }).catch(error => {
-        // 处理请求错误
-        console.error('Error:', error)
-    })
+    usernameInput = document.getElementById("usernameInput")
+    passwordInput = document.getElementById("passwordInput")
 })
 </script>
 
