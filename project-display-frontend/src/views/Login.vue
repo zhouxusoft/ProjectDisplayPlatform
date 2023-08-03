@@ -41,6 +41,28 @@ onMounted(() => {
         pageheight.value = window.innerHeight
         // console.log(pageheight.value >= 630)
     })
+
+    const usernameInput = document.getElementById("usernameInput")
+    const passwordInput = document.getElementById("passwordInput")
+
+    const login = () => {
+        
+    }
+
+    // 发送登录请求
+    fetch('https://api.example.com/data', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json', // 设置请求头
+        },
+        body: JSON.stringify({ key: 'value' }), // 设置请求体（如果需要）
+    }).then(response => response.json()).then(data => {
+        // 处理获取的数据
+        console.log(data)
+    }).catch(error => {
+        // 处理请求错误
+        console.error('Error:', error)
+    })
 })
 </script>
 
@@ -60,7 +82,7 @@ onMounted(() => {
                     <span class="logoButton"></span>
                 </div>
                 <div class="btnbox">
-                    <button type="submit" class="sbtn" id="loginbtn">确认登录</button>
+                    <button @click="login()" type="submit" class="sbtn" id="loginbtn">确认登录</button>
                     <button type="button" class="sbtn" onclick="location='#/register'">前往注册</button>
                 </div>
             </div>
@@ -106,7 +128,7 @@ onMounted(() => {
     justify-content: center;
     align-items: center;
     padding-top: 80px;
-    height:80vh;
+    height: 80vh;
 }
 
 .borderbox {
