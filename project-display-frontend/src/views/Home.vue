@@ -11,7 +11,7 @@ const goRegister = () => {
 </script>
 
 <template>
-    <div class="container">
+    <div class="notlogincontainer">
         <div class="notloginbox">
             <img src="../../public/notlogin.png" alt="" class="notloginimg img-fluid">
             <div class="notlogincontent mb-4">你还未登录哦</div>
@@ -24,6 +24,13 @@ const goRegister = () => {
 </template>
 
 <style scoped>
+
+.notlogincontainer {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height:80vh;
+}
 .notloginbox {
     width: fit-content;
     margin: auto;
