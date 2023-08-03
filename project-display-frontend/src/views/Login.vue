@@ -1,5 +1,11 @@
 <script setup>
-import { onMounted } from 'vue';
+import { onMounted, ref } from 'vue';
+
+const pageheight = ref(window.innerHeight)
+
+const shouldDisplayBottom = () => {
+    return pageheight.value >= 630
+}
 
 onMounted(() => {
     // 密码框小眼睛切换
@@ -30,6 +36,11 @@ onMounted(() => {
     // 修改每日一言内容
     msg.textContent = datamsg
     from.textContent = datafrom
+
+    window.addEventListener('resize', () => {
+        pageheight.value = window.innerHeight
+        // console.log(pageheight.value >= 630)
+    })
 })
 </script>
 
@@ -63,7 +74,7 @@ onMounted(() => {
                 </div>
             </div>
         </div>
-        <div class="sbottom">
+        <div class="sbottom" v-show="shouldDisplayBottom()">
             <div class="about">
                 <div class="code">
                     <img referrerPolicy="no-referrer" class="erweicodeimg"
@@ -95,11 +106,12 @@ onMounted(() => {
     justify-content: center;
     align-items: center;
     padding-top: 80px;
+    height:80vh;
 }
 
 .borderbox {
     position: relative;
-    top: -60px;
+    top: -100px;
     min-height: 323px;
     background-color: white;
     width: fit-content;
@@ -115,7 +127,7 @@ onMounted(() => {
 
 .ltop {
     margin: auto;
-    margin-top: 80px;
+
     padding: 5px;
     font-size: 24px;
     width: 300px;

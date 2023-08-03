@@ -100,7 +100,7 @@ onMounted(() => {
 </script>
 <template>
     <div class="container">
-        <div>
+        <div class="borderbox">
             <div class="rtop top">
                 <a href="#/">GodxuHub 注册</a>
             </div>
@@ -145,12 +145,12 @@ onMounted(() => {
     display: flex;
     justify-content: center;
     align-items: center;
-    padding-top: 80px;
+    height:80vh;
 }
 
 .borderbox {
     position: relative;
-    top: -60px;
+    top: -20px;
     min-height: 323px;
     background-color: white;
     width: fit-content;
@@ -166,7 +166,6 @@ onMounted(() => {
 
 .rtop {
     margin: auto;
-    margin-top: 20px;
     padding: 5px;
     font-size: 24px;
     width: 300px;

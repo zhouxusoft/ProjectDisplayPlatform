@@ -90,6 +90,7 @@ onMounted(() => {
 	padding: 0;
 	background-color: #fff !important;
 	box-shadow: inset 0 -1px #888888;
+	z-index: 999;
 }
 
 .nav-item {
