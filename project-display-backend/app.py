@@ -6,12 +6,16 @@ import bcrypt
 import os
 
 load_dotenv()
+# 从配置文件中读取数据
+MYSQL_DATABASE_HOST = os.getenv("MYSQL_DATABASE_HOST")
+MYSQL_DATABASE_USER = os.getenv("MYSQL_DATABASE_USER")
+MYSQL_DATABASE_PASSWORD = os.getenv("MYSQL_DATABASE_PASSWORD")
 
 # 数据库连接
 db = pymysql.connect(
-    host="127.0.0.1",
-    user="root",
-    password="123456",
+    host=MYSQL_DATABASE_HOST,
+    user=MYSQL_DATABASE_USER,
+    password=MYSQL_DATABASE_PASSWORD,
     db="fontlibrary",
     charset="utf8mb4"
 )
