@@ -1,7 +1,11 @@
 from flask import Flask, request, jsonify
 from flask_cors import CORS
+from dotenv import load_dotenv
 import pymysql
 import bcrypt
+import os
+
+load_dotenv()
 
 # 数据库连接
 db = pymysql.connect(
