@@ -7,6 +7,7 @@ import About from './views/About.vue'
 import Login from './views/Login.vue'
 import Register from './views/Register.vue'
 
+// 定义路由
 const router = createRouter(
     {
         history: createWebHashHistory(),
