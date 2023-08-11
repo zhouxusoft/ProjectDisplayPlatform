@@ -10,6 +10,10 @@ load_dotenv()
 MYSQL_DATABASE_HOST = os.getenv("MYSQL_DATABASE_HOST")
 MYSQL_DATABASE_USER = os.getenv("MYSQL_DATABASE_USER")
 MYSQL_DATABASE_PASSWORD = os.getenv("MYSQL_DATABASE_PASSWORD")
+ALLOW_ORIGIN = os.getenv("ALLOW_ORIGIN").split(",")
+ALLOW_ORIGIN = [origin.strip() for origin in ALLOW_ORIGIN]
+
+print(ALLOW_ORIGIN)
 
 # 数据库连接
 db = pymysql.connect(
@@ -24,7 +28,7 @@ dbcursor = db.cursor()
 app = Flask(__name__)
 
 # 自定义允许跨域的源
-CORS(app, resources={r"/*": {"origins": "http://127.0.0.1:5173", "supports_credentials": True}})
+CORS(app, resources={r"/*": {"origins": ALLOW_ORIGIN, "supports_credentials": True}})
 
 # 在所有请求前判断数据库连接状态
 @app.before_request

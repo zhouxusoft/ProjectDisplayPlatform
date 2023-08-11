@@ -1,0 +1,1 @@
+ALLOW_ORIGIN = os.getenv("ALLOW_ORIGIN").strip().split(",")
