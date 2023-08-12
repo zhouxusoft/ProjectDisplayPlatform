@@ -1,6 +1,7 @@
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 from dotenv import load_dotenv
+from create_db import create_database
 import pymysql
 import bcrypt
 import os
@@ -13,7 +14,7 @@ MYSQL_DATABASE_PASSWORD = os.getenv("MYSQL_DATABASE_PASSWORD")
 ALLOW_ORIGIN = os.getenv("ALLOW_ORIGIN").split(",")
 ALLOW_ORIGIN = [origin.strip() for origin in ALLOW_ORIGIN]
 
-print(ALLOW_ORIGIN)
+create_database()
 
 # 数据库连接
 db = pymysql.connect(
