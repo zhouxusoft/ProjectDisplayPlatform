@@ -21,7 +21,7 @@ db = pymysql.connect(
     host=MYSQL_DATABASE_HOST,
     user=MYSQL_DATABASE_USER,
     password=MYSQL_DATABASE_PASSWORD,
-    db="fontlibrary",
+    db="project_display",
     charset="utf8mb4"
 )
 dbcursor = db.cursor()
