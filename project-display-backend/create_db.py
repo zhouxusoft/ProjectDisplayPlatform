@@ -20,8 +20,10 @@ def create_database():
     dbcursor = db.cursor()
     # 创建数据库
     dbcursor.execute("CREATE DATABASE IF NOT EXISTS `project_display`")
+    # 选择数据库
+    dbcursor.execute("use project_display")
     # 创建数据表
-    dbcursor.execute("CREATE TABLE `user_table`  (\
+    dbcursor.execute("CREATE TABLE IF NOT EXISTS `user_table`  (\
                         `user_id` int NOT NULL AUTO_INCREMENT,\
                         `username` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,\
                         `password` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,\
