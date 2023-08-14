@@ -21,6 +21,7 @@ const login = () => {
             headers: {
                 'Content-Type': 'application/json', // 设置请求头
             },
+            credentials: 'include',
             body: JSON.stringify({ username: username, password: password }), // 设置请求体（如果需要）
         }).then(response => response.json()).then(data => {
             // 处理获取的数据

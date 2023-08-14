@@ -14,6 +14,7 @@ MYSQL_DATABASE_USER = os.getenv("MYSQL_DATABASE_USER")
 MYSQL_DATABASE_PASSWORD = os.getenv("MYSQL_DATABASE_PASSWORD")
 ALLOW_ORIGIN = os.getenv("ALLOW_ORIGIN").split(",")
 ALLOW_ORIGIN = [origin.strip() for origin in ALLOW_ORIGIN]
+DOMAIN = os.getenv("DOMAIN")
 
 create_database()
 
@@ -79,7 +80,7 @@ def login():
             db.commit()
             response = make_response(
                 jsonify({'success': True, 'message': '登录成功'}))
-            response.set_cookie('access-token', accesstoken,
+            response.set_cookie('access-token', accesstoken, domain=DOMAIN,
                                 max_age=15*24*3600, httponly=True)
             return response
         else:
