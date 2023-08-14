@@ -13,7 +13,7 @@ let passwordInput
 const login = () => {
     let username = usernameInput.value
     let password = passwordInput.value
-    console.log(username, password)
+    // console.log(username, password)
     if (username && password) {
         // 发送登录请求
         fetch('http://127.0.0.1:5000/login', {
