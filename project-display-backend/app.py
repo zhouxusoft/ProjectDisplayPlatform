@@ -2,10 +2,10 @@ from flask import Flask, request, jsonify, make_response
 from flask_cors import CORS
 from dotenv import load_dotenv
 from create_db import create_database
+from modules import *
 import pymysql
 import bcrypt
 import os
-import re
 
 load_dotenv()
 # 从配置文件中读取数据
@@ -49,6 +49,11 @@ def login():
     result = dbcursor.fetchall()
     # 判断该用户名是否存在
     if len(result) > 0:
+        # 判断账户状态
+        if result[0][6] == 0:
+            return jsonify({'success': False, 'message': '该账号已被封禁'})
+        if result[0][6] == 2:
+            return jsonify({'success': False, 'message': '该账号已被注销'})
         # 将用户输入的密码转换为字节串
         user_password_bytes = data['password'].encode('utf-8')
         # 将数据库中的密码转换为字节串
@@ -100,10 +105,11 @@ def register():
         if not check_password(data['password']):
             return jsonify({'success': False, 'message': '注册失败\n密码不合法'})
         if data['password'] != data['repassword']:
-            return jsonify({'success': False, 'message': '注册失败\n两次密码不一致'})
+            return jsonify({'success': False, 'message': '注册失败\n两次输入密码不一致'})
+        # 对用户的密码进行加密存储
         hashed_password = bcrypt.hashpw(
             data['password'].encode('utf-8'), bcrypt.gensalt())
-        sql = "INSERT INTO `usertable` (`username`, `password`, `nickname`) VALUES (%s, %s, %s)"
+        sql = "INSERT INTO `user_table` (`username`, `password`, `nickname`) VALUES (%s, %s, %s)"
         val = (data['username'], hashed_password, data['username'])
         dbcursor.execute(sql, val)
         db.commit()
@@ -111,12 +117,3 @@ def register():
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', debug=True)
-
-def has_white_space(s):
-    return bool(re.search(r'\s', s))
-
-def check_username(username):
-    return bool(re.search(r'^(.{1,12})$', username) and not has_white_space(username))
-
-def check_password(password):
-    return bool(re.search(r'^(.{6,20})$', password) and not has_white_space(password))

@@ -82,12 +82,12 @@ function recheckPassword(data) {
 const register = () => {
     let username = usernameInput.value
     let password = passwordInput.value
-    let rpassword = rpasswordInput.value
+    let repassword = rpasswordInput.value
 
     let toSend = {
         username: username,
         password: password,
-        rpassword: rpassword
+        repassword: repassword
     }
     // 发送注册请求
     fetch('http://127.0.0.1:5000/register', {
