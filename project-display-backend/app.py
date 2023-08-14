@@ -41,7 +41,7 @@ def before_request():
 @app.route('/login', methods=['POST'])
 def login():
     data = request.get_json()
-    print(data)
+    # print(data)
     # 从用户表中查询用户， 并对密码作出判断
     sql = "SELECT * FROM `user_table` WHERE username = %s"
     val = (data['username'],)

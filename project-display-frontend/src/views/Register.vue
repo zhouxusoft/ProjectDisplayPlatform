@@ -103,6 +103,10 @@ const register = () => {
         // 处理请求错误
         console.error('Error:', error)
     })
+    
+    usernameInput.value = ''
+    passwordInput.value = ''
+    rpasswordInput.value = ''
 }
 
 onMounted(() => {
