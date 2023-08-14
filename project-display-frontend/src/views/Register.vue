@@ -5,12 +5,15 @@ let userLengthCase
 let lengthCase
 let recheckCase
 let rbtn
-
 let pwd
 let rpwd
 let userNameOK = ref(0)
 let checkPasswordOK = ref(0)
 let recheckPasswordOK = ref(0)
+
+let usernameInput
+let passwordInput
+let rpasswordInput
 
 function inputOK() {
     if (userNameOK.value === 1 && checkPasswordOK.value === 1 && recheckPasswordOK.value === 1) {
@@ -76,11 +79,41 @@ function recheckPassword(data) {
     inputOK()
 }
 
+const register = () => {
+    let username = usernameInput.value
+    let password = passwordInput.value
+    let rpassword = rpasswordInput.value
+
+    let toSend = {
+        username: username,
+        password: password,
+        rpassword: rpassword
+    }
+    // 发送注册请求
+    fetch('http://127.0.0.1:5000/register', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json', // 设置请求头
+        },
+        body: JSON.stringify(toSend), // 设置请求体
+    }).then(response => response.json()).then(data => {
+        // 处理获取的数据
+        console.log(data)
+    }).catch(error => {
+        // 处理请求错误
+        console.error('Error:', error)
+    })
+}
+
 onMounted(() => {
     userLengthCase = document.getElementById('nameLength')
     lengthCase = document.getElementById('length')
     recheckCase = document.getElementById('recheck')
     rbtn = document.getElementById('registerbtn')
+
+    usernameInput = document.getElementById("usernameInput")
+    passwordInput = document.getElementById("passwordInput")
+    rpasswordInput = document.getElementById("rpasswordInput")
 
     const passwords = document.querySelectorAll('.passwordBox')
     const logoButtons = document.querySelectorAll('.logoButton')
@@ -107,16 +140,16 @@ onMounted(() => {
             <div class="hr"></div>
             <div class="box">
                 <div class="inputBox">
-                    <input type="text" class="nameBox" id="rusernameInput" placeholder="用户名" autocomplete="off"
+                    <input type="text" class="nameBox" id="usernameInput" placeholder="用户名" autocomplete="off"
                         @keyup="checkUserName($event.target.value)">
                 </div>
                 <div class="inputBox">
-                    <input type="password" class="passwordBox" id="rpasswordInput" placeholder="密码"
+                    <input type="password" class="passwordBox" id="passwordInput" placeholder="密码"
                         @keyup="checkPassword($event.target.value)">
                     <span class="logoButton"></span>
                 </div>
                 <div class="checkBox">
-                    <input type="password" class="passwordBox" placeholder="确认密码"
+                    <input type="password" class="passwordBox" id="rpasswordInput" placeholder="确认密码"
                         @keyup="recheckPassword($event.target.value)">
                     <span class="logoButton"></span>
                 </div>
@@ -128,7 +161,7 @@ onMounted(() => {
                     </ul>
                 </div>
                 <div class="btnbox">
-                    <button type="submit" class="default" id="registerbtn">
+                    <button @click="register()" type="submit" class="default" id="registerbtn">
                         确认注册
                     </button>
                     <button type="button" class="sbtn" onclick="location='#/login'">
@@ -145,7 +178,7 @@ onMounted(() => {
     display: flex;
     justify-content: center;
     align-items: center;
-    height:80vh;
+    height: 80vh;
 }
 
 .borderbox {

@@ -5,6 +5,7 @@ from create_db import create_database
 import pymysql
 import bcrypt
 import os
+import re
 
 load_dotenv()
 # 从配置文件中读取数据
@@ -81,5 +82,41 @@ def login():
     else:
         return jsonify({'success': False, 'message': '用户名或密码不正确'})
 
+@app.route('/register', methods=['POST'])
+def register():
+    data = request.get_json()
+    # print(data)
+    sql = "SELECT * FROM `user_table` WHERE username = %s"
+    val = (data['username'],)
+    dbcursor.execute(sql, val)
+    result = dbcursor.fetchall()
+    # 判断该用户名是否存在
+    if len(result) > 0:
+        return jsonify({'success': False, 'message': '注册失败\n用户名已存在'})
+    else:
+        # 进行用户名密码的合法化判断
+        if not check_username(data['username']):
+            return jsonify({'success': False, 'message': '注册失败\n用户名不合法'})
+        if not check_password(data['password']):
+            return jsonify({'success': False, 'message': '注册失败\n密码不合法'})
+        if data['password'] != data['repassword']:
+            return jsonify({'success': False, 'message': '注册失败\n两次密码不一致'})
+        hashed_password = bcrypt.hashpw(
+            data['password'].encode('utf-8'), bcrypt.gensalt())
+        sql = "INSERT INTO `usertable` (`username`, `password`, `nickname`) VALUES (%s, %s, %s)"
+        val = (data['username'], hashed_password, data['username'])
+        dbcursor.execute(sql, val)
+        db.commit()
+        return jsonify({'success': True, 'message': '注册成功'})
+
 if __name__ == '__main__':
     app.run(host='0.0.0.0', debug=True)
+
+def has_white_space(s):
+    return bool(re.search(r'\s', s))
+
+def check_username(username):
+    return bool(re.search(r'^(.{1,12})$', username) and not has_white_space(username))
+
+def check_password(password):
+    return bool(re.search(r'^(.{6,20})$', password) and not has_white_space(password))
