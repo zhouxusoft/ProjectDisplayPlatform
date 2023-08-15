@@ -43,7 +43,7 @@ onMounted(() => {
 </script>
 
 <template>
-	<nav class="navbar navbar-expand-lg bg-body-tertiary navborder mb-2">
+	<nav class="navbar navbar-expand-lg bg-body-tertiary navborder">
 		<div class="container-fluid">
 			<button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarTogglerDemo03"
 				aria-controls="navbarTogglerDemo03" aria-expanded="false" aria-label="Toggle navigation">
@@ -55,13 +55,13 @@ onMounted(() => {
 				<ul class="navbar-nav me-auto mb-2 mb-lg-0"
 					v-show="currentroute != '/login' && currentroute != '/register'">
 					<li class="nav-item px-2 pt-3" id="homelink">
-						<a class="nav-link" aria-current="page" href="#">Home</a>
+						<a class="nav-link" aria-current="page" href="#">Hello</a>
 					</li>
 					<li class="nav-item px-2 pt-3" id="projectslink">
-						<a class="nav-link" href="#/projects">Projects</a>
+						<a class="nav-link" href="#/projects">World</a>
 					</li>
 					<li class="nav-item px-2 pt-3" id="aboutlink">
-						<a class="nav-link" href="#/about">About</a>
+						<a class="nav-link" href="#/about">Stars</a>
 					</li>
 				</ul>
 				<div class="p-2" v-show="currentroute != '/login' && currentroute != '/register'">
@@ -89,7 +89,7 @@ onMounted(() => {
 .navborder {
 	padding: 0;
 	background-color: #fff !important;
-	box-shadow: inset 0 -1px #888888;
+	box-shadow: inset 0 -1px #666666;
 	z-index: 999;
 }
 
