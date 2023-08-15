@@ -32,6 +32,7 @@ const clickbtn = () => {
 			<div class="leftnav d-none d-md-block p-2">
 				zsss
 			</div>
+			<div class="straightline"></div>
 			<div class="mainprojects p-2">
 				<div v-for="project in projects" class="projectdata m-2 p-2">
 					<h1 class="text-primary">{{ project.name }}</h1>
@@ -53,12 +54,16 @@ const clickbtn = () => {
 	justify-content: space-between;
 }
 
+.straightline {
+	width: 1px;
+	background-color: #666666;
+}
+
 .leftnav {
 	position: sticky;
 	max-height: 100vh;
 	top: 0;
 	width: 270px;
-	box-shadow: inset -1px 0 #666666;
 }
 
 .mainprojects {
