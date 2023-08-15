@@ -50,8 +50,9 @@ const clickbtn = () => {
 }
 
 .leftnav {
-	display: flex;
 	position: sticky;
+	max-height: 100vh;
+	top: 0;
 	width: 270px;
 	box-shadow: inset -1px 0 #666666;
 }
