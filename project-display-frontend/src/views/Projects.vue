@@ -40,6 +40,9 @@ const clickbtn = () => {
 				</div>
 				<button class="btn btn-success" @click="clickbtn()">add</button>
 			</div>
+			<div class="rightnav d-none d-lg-block p-2">
+				zsss
+			</div>
 		</div>
 	</div>
 </template>
@@ -47,6 +50,7 @@ const clickbtn = () => {
 <style scoped>
 .borderbox {
 	display: flex;
+	justify-content: space-between;
 }
 
 .leftnav {
@@ -55,5 +59,13 @@ const clickbtn = () => {
 	top: 0;
 	width: 270px;
 	box-shadow: inset -1px 0 #666666;
+}
+
+.mainprojects {
+	flex: 1;
+}
+
+.rightnav {
+	width: 270px;
 }
 </style>
