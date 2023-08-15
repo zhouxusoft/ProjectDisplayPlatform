@@ -33,7 +33,7 @@ const clickbtn = () => {
 				zsss
 			</div>
 			<div class="mainprojects p-2">
-				<div v-for="project in projects">
+				<div v-for="project in projects" class="projectdata m-2 p-2">
 					<h1 class="text-primary">{{ project.name }}</h1>
 					<h2>{{ project.main }}</h2>
 					<h3>{{ project.content }}</h3>
@@ -67,5 +67,10 @@ const clickbtn = () => {
 
 .rightnav {
 	width: 270px;
+}
+
+.projectdata {
+	border: 1px solid #666666;
+	border-radius: 6px;
 }
 </style>
