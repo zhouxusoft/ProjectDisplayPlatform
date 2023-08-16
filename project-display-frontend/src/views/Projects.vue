@@ -33,8 +33,8 @@ const clickbtn = () => {
 				zsss
 			</div>
 			<div class="straightline"></div>
-			<div class="mainprojects p-2">
-				<div v-for="project in projects" class="projectdata m-2 p-2">
+			<div class="mainprojects px-4 py-3">
+				<div v-for="project in projects" class="projectdata p-2">
 					<h1 class="text-primary">{{ project.name }}</h1>
 					<h2>{{ project.main }}</h2>
 					<h3>{{ project.content }}</h3>
@@ -68,6 +68,10 @@ const clickbtn = () => {
 
 .mainprojects {
 	flex: 1;
+	display: grid;
+    gap: 16px;
+    min-width: 0px;
+    grid-template-columns: 1fr;
 }
 
 .rightnav {
