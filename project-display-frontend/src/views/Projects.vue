@@ -2,12 +2,12 @@
 import { ref } from 'vue'
 const projects = ref([
 	{
-		name: "Godxu聊天室",
+		name: "RainManGO/vue3-composition-admin",
 		main: "Nodejs",
 		content: "这是一个简易的线上聊天室项目"
 	},
 	{
-		name: "Godxu云盘",
+		name: "jeecgboot/jeecgboot-vue3",
 		main: "Flask",
 		content: "这是一个基于超星云盘的云盘"
 	},
@@ -19,7 +19,7 @@ const projects = ref([
 ])
 const clickbtn = () => {
 	projects.value.push({
-		name: "Godxu字体库",
+		name: "Godxu字体库Godxu字体库Godxu字体库Godxu字体库Godxu字体库Godxu字体库Godxu字体库Godxu字体库",
 		main: "Flask",
 		content: "这是一个字体库预览及下载项目"
 	})
@@ -30,19 +30,32 @@ const clickbtn = () => {
 	<div class="">
 		<div class="borderbox">
 			<div class="leftnav d-none d-md-block p-2">
-				zsss
+				这是内容
 			</div>
 			<div class="straightline"></div>
 			<div class="mainprojects px-4 py-3">
-				<div v-for="project in projects" class="projectdata p-2">
-					<h1 class="text-primary">{{ project.name }}</h1>
-					<h2>{{ project.main }}</h2>
-					<h3>{{ project.content }}</h3>
+				<div v-for="project in projects" class="projectdata p-3">
+					<div class="projecttop">
+						<div class="projectinfo">
+							<div class="projectusericonbox">
+								<img src="https://avatars.githubusercontent.com/u/96218937?s=96&v=4" alt="User Icon"
+									class="projectusericon">
+							</div>
+							<div class="projectnamebox">
+								<span class="projectname">{{ project.name }}</span>
+							</div>
+						</div>
+						<h2>{{ project.main }}</h2>
+						<h3>{{ project.content }}</h3>
+					</div>
+					<div class="projectstar">
+						star
+					</div>
 				</div>
 				<button class="btn btn-success" @click="clickbtn()">add</button>
 			</div>
 			<div class="rightnav d-none d-lg-block p-2">
-				zsss
+				这是内容
 			</div>
 		</div>
 	</div>
@@ -69,9 +82,9 @@ const clickbtn = () => {
 .mainprojects {
 	flex: 1;
 	display: grid;
-    gap: 16px;
-    min-width: 0px;
-    grid-template-columns: 1fr;
+	gap: 16px;
+	min-width: 0px;
+	grid-template-columns: 1fr;
 }
 
 .rightnav {
@@ -81,5 +94,49 @@ const clickbtn = () => {
 .projectdata {
 	border: 1px solid #666666;
 	border-radius: 6px;
+}
+
+.projectinfo {
+	display: flex;
+	flex: 1;
+}
+
+.projectstar {
+	width: 80px;
+}
+
+.projectusericonbox {
+	width: 20px;
+	height: 20px;
+	border-radius: 50%;
+	box-shadow: rgba(1, 4, 9, 0.8) 0px 0px 0px 1px;
+	overflow: hidden;
+	display: flex;
+	margin-right: 10px;
+}
+
+.projectusericon {
+	width: 20px;
+}
+
+.projectnamebox {
+	flex: 1;
+	width: 0;
+	overflow: hidden;
+	display: flex;
+	align-items: end;
+	cursor: pointer;
+}
+
+.projectname:hover {
+	text-decoration: underline;
+}
+
+.projectname {
+	text-overflow: ellipsis;
+	white-space: nowrap;
+	font-size: 16px;
+	font-weight: 600;
+	color: rgb(3, 73, 180);
 }
 </style>
