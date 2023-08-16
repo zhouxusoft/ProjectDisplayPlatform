@@ -3,12 +3,12 @@ import { ref } from 'vue'
 const projects = ref([
 	{
 		name: "RainManGO/vue3-composition-admin",
-		main: "Nodejs",
+		main: "🎉 基于vue3 的管理端模板(Vue3 TS Vuex4 element-plus vue-i18n-next composition-api) vue3-admin vue3-ts-admin",
 		content: "这是一个简易的线上聊天室项目"
 	},
 	{
 		name: "jeecgboot/jeecgboot-vue3",
-		main: "Flask",
+		main: "🔥 JeecgBoot—Vue3版前端源码，采用 Vue3.0+TypeScript+Vite+Ant-Design-Vue等新技术方案，包括二次封装组件、utils、hooks、动态菜单、权限校验、按钮级别权限控制等功能。 是JeecgBoot低代码平台的vue3技术栈的全…",
 		content: "这是一个基于超星云盘的云盘"
 	},
 	{
@@ -45,7 +45,9 @@ const clickbtn = () => {
 								<span class="projectname">{{ project.name }}</span>
 							</div>
 						</div>
-						<h2>{{ project.main }}</h2>
+						<div class="projectoverview">
+							<span>{{ project.main }}</span>
+						</div>
 						<h3>{{ project.content }}</h3>
 					</div>
 					<div class="projectstar">
@@ -138,5 +140,11 @@ const clickbtn = () => {
 	font-size: 16px;
 	font-weight: 600;
 	color: rgb(3, 73, 180);
+}
+
+.projectoverview {
+	margin-top: 4px;
+	font-size: 14px;
+	word-wrap: break-word;
 }
 </style>
