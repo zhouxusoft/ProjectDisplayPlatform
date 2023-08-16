@@ -51,7 +51,7 @@ const clickbtn = () => {
 						<h5>{{ project.content }}</h5>
 					</div>
 					<div class="projectstar">
-						star
+						<button class="starfontbtn"><span class="starfont">&#xf005</span>Star</button>
 					</div>
 				</div>
 				<button class="btn btn-success" @click="clickbtn()">add</button>
@@ -111,10 +111,14 @@ const clickbtn = () => {
 .projectstar {
 	margin-left: 8px;
 	width: 80px;
-	border: 1px solid #666666;
-	border-radius: 6px;
-	height: 80px;
-	padding: 8px;
+	display: flex;
+	justify-content: flex-end;
+}
+
+.starfont {
+	font-family: "Font Awesome 6 Free";
+    font-weight: 300;
+    margin-right: 6px;
 }
 
 .projectusericonbox {
@@ -156,5 +160,18 @@ const clickbtn = () => {
 	margin-top: 4px;
 	font-size: 14px;
 	word-wrap: break-word;
+}
+
+.starfontbtn {
+	border: 1px solid #666666;
+	border-radius: 6px;
+	font-size: 12px;
+	height: 28px;
+	padding: 0 8px;
+	background-color: rgb(231, 236, 240);
+}
+
+.starfontbtn:hover {
+	background-color: rgb(206, 213, 220);
 }
 </style>
