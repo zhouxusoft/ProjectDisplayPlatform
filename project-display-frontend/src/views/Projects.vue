@@ -35,8 +35,8 @@ const clickbtn = () => {
 			<div class="straightline"></div>
 			<div class="mainprojects px-4 py-3">
 				<div v-for="project in projects" class="projectdata p-3">
-					<div class="projecttop">
-						<div class="projectinfo">
+					<div class="projectinfo">
+						<div class="projecttop">
 							<div class="projectusericonbox">
 								<img src="https://avatars.githubusercontent.com/u/96218937?s=96&v=4" alt="User Icon"
 									class="projectusericon">
@@ -48,7 +48,7 @@ const clickbtn = () => {
 						<div class="projectoverview">
 							<span>{{ project.main }}</span>
 						</div>
-						<h3>{{ project.content }}</h3>
+						<h5>{{ project.content }}</h5>
 					</div>
 					<div class="projectstar">
 						star
@@ -96,15 +96,25 @@ const clickbtn = () => {
 .projectdata {
 	border: 1px solid #666666;
 	border-radius: 6px;
+	display: flex;
 }
 
 .projectinfo {
+	flex: 1;
+}
+
+.projecttop {
 	display: flex;
 	flex: 1;
 }
 
 .projectstar {
+	margin-left: 8px;
 	width: 80px;
+	border: 1px solid #666666;
+	border-radius: 6px;
+	height: 80px;
+	padding: 8px;
 }
 
 .projectusericonbox {
