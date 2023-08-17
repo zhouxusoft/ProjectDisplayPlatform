@@ -13,7 +13,7 @@ const goRegister = () => {
 <template>
     <div class="notlogincontainer">
         <div class="notloginbox">
-            <img src="../../public/notlogin.png" alt="" class="notloginimg img-fluid">
+            <img src="/notlogin.png" alt="" class="notloginimg img-fluid">
             <div class="notlogincontent mb-4">你还未登录哦</div>
             <div class="notloginbtngroup">
                 <button @click="goLogin()" class="btn btn-outline-success m-1 notloginbtn">去登录</button>
