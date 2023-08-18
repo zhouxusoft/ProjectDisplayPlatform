@@ -12,8 +12,12 @@ load_dotenv()
 MYSQL_DATABASE_HOST = os.getenv("MYSQL_DATABASE_HOST")
 MYSQL_DATABASE_USER = os.getenv("MYSQL_DATABASE_USER")
 MYSQL_DATABASE_PASSWORD = os.getenv("MYSQL_DATABASE_PASSWORD")
-ALLOW_ORIGIN = os.getenv("ALLOW_ORIGIN").split(",")
-ALLOW_ORIGIN = [origin.strip() for origin in ALLOW_ORIGIN]
+if not MYSQL_DATABASE_PASSWORD:
+    exit()
+ALLOW_ORIGIN = os.getenv("ALLOW_ORIGIN")
+if ALLOW_ORIGIN:
+    ALLOW_ORIGIN = ALLOW_ORIGIN.split(",")
+    ALLOW_ORIGIN = [origin.strip() for origin in ALLOW_ORIGIN]
 DOMAIN = os.getenv("DOMAIN")
 
 create_database()
