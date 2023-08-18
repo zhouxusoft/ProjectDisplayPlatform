@@ -76,7 +76,7 @@ const clickbtn = () => {
 
 .leftnav {
 	position: sticky;
-	max-height: 100vh;
+	height: 100vh;
 	top: 0;
 	width: 270px;
 }
@@ -87,6 +87,7 @@ const clickbtn = () => {
 	gap: 16px;
 	min-width: 0px;
 	grid-template-columns: 1fr;
+	height: fit-content;
 }
 
 .rightnav {
