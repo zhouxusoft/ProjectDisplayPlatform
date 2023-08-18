@@ -7,6 +7,8 @@ load_dotenv()
 MYSQL_DATABASE_HOST = os.getenv("MYSQL_DATABASE_HOST")
 MYSQL_DATABASE_USER = os.getenv("MYSQL_DATABASE_USER")
 MYSQL_DATABASE_PASSWORD = os.getenv("MYSQL_DATABASE_PASSWORD")
+if not MYSQL_DATABASE_PASSWORD:
+    exit()
 
 
 def create_database():
