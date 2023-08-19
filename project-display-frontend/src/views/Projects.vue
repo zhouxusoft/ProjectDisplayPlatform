@@ -6,7 +6,7 @@ const projects = ref([
 		main: "🎉 基于vue3 的管理端模板(Vue3 TS Vuex4 element-plus vue-i18n-next composition-api) vue3-admin vue3-ts-admin",
 		tags: ["JavaScript", "Flask", "Vue", "BootStrap"],
 		language: ["449633", "Vue"],
-		starnum: 9986,
+		starnum: 99586,
 		updatetime: "2022/8/19"
 	},
 	{
@@ -14,7 +14,7 @@ const projects = ref([
 		main: "🔥 JeecgBoot—Vue3版前端源码，采用 Vue3.0+TypeScript+Vite+Ant-Design-Vue等新技术方案，包括二次封装组件、utils、hooks、动态菜单、权限校验、按钮级别权限控制等功能。 是JeecgBoot低代码平台的vue3技术栈的全…",
 		tags: ["JavaScript", "Vue", "BootStrap"],
 		language: ["449633", "Vue"],
-		starnum: 9986,
+		starnum: 758,
 		updatetime: "2022/8/19"
 	},
 	{
@@ -22,17 +22,24 @@ const projects = ref([
 		main: "Nodejs",
 		tags: ["Flask", "Vue", "BootStrap"],
 		language: ["449633", "Vue"],
-		starnum: 9986,
+		starnum: 10000,
 		updatetime: "2022/8/19"
 	}
 ])
+for (let i = 0; i < projects.value.length; i++) {
+	if (projects.value[i].starnum >= 1000) {
+		projects.value[i].starnum = Math.floor(projects.value[i].starnum / 100)
+		projects.value[i].starnum = projects.value[i].starnum / 10
+		projects.value[i].starnum = projects.value[i].starnum + "k"
+	}
+}
 const clickbtn = () => {
 	projects.value.push({
 		name: "Godxu字体库Godxu字体库Godxu字体库Godxu字体库Godxu字体库Godxu字体库Godxu字体库Godxu字体库",
 		main: "Flask",
 		tags: ["JavaScript", "Flask", "BootStrap"],
 		language: ["449633", "Vue"],
-		starnum: 9986,
+		starnum: "9.7k",
 		updatetime: "2022/8/19"
 	})
 }
@@ -62,7 +69,16 @@ const clickbtn = () => {
 					<div class="projecttagbox">
 						<a v-for="tag in project.tags" class="projecttag" href="/">{{ tag }}</a>
 					</div>
-					<div></div>
+					<div class="projectbottom">
+						<div class="projectlanguagebox">
+							<div class="projectlanguageicon" style="background-color: #{{ project.language[0] }};"></div>
+							<div class="projectlanguage">{{ project.language[1] }}</div>
+						</div>
+						<span class="mx-2">·</span>
+						<div><span class="starfont">&#xf005</span>{{ project.starnum }}</div>
+						<span class="mx-2">·</span>
+						<div class="projectupdatetime">Updated on {{ project.updatetime }}</div>
+					</div>
 				</div>
 				<div class="projectstar">
 					<button class="starfontbtn"><span class="starfont">&#xf005</span>Star</button>
@@ -213,5 +229,25 @@ const clickbtn = () => {
 .projecttag:hover {
 	background-color: rgb(3, 73, 180);
 	color: rgb(255, 255, 255);
+}
+
+.projectbottom {
+	font-size: 12px;
+	display: flex;
+}
+
+.projectlanguagebox {
+	display: flex;
+	align-items: center;
+}
+
+.projectlanguageicon {
+	border-radius: 8px;
+    border-style: solid;
+    border-width: 1px;
+    border-color: rgba(1, 4, 9, 0.1);
+    width: 10px;
+    height: 10px;
+	margin-right: 8px;
 }
 </style>
