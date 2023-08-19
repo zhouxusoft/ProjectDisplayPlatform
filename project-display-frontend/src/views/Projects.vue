@@ -13,7 +13,7 @@ const projects = ref([
 		name: "jeecgboot/jeecgboot-vue3",
 		main: "🔥 JeecgBoot—Vue3版前端源码，采用 Vue3.0+TypeScript+Vite+Ant-Design-Vue等新技术方案，包括二次封装组件、utils、hooks、动态菜单、权限校验、按钮级别权限控制等功能。 是JeecgBoot低代码平台的vue3技术栈的全…",
 		tags: ["JavaScript", "Vue", "BootStrap"],
-		language: ["449633", "Vue"],
+		language: ["481828", "Vue"],
 		starnum: 758,
 		updatetime: "2022/8/19"
 	},
@@ -21,7 +21,7 @@ const projects = ref([
 		name: "Godxu电商平台",
 		main: "Nodejs",
 		tags: ["Flask", "Vue", "BootStrap"],
-		language: ["449633", "Vue"],
+		language: ["995333", "Vue"],
 		starnum: 10000,
 		updatetime: "2022/8/19"
 	}
@@ -66,12 +66,12 @@ const clickbtn = () => {
 					<div class="projectoverview">
 						<span>{{ project.main }}</span>
 					</div>
-					<div class="projecttagbox">
+					<div class="projecttagbox my-2">
 						<a v-for="tag in project.tags" class="projecttag" href="/">{{ tag }}</a>
 					</div>
 					<div class="projectbottom">
 						<div class="projectlanguagebox">
-							<div class="projectlanguageicon" style="background-color: #{{ project.language[0] }};"></div>
+							<div class="projectlanguageicon" :style="{ backgroundColor: '#' + project.language[0] }"></div>
 							<div class="projectlanguage">{{ project.language[1] }}</div>
 						</div>
 						<span class="mx-2">·</span>
@@ -207,8 +207,6 @@ const clickbtn = () => {
 
 .projecttagbox {
 	display: flex;
-	margin-bottom: 4px;
-	margin-top: 8px;
 	flex-wrap: wrap;
 	gap: 8px;
 }
