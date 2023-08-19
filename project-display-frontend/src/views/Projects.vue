@@ -4,61 +4,74 @@ const projects = ref([
 	{
 		name: "RainManGO/vue3-composition-admin",
 		main: "🎉 基于vue3 的管理端模板(Vue3 TS Vuex4 element-plus vue-i18n-next composition-api) vue3-admin vue3-ts-admin",
-		content: "这是一个简易的线上聊天室项目"
+		tags: ["JavaScript", "Flask", "Vue", "BootStrap"],
+		language: ["449633", "Vue"],
+		starnum: 9986,
+		updatetime: "2022/8/19"
 	},
 	{
 		name: "jeecgboot/jeecgboot-vue3",
 		main: "🔥 JeecgBoot—Vue3版前端源码，采用 Vue3.0+TypeScript+Vite+Ant-Design-Vue等新技术方案，包括二次封装组件、utils、hooks、动态菜单、权限校验、按钮级别权限控制等功能。 是JeecgBoot低代码平台的vue3技术栈的全…",
-		content: "这是一个基于超星云盘的云盘"
+		tags: ["JavaScript", "Vue", "BootStrap"],
+		language: ["449633", "Vue"],
+		starnum: 9986,
+		updatetime: "2022/8/19"
 	},
 	{
 		name: "Godxu电商平台",
 		main: "Nodejs",
-		content: "这是一个简易的电商平台项目"
+		tags: ["Flask", "Vue", "BootStrap"],
+		language: ["449633", "Vue"],
+		starnum: 9986,
+		updatetime: "2022/8/19"
 	}
 ])
 const clickbtn = () => {
 	projects.value.push({
 		name: "Godxu字体库Godxu字体库Godxu字体库Godxu字体库Godxu字体库Godxu字体库Godxu字体库Godxu字体库",
 		main: "Flask",
-		content: "这是一个字体库预览及下载项目"
+		tags: ["JavaScript", "Flask", "BootStrap"],
+		language: ["449633", "Vue"],
+		starnum: 9986,
+		updatetime: "2022/8/19"
 	})
 }
 </script>
 
 <template>
-	<div class="">
-		<div class="borderbox">
-			<div class="leftnav d-none d-md-block p-2">
-				这是内容
-			</div>
-			<div class="straightline"></div>
-			<div class="mainprojects px-4 py-3">
-				<div v-for="project in projects" class="projectdata p-3">
-					<div class="projectinfo">
-						<div class="projecttop">
-							<div class="projectusericonbox">
-								<img src="https://avatars.githubusercontent.com/u/96218937?s=96&v=4" alt="User Icon"
-									class="projectusericon">
-							</div>
-							<div class="projectnamebox">
-								<span class="projectname">{{ project.name }}</span>
-							</div>
+	<div class="borderbox">
+		<div class="leftnav d-none d-md-block p-2">
+			这是内容
+		</div>
+		<div class="straightline"></div>
+		<div class="mainprojects px-4 py-3">
+			<div v-for="project in projects" class="projectdata p-3">
+				<div class="projectinfo">
+					<div class="projecttop">
+						<div class="projectusericonbox">
+							<img src="https://avatars.githubusercontent.com/u/96218937?s=96&v=4" alt="User Icon"
+								class="projectusericon">
 						</div>
-						<div class="projectoverview">
-							<span>{{ project.main }}</span>
+						<div class="projectnamebox">
+							<span class="projectname">{{ project.name }}</span>
 						</div>
-						<h5>{{ project.content }}</h5>
 					</div>
-					<div class="projectstar">
-						<button class="starfontbtn"><span class="starfont">&#xf005</span>Star</button>
+					<div class="projectoverview">
+						<span>{{ project.main }}</span>
 					</div>
+					<div class="projecttagbox">
+						<a v-for="tag in project.tags" class="projecttag" href="/">{{ tag }}</a>
+					</div>
+					<div></div>
 				</div>
-				<button class="btn btn-success" @click="clickbtn()">add</button>
+				<div class="projectstar">
+					<button class="starfontbtn"><span class="starfont">&#xf005</span>Star</button>
+				</div>
 			</div>
-			<div class="rightnav d-none d-lg-block p-2">
-				这是内容
-			</div>
+			<button class="btn btn-success" @click="clickbtn()">add</button>
+		</div>
+		<div class="rightnav d-none d-lg-block p-2">
+			这是内容
 		</div>
 	</div>
 </template>
@@ -118,8 +131,8 @@ const clickbtn = () => {
 
 .starfont {
 	font-family: "Font Awesome 6 Free";
-    font-weight: 300;
-    margin-right: 6px;
+	font-weight: 300;
+	margin-right: 6px;
 }
 
 .projectusericonbox {
@@ -174,5 +187,31 @@ const clickbtn = () => {
 
 .starfontbtn:hover {
 	background-color: rgb(206, 213, 220);
+}
+
+.projecttagbox {
+	display: flex;
+	margin-bottom: 4px;
+	margin-top: 8px;
+	flex-wrap: wrap;
+	gap: 8px;
+}
+
+.projecttag {
+	text-decoration: none;
+	color: rgb(3, 73, 180);
+	font-size: 12px;
+	display: inline-block;
+	padding: 0px 10px;
+	font-weight: 500;
+	border-radius: 2em;
+	line-height: 22px;
+	background-color: rgb(223, 247, 255);
+	white-space: nowrap;
+}
+
+.projecttag:hover {
+	background-color: rgb(3, 73, 180);
+	color: rgb(255, 255, 255);
 }
 </style>
