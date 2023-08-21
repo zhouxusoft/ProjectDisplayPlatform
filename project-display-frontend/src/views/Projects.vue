@@ -48,7 +48,9 @@ const clickbtn = () => {
 <template>
 	<div class="borderbox">
 		<div class="leftnav d-none d-md-block p-2">
-			这是内容
+			<div>
+				
+			</div>
 		</div>
 		<div class="straightline"></div>
 		<div class="mainprojects px-4 py-3">
