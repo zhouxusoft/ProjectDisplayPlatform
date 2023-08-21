@@ -27,7 +27,7 @@
 						<div class="projectupdatetime">Updated on {{ project.updatetime }}</div>
 					</div>
 				</div>
-				<div class="projectstar d-none d-sm-block">
+				<div class="projectstar d-none d-sm-flex">
 					<button class="starfontbtn"><span class="starfont">&#xf005</span>Star</button>
 				</div>
 			</div>
@@ -62,7 +62,7 @@ export default {
 
 .projectstar {
 	margin-left: 8px;
-	width: 80px;
+	width: 72px;
 	display: flex;
 	justify-content: flex-end;
 }
