@@ -27,7 +27,7 @@
 						<div class="projectupdatetime">Updated on {{ project.updatetime }}</div>
 					</div>
 				</div>
-				<div class="projectstar">
+				<div class="projectstar d-none d-sm-block">
 					<button class="starfontbtn"><span class="starfont">&#xf005</span>Star</button>
 				</div>
 			</div>
@@ -103,6 +103,8 @@ export default {
 .projectname {
 	text-overflow: ellipsis;
 	white-space: nowrap;
+	overflow: hidden;
+	max-width: 100%;
 	font-size: 16px;
 	font-weight: 600;
 	color: rgb(3, 73, 180);
@@ -158,7 +160,6 @@ export default {
 
 .projectlanguagebox {
 	display: flex;
-	align-items: center;
 }
 
 .projectlanguageicon {
@@ -168,6 +169,6 @@ export default {
     border-color: rgba(1, 4, 9, 0.1);
     width: 10px;
     height: 10px;
-	margin-right: 8px;
+	margin: 4px 8px 4px 4px;
 }
 </style>
