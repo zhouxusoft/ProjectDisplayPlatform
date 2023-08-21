@@ -16,7 +16,7 @@ const projects = ref([
 		name: "jeecgboot/jeecgboot-vue3",
 		main: "🔥 JeecgBoot—Vue3版前端源码，采用 Vue3.0+TypeScript+Vite+Ant-Design-Vue等新技术方案，包括二次封装组件、utils、hooks、动态菜单、权限校验、按钮级别权限控制等功能。 是JeecgBoot低代码平台的vue3技术栈的全…",
 		tags: ["JavaScript", "Vue", "BootStrap"],
-		language: ["481828", "Vue"],
+		language: ["481828", "JavaScript"],
 		starnum: 758,
 		updatetime: "2022/8/19"
 	},
@@ -24,7 +24,7 @@ const projects = ref([
 		id: 3,
 		name: "Godxu电商平台",
 		main: "Nodejs",
-		tags: ["Flask", "Vue", "BootStrap"],
+		tags: ["Flask", "Vue", "BootStrap", "JavaScript", "Flask", "BootStrap", "JavaScript", "Flask", "BootStrap"],
 		language: ["995333", "Vue"],
 		starnum: 10000,
 		updatetime: "2022/8/19"

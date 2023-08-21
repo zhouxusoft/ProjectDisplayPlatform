@@ -70,7 +70,7 @@ export default {
 .starfont {
 	font-family: "Font Awesome 6 Free";
 	font-weight: 300;
-	margin-right: 6px;
+	margin-right: 4px;
 }
 
 .projectusericonbox {
@@ -160,6 +160,7 @@ export default {
 
 .projectlanguagebox {
 	display: flex;
+	white-space: nowrap;
 }
 
 .projectlanguageicon {
@@ -169,6 +170,6 @@ export default {
     border-color: rgba(1, 4, 9, 0.1);
     width: 10px;
     height: 10px;
-	margin: 4px 8px 4px 4px;
+	margin: 4px 4px 4px 0;
 }
 </style>
