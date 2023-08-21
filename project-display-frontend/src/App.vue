@@ -50,6 +50,7 @@ onMounted(() => {
 			</button>
 			<a class="navbar-brand py-2" href="https://godxu.top" target="_blank"><img src="/hublogo.jfif" alt=""
 					class="logoimg"></a>
+			<div class="autobox d-none d-lg-block"></div>
 			<div class="collapse navbar-collapse" id="navbarTogglerDemo03">
 				<ul class="navbar-nav me-auto mb-2 mb-lg-0"
 					v-show="currentroute != '/login' && currentroute != '/register'">
@@ -82,7 +83,11 @@ onMounted(() => {
 
 <style scoped>
 .logoimg {
-	width: 300px;
+	width: 194px;
+}
+
+.autobox {
+	width: 8%;
 }
 
 .navborder {

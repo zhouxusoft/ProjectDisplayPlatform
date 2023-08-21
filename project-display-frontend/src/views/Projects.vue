@@ -3,6 +3,7 @@ import { ref } from 'vue'
 import ProjectItem from '../components/ProjectItem.vue'
 const projects = ref([
 	{
+		id: 1,
 		name: "RainManGO/vue3-composition-admin",
 		main: "🎉 基于vue3 的管理端模板(Vue3 TS Vuex4 element-plus vue-i18n-next composition-api) vue3-admin vue3-ts-admin",
 		tags: ["JavaScript", "Flask", "Vue", "BootStrap"],
@@ -11,6 +12,7 @@ const projects = ref([
 		updatetime: "2022/8/19"
 	},
 	{
+		id: 2,
 		name: "jeecgboot/jeecgboot-vue3",
 		main: "🔥 JeecgBoot—Vue3版前端源码，采用 Vue3.0+TypeScript+Vite+Ant-Design-Vue等新技术方案，包括二次封装组件、utils、hooks、动态菜单、权限校验、按钮级别权限控制等功能。 是JeecgBoot低代码平台的vue3技术栈的全…",
 		tags: ["JavaScript", "Vue", "BootStrap"],
@@ -19,12 +21,25 @@ const projects = ref([
 		updatetime: "2022/8/19"
 	},
 	{
+		id: 3,
 		name: "Godxu电商平台",
 		main: "Nodejs",
 		tags: ["Flask", "Vue", "BootStrap"],
 		language: ["995333", "Vue"],
 		starnum: 10000,
 		updatetime: "2022/8/19"
+	}
+])
+const kinds = ref([
+	{
+		id: 1,
+		name: "Projects",
+		icon: "&#xf828",
+	},
+	{
+		id: 2,
+		name: "Users",
+		icon: "&#xf500",
 	}
 ])
 for (let i = 0; i < projects.value.length; i++) {
@@ -36,6 +51,7 @@ for (let i = 0; i < projects.value.length; i++) {
 }
 const clickbtn = () => {
 	projects.value.push({
+		id: projects.value.length + 1,
 		name: "Godxu字体库Godxu字体库Godxu字体库Godxu字体库Godxu字体库Godxu字体库Godxu字体库Godxu字体库",
 		main: "Flask",
 		tags: ["JavaScript", "Flask", "BootStrap"],
@@ -49,8 +65,14 @@ const clickbtn = () => {
 <template>
 	<div class="borderbox">
 		<div class="leftnav d-none d-md-block p-2">
-			<div>
-
+			<div class="leftnavborder">
+				<div class="filter">Filter by</div>
+				<div class="kindgroupbox">
+					<a class="kinditem" v-for="kind in kinds" :key="kind.id">
+						<span class="kindicon">{{ kind.icon }}</span>
+						<span class="kindname">{{ kind.name }}</span>
+					</a>
+				</div>
 			</div>
 		</div>
 		<div class="straightline"></div>
@@ -93,5 +115,20 @@ const clickbtn = () => {
 
 .rightnav {
 	width: 270px;
+}
+
+.filter {
+	font-size: 16px;
+	font-weight: 500;
+	padding: 16px 16px 8px;
+	color: #000000;
+}
+
+.kinditem {
+	text-decoration: none;
+    padding: 6px 8px;
+    display: flex;
+    flex-grow: 1;
+    border-radius: 6px;
 }
 </style>
