@@ -2,7 +2,6 @@
 import { onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
 
-const props = defineProps()
 //当前所处的路由
 const currentroute = ref('/')
 const isinputfocus = ref(false)
