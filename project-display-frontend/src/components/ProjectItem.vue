@@ -26,7 +26,7 @@
 						<span class="mx-2">·</span>
 						<div class="projectupdatetime">Updated on {{ project.updatetime }}</div>
 					</div>
-				</div>
+				</div> 
 				<div class="projectstar d-none d-sm-flex">
 					<button class="starfontbtn"><span class="starfont">&#xf005</span>Star</button>
 				</div>
