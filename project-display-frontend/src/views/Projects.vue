@@ -66,10 +66,10 @@ const clickbtn = () => {
 
 <template>
 	<div class="borderbox">
-		<div class="leftnav d-none d-md-block p-2">
+		<div class="leftnav d-none d-md-block">
 			<div class="leftnavborder">
 				<div class="filter">Filter by</div>
-				<div class="kindgroupbox">
+				<div class="kindgroupbox p-2">
 					<a class="kinditem" v-for="kind in kinds" :key="kind.id" :class="{ kinditemactive: kind.isactive }">
 						<span class="kindicon" v-html="kind.icon"></span>
 						<span class="kindname">{{ kind.name }}</span>
@@ -127,16 +127,29 @@ const clickbtn = () => {
 }
 
 .kinditem {
+	position: relative;
 	text-decoration: none;
-    padding: 6px 8px;
-    display: flex;
-    flex-grow: 1;
-    border-radius: 6px;
+	padding: 6px 8px;
+	margin: 0 8px;
+	display: flex;
+	flex-grow: 1;
+	border-radius: 6px;
 	color: #0E1116;
 }
 
 .kinditemactive {
 	background-color: rgb(206, 213, 220);
+}
+
+.kinditemactive::after {
+	position: absolute;
+	top: calc(50% - 12px);
+	left: -8px;
+	width: 4px;
+	height: 24px;
+	content: "";
+	background-color: rgb(3, 73, 180);
+	border-radius: 6px;
 }
 
 .kinditem:hover {
