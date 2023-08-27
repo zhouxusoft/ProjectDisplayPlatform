@@ -35,11 +35,13 @@ const kinds = ref([
 		id: 1,
 		name: "Projects",
 		icon: "&#xf828",
+		isactive: true
 	},
 	{
 		id: 2,
 		name: "Users",
 		icon: "&#xf500",
+		isactive: 0
 	}
 ])
 for (let i = 0; i < projects.value.length; i++) {
@@ -68,7 +70,7 @@ const clickbtn = () => {
 			<div class="leftnavborder">
 				<div class="filter">Filter by</div>
 				<div class="kindgroupbox">
-					<a class="kinditem" v-for="kind in kinds" :key="kind.id">
+					<a class="kinditem" v-for="kind in kinds" :key="kind.id" :class="{ kinditemactive: kind.isactive }">
 						<span class="kindicon" v-html="kind.icon"></span>
 						<span class="kindname">{{ kind.name }}</span>
 					</a>
@@ -130,10 +132,31 @@ const clickbtn = () => {
     display: flex;
     flex-grow: 1;
     border-radius: 6px;
+	color: #0E1116;
+}
+
+.kinditemactive {
+	background-color: rgb(206, 213, 220);
+}
+
+.kinditem:hover {
+	background-color: rgb(231, 236, 240);
 }
 
 .kindicon {
+	font-size: 14px;
+	width: 20px;
+	height: 20px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	margin-right: 8px;
 	font-family: "Font Awesome 6 Free";
 	font-weight: 600;
+}
+
+.kindname {
+	font-size: 14px;
+	height: 20px;
 }
 </style>
