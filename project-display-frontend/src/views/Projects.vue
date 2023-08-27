@@ -69,7 +69,7 @@ const clickbtn = () => {
 				<div class="filter">Filter by</div>
 				<div class="kindgroupbox">
 					<a class="kinditem" v-for="kind in kinds" :key="kind.id">
-						<span class="kindicon">{{ kind.icon }}</span>
+						<span class="kindicon" v-html="kind.icon"></span>
 						<span class="kindname">{{ kind.name }}</span>
 					</a>
 				</div>
@@ -130,5 +130,10 @@ const clickbtn = () => {
     display: flex;
     flex-grow: 1;
     border-radius: 6px;
+}
+
+.kindicon {
+	font-family: "Font Awesome 6 Free";
+	font-weight: 600;
 }
 </style>
