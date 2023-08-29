@@ -83,7 +83,7 @@ const clickbtn = () => {
 			<button class="btn btn-success" @click="clickbtn()">add</button>
 		</div>
 		<div class="rightnav d-none d-lg-block p-2">
-			这是内容
+			这是 内容
 		</div>
 	</div>
 </template>
