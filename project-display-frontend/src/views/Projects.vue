@@ -54,7 +54,7 @@ for (let i = 0; i < projects.value.length; i++) {
 const clickbtn = () => {
 	projects.value.push({
 		id: projects.value.length + 1,
-		name: "Godxu字体库Godxu字体库Godxu字体库Godxu字体库Godxu",
+		name: "Godxu字体库Godxu字体库Godxu字体库",
 		main: "Flask",
 		tags: ["JavaScript", "Flask", "BootStrap"],
 		language: ["449633", "Vue"],
