@@ -8,7 +8,7 @@ const projects = ref([
 		name: "RainManGO/vue3-composition-admin",
 		main: "🎉 基于vue3 的管理端模板(Vue3 TS Vuex4 element-plus vue-i18n-next composition-api) vue3-admin vue3-ts-admin",
 		tags: ["JavaScript", "Flask", "Vue", "BootStrap"],
-		language: ["449633", "Vue"],
+		language: {color: "449633", name: "Vue"},
 		starnum: 99586,
 		updatetime: "2022/8/19"
 	},
@@ -17,7 +17,7 @@ const projects = ref([
 		name: "jeecgboot/jeecgboot-vue3",
 		main: "🔥 JeecgBoot—Vue3版前端源码，采用 Vue3.0+TypeScript+Vite+Ant-Design-Vue等新技术方案，包括二次封装组件、utils、hooks、动态菜单、权限校验、按钮级别权限控制等功能。 是JeecgBoot低代码平台的vue3技术栈的全…",
 		tags: ["JavaScript", "Vue", "BootStrap"],
-		language: ["481828", "JavaScript"],
+		language: {color: "481828", name: "JavaScript"},
 		starnum: 758,
 		updatetime: "2022/8/19"
 	},
@@ -26,7 +26,7 @@ const projects = ref([
 		name: "Godxu电商平台",
 		main: "Nodejs",
 		tags: ["Flask", "Vue", "BootStrap", "JavaScript", "Flask", "BootStrap", "JavaScript", "Flask", "BootStrap"],
-		language: ["995333", "Vue"],
+		language: {color: "995333", name: "HTML"},
 		starnum: 10000,
 		updatetime: "2022/8/19"
 	}
@@ -45,13 +45,44 @@ const kinds = ref([
 		isactive: false
 	}
 ])
-const languages = ref(
-	["449633", "Java"],
-	["995333", "HTML"],
-	["481828", "JavaScript"],
-	["465999", "Vue"],
-	["666666", "Python"]
-)
+const languages = ref([
+	{
+		id: 1,
+		color: "449633",
+		name: "Java",
+		isactive: false
+	},
+	{
+		id: 2,
+		color: "995333",
+		name: "HTML",
+		isactive: false
+	},
+	{
+		id: 3,
+		color: "481828",
+		name: "JavaScript",
+		isactive: false
+	},
+	{
+		id: 4,
+		color: "465999",
+		name: "Vue",
+		isactive: false
+	},
+	{
+		id: 5,
+		color: "995333",
+		name: "C++",
+		isactive: false
+	},
+	{
+		id: 6,
+		color: "747252",
+		name: "Golang",
+		isactive: false
+	}
+])
 for (let i = 0; i < projects.value.length; i++) {
 	if (projects.value[i].starnum >= 1000) {
 		projects.value[i].starnum = Math.floor(projects.value[i].starnum / 100)
@@ -65,7 +96,7 @@ const clickbtn = () => {
 		name: "Godxu字体库Godxu字体库Godxu字体库",
 		main: "Flask",
 		tags: ["JavaScript", "Flask", "BootStrap"],
-		language: ["449633", "Vue"],
+		language: {color: "747252", name: "Golang"},
 		starnum: "9.7k",
 		updatetime: "2022/8/19"
 	})
@@ -92,8 +123,8 @@ const chooseLeftNav = (kind) => {
 				<div class="languagetitle">Lagnuages</div>
 				<div class="languagegroupbox p-2">
 					<div v-for="language in languages" :key="language.id" class="languageitembox">
-						<div class="languageitemicon" :style="{ backgroundColor: '#' + language[0] }"></div>
-						<div class="languageitemname">{{ language[1] }}</div>
+						<div class="languageitemicon" :style="{ backgroundColor: '#' + language.color }"></div>
+						<div class="languageitemname">{{ language.name }}</div>
 					</div>
 				</div>
 			</div>
@@ -149,14 +180,14 @@ const chooseLeftNav = (kind) => {
 
 .fengeline {
 	height: 1px;
-    background-color: rgb(136, 146, 157);
-    margin: 8px 16px;
+	background-color: rgb(136, 146, 157);
+	margin: 8px 16px;
 }
 
 .languagetitle {
 	color: #0E1116;
 	padding: 8px 20px;
-	font-size: 12px;
+	font-size: 14px;
 }
 
 .languageitembox {
@@ -164,19 +195,19 @@ const chooseLeftNav = (kind) => {
 	white-space: nowrap;
 	align-items: center;
 	padding: 6px 8px;
-    margin: 0 8px;
+	margin: 0 8px;
 	border-radius: 6px;
-    color: #0E1116;
-    cursor: pointer;
+	color: #0E1116;
+	cursor: pointer;
 }
 
 .languageitemicon {
 	border-radius: 8px;
-    border-style: solid;
-    border-width: 1px;
-    border-color: rgba(1, 4, 9, 0.1);
-    width: 10px;
-    height: 10px;
+	border-style: solid;
+	border-width: 1px;
+	border-color: rgba(1, 4, 9, 0.1);
+	width: 10px;
+	height: 10px;
 	margin: 5px;
 }
 
@@ -187,6 +218,6 @@ const chooseLeftNav = (kind) => {
 }
 
 .languageitembox:hover {
-    background-color: rgb(231, 236, 240);
+	background-color: rgb(231, 236, 240);
 }
 </style>

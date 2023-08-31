@@ -18,8 +18,8 @@
 					</div>
 					<div class="projectbottom">
 						<div class="projectlanguagebox">
-							<div class="projectlanguageicon" :style="{ backgroundColor: '#' + project.language[0] }"></div>
-							<div class="projectlanguage">{{ project.language[1] }}</div>
+							<div class="projectlanguageicon" :style="{ backgroundColor: '#' + project.language.color }"></div>
+							<div class="projectlanguage">{{ project.language.name }}</div>
 						</div>
 						<span class="mx-2">·</span>
 						<div><span class="starfont">&#xf005</span>{{ project.starnum }}</div>
