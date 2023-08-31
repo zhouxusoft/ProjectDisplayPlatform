@@ -42,7 +42,7 @@ const kinds = ref([
 		id: 2,
 		name: "Users",
 		icon: "&#xf500",
-		isactive: 0
+		isactive: false
 	}
 ])
 for (let i = 0; i < projects.value.length; i++) {
@@ -63,6 +63,14 @@ const clickbtn = () => {
 		updatetime: "2022/8/19"
 	})
 }
+const chooseLeftNav = (kind) => {
+	if (!kind.isactive) {
+		for (let i = 0; i < kinds.value.length; i++) {
+			kinds.value[i].isactive = false
+		}
+		kind.isactive = true
+	}
+}
 </script>
 
 <template>
@@ -71,7 +79,7 @@ const clickbtn = () => {
 			<div class="leftnavborder">
 				<div class="filter">Filter by</div>
 				<div class="kindgroupbox p-2">
-					<LeftNavItem v-for="kind in kinds" :key="kind.id" :kind="kind"/>
+					<LeftNavItem v-for="kind in kinds" :key="kind.id" :kind="kind" @click="chooseLeftNav(kind)"/>
 				</div>
 			</div>
 		</div>

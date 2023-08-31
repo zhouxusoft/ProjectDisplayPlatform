@@ -26,6 +26,7 @@ export default {
     flex-grow: 1;
     border-radius: 6px;
     color: #0E1116;
+    cursor: pointer;
 }
 
 .kinditemactive {
