@@ -45,6 +45,13 @@ const kinds = ref([
 		isactive: false
 	}
 ])
+const languages = ref(
+	["449633", "Java"],
+	["995333", "HTML"],
+	["481828", "JavaScript"],
+	["465999", "Vue"],
+	["666666", "Python"]
+)
 for (let i = 0; i < projects.value.length; i++) {
 	if (projects.value[i].starnum >= 1000) {
 		projects.value[i].starnum = Math.floor(projects.value[i].starnum / 100)
@@ -79,7 +86,15 @@ const chooseLeftNav = (kind) => {
 			<div class="leftnavborder">
 				<div class="filter">Filter by</div>
 				<div class="kindgroupbox p-2">
-					<LeftNavItem v-for="kind in kinds" :key="kind.id" :kind="kind" @click="chooseLeftNav(kind)"/>
+					<LeftNavItem v-for="kind in kinds" :key="kind.id" :kind="kind" @click="chooseLeftNav(kind)" />
+				</div>
+				<div class="fengeline"></div>
+				<div class="languagetitle">Lagnuages</div>
+				<div class="languagegroupbox p-2">
+					<div v-for="language in languages" :key="language.id" class="languageitembox">
+						<div class="languageitemicon" :style="{ backgroundColor: '#' + language[0] }"></div>
+						<div class="languageitemname">{{ language[1] }}</div>
+					</div>
 				</div>
 			</div>
 		</div>
@@ -130,5 +145,48 @@ const chooseLeftNav = (kind) => {
 	font-weight: 500;
 	padding: 16px 16px 8px;
 	color: #000000;
+}
+
+.fengeline {
+	height: 1px;
+    background-color: rgb(136, 146, 157);
+    margin: 8px 16px;
+}
+
+.languagetitle {
+	color: #0E1116;
+	padding: 8px 20px;
+	font-size: 12px;
+}
+
+.languageitembox {
+	display: flex;
+	white-space: nowrap;
+	align-items: center;
+	padding: 6px 8px;
+    margin: 0 8px;
+	border-radius: 6px;
+    color: #0E1116;
+    cursor: pointer;
+}
+
+.languageitemicon {
+	border-radius: 8px;
+    border-style: solid;
+    border-width: 1px;
+    border-color: rgba(1, 4, 9, 0.1);
+    width: 10px;
+    height: 10px;
+	margin: 5px;
+}
+
+.languageitemname {
+	font-size: 14px;
+	height: 20px;
+	margin: 0 6px;
+}
+
+.languageitembox:hover {
+    background-color: rgb(231, 236, 240);
 }
 </style>
