@@ -2,6 +2,7 @@
 import { ref } from 'vue'
 import ProjectItem from '../components/ProjectItem.vue'
 import LeftNavItem from '../components/LeftNavItem.vue'
+import LeftLanguageItem from '../components/LeftLanguageItem.vue'
 const projects = ref([
 	{
 		id: 1,
@@ -140,17 +141,14 @@ const chooseLanguage = (language) => {
 				<div class="fengeline"></div>
 				<div class="languagetitle">Lagnuages</div>
 				<div class="languagegroupbox p-2">
-					<div v-for="language in  languages " :key="language.id" class="languageitembox"
-						:class="{ languageitemactive: language.isactive}" @click="chooseLanguage(language)">
-						<div class="languageitemicon" :style=" { backgroundColor: '#' + language.color } "></div>
-						<div class="languageitemname">{{ language.name }}</div>
-					</div>
+					<LeftLanguageItem v-for="language in languages" :key="language.id" :language="language"
+						@click="chooseLanguage(language)" />
 				</div>
 			</div>
 		</div>
 		<div class="straightline"></div>
 		<div class="mainprojects px-4 py-3">
-			<ProjectItem v-for=" project  in  projects " :key=" project.id " :project=" project " />
+			<ProjectItem v-for=" project  in  projects " :key="project.id" :project="project" />
 			<button class="btn btn-success" @click="clickbtn()">add</button>
 		</div>
 		<div class="rightnav d-none d-lg-block p-2">
@@ -207,40 +205,5 @@ const chooseLanguage = (language) => {
 	color: #0E1116;
 	padding: 8px 20px;
 	font-size: 14px;
-}
-
-.languageitembox {
-	display: flex;
-	white-space: nowrap;
-	align-items: center;
-	padding: 6px 8px;
-	margin: 0 8px;
-	border-radius: 6px;
-	color: #0E1116;
-	cursor: pointer;
-}
-
-.languageitemicon {
-	border-radius: 8px;
-	border-style: solid;
-	border-width: 1px;
-	border-color: rgba(1, 4, 9, 0.1);
-	width: 10px;
-	height: 10px;
-	margin: 5px;
-}
-
-.languageitemname {
-	font-size: 14px;
-	height: 20px;
-	margin: 0 6px;
-}
-
-.languageitembox:hover {
-	background-color: rgb(231, 236, 240);
-}
-
-.languageitemactive {
-	background-color: rgb(206, 213, 220) !important;
 }
 </style>
