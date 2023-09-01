@@ -1,8 +1,8 @@
 <template>
-    <a class="kinditem" :key="kind.id" :class="{ kinditemactive: kind.isactive }">
+    <div class="kinditem" :key="kind.id" :class="{ kinditemactive: kind.isactive }">
         <span class="kindicon" v-html="kind.icon"></span>
         <span class="kindname">{{ kind.name }}</span>
-    </a>
+    </div>
 </template>
 
 <script>
@@ -19,7 +19,6 @@ export default {
 <style scoped>
 .kinditem {
     position: relative;
-    text-decoration: none;
     padding: 6px 8px;
     margin: 0 8px;
     display: flex;
