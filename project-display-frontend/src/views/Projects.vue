@@ -90,6 +90,8 @@ for (let i = 0; i < projects.value.length; i++) {
 		projects.value[i].starnum = projects.value[i].starnum + "k"
 	}
 }
+let currentkind = 1
+let currentlanguage = 0
 const clickbtn = () => {
 	projects.value.push({
 		id: projects.value.length + 1,
@@ -108,14 +110,21 @@ const chooseLeftNav = (kind) => {
 		}
 		kind.isactive = true
 	}
+	if (kind.name == "Users") {
+		for (let i = 0; i < languages.value.length; i++) {
+			languages.value[i].isactive = false
+		}
+	}
+	currentkind = kind.id
 }
 const chooseLanguage = (language) => {
-	if (!language.isactive) {
+	if (!language.isactive && currentkind == 1) {
 		for (let i = 0; i < languages.value.length; i++) {
 			languages.value[i].isactive = false
 
 		}
 		language.isactive = true
+		currentlanguage = language.id
 	}
 }
 </script>
@@ -232,6 +241,6 @@ const chooseLanguage = (language) => {
 }
 
 .languageitemactive {
-	background-color: rgb(206, 213, 220);
+	background-color: rgb(206, 213, 220) !important;
 }
 </style>
