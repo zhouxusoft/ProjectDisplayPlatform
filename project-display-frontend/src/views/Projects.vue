@@ -3,6 +3,7 @@ import { ref } from 'vue'
 import ProjectItem from '../components/ProjectItem.vue'
 import LeftNavItem from '../components/LeftNavItem.vue'
 import LeftLanguageItem from '../components/LeftLanguageItem.vue'
+import LeftTagItem from '../components/LeftTagItem.vue'
 const projects = ref([
 	{
 		id: 1,
@@ -84,6 +85,58 @@ const languages = ref([
 		isactive: false
 	}
 ])
+const tags = ref([
+	{
+		id: 1,
+		name: "Java",
+		isactive: false
+	},
+	{
+		id: 2,
+		name: "HTML",
+		isactive: false
+	},
+	{
+		id: 3,
+		name: "JavaScript",
+		isactive: false
+	},
+	{
+		id: 4,
+		name: "Vue",
+		isactive: false
+	},
+	{
+		id: 5,
+		name: "C++",
+		isactive: false
+	},
+	{
+		id: 6,
+		name: "Golang",
+		isactive: false
+	},
+	{
+		id: 7,
+		name: "SpringBoot",
+		isactive: false
+	},
+	{
+		id: 8,
+		name: "JavaEE",
+		isactive: false
+	},
+	{
+		id: 9,
+		name: "MongoDB",
+		isactive: false
+	},
+	{
+		id: 10,
+		name: "Express",
+		isactive: false
+	}
+])
 for (let i = 0; i < projects.value.length; i++) {
 	if (projects.value[i].starnum >= 1000) {
 		projects.value[i].starnum = Math.floor(projects.value[i].starnum / 100)
@@ -93,6 +146,7 @@ for (let i = 0; i < projects.value.length; i++) {
 }
 let currentkind = 1
 let currentlanguage = 0
+let activetags = []
 const clickbtn = () => {
 	projects.value.push({
 		id: projects.value.length + 1,
@@ -128,6 +182,9 @@ const chooseLanguage = (language) => {
 		currentlanguage = language.id
 	}
 }
+const chooseTag = (tag) => {
+	
+}
 </script>
 
 <template>
@@ -143,6 +200,12 @@ const chooseLanguage = (language) => {
 				<div class="languagegroupbox p-2">
 					<LeftLanguageItem v-for="language in languages" :key="language.id" :language="language"
 						@click="chooseLanguage(language)" />
+				</div>
+				<div class="fengeline"></div>
+				<div class="languagetitle">Tags</div>
+				<div class="taggroupbox">
+					<LeftTagItem v-for="tag in tags" :key="tag.id" :tag="tag"
+						@click="chooseTag(tag)" />
 				</div>
 			</div>
 		</div>
@@ -205,5 +268,13 @@ const chooseLanguage = (language) => {
 	color: #0E1116;
 	padding: 8px 20px;
 	font-size: 14px;
+}
+
+.taggroupbox {
+	padding: 8px;
+	padding-left: 16px;
+	display: flex;
+	flex-wrap: wrap;
+	gap: 8px;
 }
 </style>
