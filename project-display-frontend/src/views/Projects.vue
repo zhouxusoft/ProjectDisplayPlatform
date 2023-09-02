@@ -135,6 +135,26 @@ const tags = ref([
 		id: 10,
 		name: "Express",
 		isactive: false
+	},
+	{
+		id: 11,
+		name: "React",
+		isactive: false
+	},
+	{
+		id: 12,
+		name: "MySql",
+		isactive: false
+	},
+	{
+		id: 13,
+		name: "Nodejs",
+		isactive: false
+	},
+	{
+		id: 14,
+		name: "Docker",
+		isactive: false
 	}
 ])
 for (let i = 0; i < projects.value.length; i++) {
