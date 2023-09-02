@@ -26,6 +26,7 @@ export default {
     border-radius: 6px;
     color: #0E1116;
     cursor: pointer;
+    user-select: none;
 }
 
 .languageitemicon {

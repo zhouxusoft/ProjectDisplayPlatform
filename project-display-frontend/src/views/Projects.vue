@@ -169,6 +169,10 @@ const chooseLeftNav = (kind) => {
 		for (let i = 0; i < languages.value.length; i++) {
 			languages.value[i].isactive = false
 		}
+		for (let i = 0; i < tags.value.length; i++) {
+			tags.value[i].isactive = false
+		}
+		activetags = []
 	}
 	currentkind = kind.id
 }
@@ -183,7 +187,16 @@ const chooseLanguage = (language) => {
 	}
 }
 const chooseTag = (tag) => {
-	
+	activetags = []
+	if (currentkind == 1) {
+		tag.isactive = !tag.isactive
+		for (let i = 0; i < tags.value.length; i++) {
+			if (tags.value[i].isactive) {
+				activetags.push(tags.value[i].id)
+			}
+		}
+	}
+	// console.log(activetags)
 }
 </script>
 
@@ -204,8 +217,7 @@ const chooseTag = (tag) => {
 				<div class="fengeline"></div>
 				<div class="languagetitle">Tags</div>
 				<div class="taggroupbox">
-					<LeftTagItem v-for="tag in tags" :key="tag.id" :tag="tag"
-						@click="chooseTag(tag)" />
+					<LeftTagItem v-for="tag in tags" :key="tag.id" :tag="tag" @click="chooseTag(tag)" />
 				</div>
 			</div>
 		</div>

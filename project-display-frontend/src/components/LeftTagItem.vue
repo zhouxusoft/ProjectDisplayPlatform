@@ -17,15 +17,15 @@ export default {
 
 <style scoped>
 .tagitembox {
-    padding: 2px 5px;   
+    user-select: none;
+    padding: 2px 10px;   
     border-radius: 8px;
     cursor: pointer;
-}
-
-.tagitemname {
-    font-size: 14px;
-    margin: 0 6px;
     color: rgb(3, 73, 180);
+    font-size: 14px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 
 .tagitembox:hover {
@@ -33,7 +33,7 @@ export default {
 }
 
 .tagitemactive {
-    background-color: rgb(3, 73, 180) !important;
-    color: #FFFFFF;
+    background-color: rgb(11, 83, 192) !important;
+    color: rgb(255, 255, 255) !important;
 }
 </style>
