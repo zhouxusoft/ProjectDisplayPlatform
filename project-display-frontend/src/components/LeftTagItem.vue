@@ -18,8 +18,8 @@ export default {
 <style scoped>
 .tagitembox {
     user-select: none;
-    padding: 2px 10px;   
-    border-radius: 8px;
+    padding: 2px 8px;   
+    border-radius: 6px;
     cursor: pointer;
     color: rgb(3, 73, 180);
     font-size: 14px;

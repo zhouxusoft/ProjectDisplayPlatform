@@ -198,6 +198,12 @@ const chooseTag = (tag) => {
 	}
 	// console.log(activetags)
 }
+const resetTag = () => {
+	for (let i = 0; i < tags.value.length; i++) {
+		tags.value[i].isactive = false
+	}
+	activetags = []
+}
 </script>
 
 <template>
@@ -215,7 +221,10 @@ const chooseTag = (tag) => {
 						@click="chooseLanguage(language)" />
 				</div>
 				<div class="fengeline"></div>
-				<div class="languagetitle">Tags</div>
+				<div class="resettagbox">
+					<div class="languagetitle">Tags</div>
+					<div class="resettags" @click="resetTag()">Reset</div>
+				</div>
 				<div class="taggroupbox">
 					<LeftTagItem v-for="tag in tags" :key="tag.id" :tag="tag" @click="chooseTag(tag)" />
 				</div>
@@ -288,5 +297,28 @@ const chooseTag = (tag) => {
 	display: flex;
 	flex-wrap: wrap;
 	gap: 8px;
+}
+
+.resettagbox {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+}
+
+.resettags {
+	margin-right: 24px;
+	font-size: 12px;
+	background-color: rgb(231, 236, 240);
+	padding: 2px 8px;
+	border-radius: 4px;
+	cursor: pointer;
+	user-select: none;
+	color: #0E1116;
+	;
+}
+
+.resettags:hover {
+	background-color: #0349B4;
+	color: rgb(255, 255, 255);
 }
 </style>
