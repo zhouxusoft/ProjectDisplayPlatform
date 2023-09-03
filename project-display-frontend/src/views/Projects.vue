@@ -223,6 +223,11 @@ const resetTag = () => {
 		tags.value[i].isactive = false
 	}
 	activetags = []
+	let hashParams = new URLSearchParams(window.location.hash.split('?')[1])
+	let page = hashParams.get('page')
+	let key = hashParams.get('key')
+	console.log(page)
+	console.log(key)
 }
 </script>
 
