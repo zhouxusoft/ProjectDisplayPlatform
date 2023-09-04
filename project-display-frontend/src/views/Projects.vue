@@ -83,6 +83,12 @@ const languages = ref([
 		color: "747252",
 		name: "Golang",
 		isactive: false
+	},
+	{
+		id: 7,
+		color: "da1d2c",
+		name: "PHP",
+		isactive: false
 	}
 ])
 const tags = ref([
