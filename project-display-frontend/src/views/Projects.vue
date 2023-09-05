@@ -163,6 +163,20 @@ const tags = ref([
 		isactive: false
 	}
 ])
+const stared = ref([
+	{
+		id: 1,
+		projectid: 1
+	},
+	{
+		id: 2,
+		projectid: 4
+	},
+	{
+		id: 3,
+		projectid: 5
+	}
+])
 for (let i = 0; i < projects.value.length; i++) {
 	if (projects.value[i].starnum >= 1000) {
 		projects.value[i].starnum = Math.floor(projects.value[i].starnum / 100)
@@ -173,6 +187,11 @@ for (let i = 0; i < projects.value.length; i++) {
 let currentkind = 1
 let currentlanguage = 0
 let activetags = []
+const isStared = () => {
+	return (projectId) => {
+        return stared.value.some((item) => item.projectid === projectId)
+    }
+}
 const clickbtn = () => {
 	projects.value.push({
 		id: projects.value.length + 1,
@@ -263,7 +282,7 @@ const resetTag = () => {
 		</div>
 		<div class="straightline"></div>
 		<div class="mainprojects px-4 py-3">
-			<ProjectItem v-for=" project  in  projects " :key="project.id" :project="project" />
+			<ProjectItem v-for="project  in  projects" :key="project.id" :project="project" :stared="isStared(project.id)/>
 			<button class="btn btn-success" @click="clickbtn()">add</button>
 		</div>
 		<div class="rightnav d-none d-lg-block p-2">
