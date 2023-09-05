@@ -187,9 +187,7 @@ for (let i = 0; i < projects.value.length; i++) {
 let currentkind = 1
 let currentlanguage = 0
 let activetags = []
-const isStared = (projectid) => {
-    return stared.value.some((item) => item.projectid === projectid)
-}
+
 const clickbtn = () => {
 	projects.value.push({
 		id: projects.value.length + 1,
@@ -280,7 +278,7 @@ const resetTag = () => {
 		</div>
 		<div class="straightline"></div>
 		<div class="mainprojects px-4 py-3">
-			<ProjectItem v-for="project  in  projects" :key="project.id" :project="project" :stared="isStared(project.id)/>
+			<ProjectItem v-for="project  in  projects" :key="project.id" :project="project" :stared="stared"/>
 			<button class="btn btn-success" @click="clickbtn()">add</button>
 		</div>
 		<div class="rightnav d-none d-lg-block p-2">

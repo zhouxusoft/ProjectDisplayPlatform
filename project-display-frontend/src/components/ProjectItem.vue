@@ -1,46 +1,72 @@
 <template>
-    <div class="projectdata p-3">
-				<div class="projectinfo">
-					<div class="projecttop">
-						<div class="projectusericonbox">
-							<img src="https://avatars.githubusercontent.com/u/96218937?s=96&v=4" alt="User Icon"
-								class="projectusericon">
-						</div>
-						<div class="projectnamebox">
-							<span class="projectname">{{ project.name }}</span>
-						</div>
-					</div>
-					<div class="projectoverview">
-						<span>{{ project.main }}</span>
-					</div>
-					<div class="projecttagbox my-2">
-						<a v-for="tag in project.tags" class="projecttag" href="/">{{ tag }}</a>
-					</div>
-					<div class="projectbottom">
-						<div class="projectlanguagebox">
-							<div class="projectlanguageicon" :style="{ backgroundColor: '#' + project.language.color }"></div>
-							<div class="projectlanguage">{{ project.language.name }}</div>
-						</div>
-						<span class="mx-2">·</span>
-						<div><span class="starfont">&#xf005</span>{{ project.starnum }}</div>
-						<span class="mx-2">·</span>
-						<div class="projectupdatetime">Updated on {{ project.updatetime }}</div>
-					</div>
+	<div class="projectdata p-3">
+		<div class="projectinfo">
+			<div class="projecttop">
+				<div class="projectusericonbox">
+					<img src="https://avatars.githubusercontent.com/u/96218937?s=96&v=4" alt="User Icon"
+						class="projectusericon">
 				</div>
-				<div class="projectstar d-none d-sm-flex">
-					<button class="starfontbtn"><span class="starfont">&#xf005</span>Star</button>
+				<div class="projectnamebox">
+					<span class="projectname">{{ project.name }}</span>
 				</div>
 			</div>
+			<div class="projectoverview">
+				<span>{{ project.main }}</span>
+			</div>
+			<div class="projecttagbox my-2">
+				<a v-for="tag in project.tags" class="projecttag" href="/">{{ tag }}</a>
+			</div>
+			<div class="projectbottom">
+				<div class="projectlanguagebox">
+					<div class="projectlanguageicon" :style="{ backgroundColor: '#' + project.language.color }"></div>
+					<div class="projectlanguage">{{ project.language.name }}</div>
+				</div>
+				<span class="mx-2">·</span>
+				<div><span class="starfont">&#xf005</span>{{ project.starnum }}</div>
+				<span class="mx-2">·</span>
+				<div class="projectupdatetime">Updated on {{ project.updatetime }}</div>
+			</div>
+		</div>
+		<div class="projectstar d-none d-sm-flex">
+			<button class="starfontbtn" v-if="!isStared(project.id)" @click="projectStar(project.id)">
+				<span class="starfont">&#xf005</span>
+				Star
+			</button>
+			<button class="starfontbtn" v-else @click="projectUnstar(project.id)">
+				<span class="staredfont">&#xf005</span>
+				Stared
+			</button>
+		</div>
+	</div>
 </template>
 
 <script>
 export default {
-  props: {
-    project: {
-      type: Object,
-      required: true
-    }
-  }
+	props: {
+		project: {
+			type: Object,
+			required: true
+		},
+		stared: {
+			type: Object,
+			required: true
+		},
+	},
+	methods: {
+		isStared(projectid) {
+			return this.stared.some((item) => item.projectid === projectid)
+		},
+		projectStar(projectid) {
+			this.stared.push({id: this.stared.length + 1, projectid: projectid})
+		},
+		projectUnstar(projectid) {
+			for (let i = 0; i < this.stared.length; i++) {
+				if (this.stared[i].projectid == projectid) {
+					this.stared.splice(i, 1)
+				}
+			}
+		},
+	},
 }
 </script>
 
@@ -71,6 +97,13 @@ export default {
 	font-family: "Font Awesome 6 Free";
 	font-weight: 300;
 	margin-right: 4px;
+}
+
+.staredfont {
+	font-family: "Font Awesome 6 Free";
+	font-weight: 600;
+	margin-right: 4px;
+	color: #333333;
 }
 
 .projectusericonbox {
@@ -123,6 +156,7 @@ export default {
 	height: 28px;
 	padding: 0 8px;
 	background-color: rgb(231, 236, 240);
+	white-space: nowrap;
 }
 
 .starfontbtn:hover {
@@ -165,11 +199,11 @@ export default {
 
 .projectlanguageicon {
 	border-radius: 8px;
-    border-style: solid;
-    border-width: 1px;
-    border-color: rgba(1, 4, 9, 0.1);
-    width: 10px;
-    height: 10px;
+	border-style: solid;
+	border-width: 1px;
+	border-color: rgba(1, 4, 9, 0.1);
+	width: 10px;
+	height: 10px;
 	margin: 4px 4px 4px 0;
 }
 </style>
