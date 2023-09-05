@@ -187,10 +187,8 @@ for (let i = 0; i < projects.value.length; i++) {
 let currentkind = 1
 let currentlanguage = 0
 let activetags = []
-const isStared = () => {
-	return (projectId) => {
-        return stared.value.some((item) => item.projectid === projectId)
-    }
+const isStared = (projectid) => {
+    return stared.value.some((item) => item.projectid === projectid)
 }
 const clickbtn = () => {
 	projects.value.push({
