@@ -335,7 +335,7 @@ console.log(getCurrentUrl().route + '?' + getCurrentUrl().key)
 }
 
 .rightnav {
-	width: 300px;
+	width: 330px;
 	padding: 16px 24px 0 0;
 }
 
