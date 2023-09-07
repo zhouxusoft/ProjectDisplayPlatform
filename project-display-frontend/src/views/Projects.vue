@@ -250,6 +250,17 @@ const resetTag = () => {
 	console.log(page)
 	console.log(key)
 }
+const getCurrentUrl = () => {
+	let currenturl = window.location.href
+	let route = currenturl.split('?')[0]
+	let key = currenturl.split('?')[1]
+	// console.log(currenturl)
+	// console.log(routerurl)
+	// console.log(searchkey)
+	// routerurl + '?' + searchkey == currenturl
+	return {route: route, key: key}
+}
+console.log(getCurrentUrl().route + '?' + getCurrentUrl().key)
 </script>
 
 <template>
