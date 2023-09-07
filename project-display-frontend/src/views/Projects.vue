@@ -294,10 +294,13 @@ console.log(getCurrentUrl().route + '?' + getCurrentUrl().key)
 		</div>
 		<div class="rightnav d-none d-lg-block">
 			<div class="rightinfobox">
-				Hello World!
+				Vue.js（通常简称为Vue）是一款流行的JavaScript框架，用于构建交互式的用户界面（UI）。Vue的设计目标是简化Web应用程序的开发，并提供一种灵活且高效的方式来构建单页面应用程序（SPA）和其他前端项目。
 			</div>
 			<div class="rightinfobox">
-				Vue.js（通常简称为Vue）是一款流行的JavaScript框架，用于构建交互式的用户界面（UI）。Vue的设计目标是简化Web应用程序的开发，并提供一种灵活且高效的方式来构建单页面应用程序（SPA）和其他前端项目。
+				🔥 官方推荐 🔥 RuoYi-Vue 全新 Pro 版本，优化重构所有功能。基于 Spring Boot + MyBatis Plus + Vue & Element 实现的后台管理系统 + 微信小程序，支持 RBAC 动态权限、数据权限、SaaS 多租户、Flowable 工作流、三方登录、支付、短信、商城等功能。你的 ⭐️ Star ⭐️，是作者生发的动力！
+			</div>
+			<div class="rightinfobox">
+				Hello World!
 			</div>
 		</div>
 	</div>
@@ -319,6 +322,7 @@ console.log(getCurrentUrl().route + '?' + getCurrentUrl().key)
 	height: 100vh;
 	top: 0;
 	width: 270px;
+	overflow-y: auto;
 }
 
 .mainprojects {
