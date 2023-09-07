@@ -258,7 +258,7 @@ const getCurrentUrl = () => {
 	// console.log(routerurl)
 	// console.log(searchkey)
 	// routerurl + '?' + searchkey == currenturl
-	return {route: route, key: key}
+	return { route: route, key: key }
 }
 console.log(getCurrentUrl().route + '?' + getCurrentUrl().key)
 </script>
@@ -289,11 +289,16 @@ console.log(getCurrentUrl().route + '?' + getCurrentUrl().key)
 		</div>
 		<div class="straightline"></div>
 		<div class="mainprojects px-4 py-3">
-			<ProjectItem v-for="project  in  projects" :key="project.id" :project="project" :stared="stared"/>
+			<ProjectItem v-for="project  in  projects" :key="project.id" :project="project" :stared="stared" />
 			<button class="btn btn-success" @click="clickbtn()">add</button>
 		</div>
-		<div class="rightnav d-none d-lg-block p-2">
-			这是内容
+		<div class="rightnav d-none d-lg-block">
+			<div class="rightinfobox">
+				Hello World!
+			</div>
+			<div class="rightinfobox">
+				Vue.js（通常简称为Vue）是一款流行的JavaScript框架，用于构建交互式的用户界面（UI）。Vue的设计目标是简化Web应用程序的开发，并提供一种灵活且高效的方式来构建单页面应用程序（SPA）和其他前端项目。
+			</div>
 		</div>
 	</div>
 </template>
@@ -327,6 +332,7 @@ console.log(getCurrentUrl().route + '?' + getCurrentUrl().key)
 
 .rightnav {
 	width: 270px;
+	padding: 16px 24px 0 0;
 }
 
 .filter {
@@ -377,5 +383,12 @@ console.log(getCurrentUrl().route + '?' + getCurrentUrl().key)
 .resettags:hover {
 	background-color: #0349B4;
 	color: rgb(255, 255, 255);
+}
+
+.rightinfobox {
+	border: 1px solid #666666;
+	border-radius: 6px;
+	padding: 16px;
+	margin-bottom: 16px;
 }
 </style>
