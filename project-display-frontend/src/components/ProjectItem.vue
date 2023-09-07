@@ -103,7 +103,7 @@ export default {
 	font-family: "Font Awesome 6 Free";
 	font-weight: 600;
 	margin-right: 4px;
-	color: #444444;
+	color: #d5a824;
 }
 
 .projectusericonbox {
