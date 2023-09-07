@@ -33,8 +33,8 @@
 				Star
 			</button>
 			<button class="starfontbtn" v-else @click="projectUnstar(project.id)">
-				<span class="staredfont">&#xf005</span>
-				Stared
+				<span class="starredfont">&#xf005</span>
+				Starred
 			</button>
 		</div>
 	</div>
@@ -47,22 +47,22 @@ export default {
 			type: Object,
 			required: true
 		},
-		stared: {
+		starred: {
 			type: Object,
 			required: true
 		},
 	},
 	methods: {
 		isStared(projectid) {
-			return this.stared.some((item) => item.projectid === projectid)
+			return this.starred.some((item) => item.projectid === projectid)
 		},
 		projectStar(projectid) {
-			this.stared.push({id: this.stared.length + 1, projectid: projectid})
+			this.starred.push({id: this.starred.length + 1, projectid: projectid})
 		},
 		projectUnstar(projectid) {
-			for (let i = 0; i < this.stared.length; i++) {
-				if (this.stared[i].projectid == projectid) {
-					this.stared.splice(i, 1)
+			for (let i = 0; i < this.starred.length; i++) {
+				if (this.starred[i].projectid == projectid) {
+					this.starred.splice(i, 1)
 				}
 			}
 		},
@@ -99,7 +99,7 @@ export default {
 	margin-right: 4px;
 }
 
-.staredfont {
+.starredfont {
 	font-family: "Font Awesome 6 Free";
 	font-weight: 600;
 	margin-right: 4px;

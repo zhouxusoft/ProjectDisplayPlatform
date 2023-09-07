@@ -163,7 +163,7 @@ const tags = ref([
 		isactive: false
 	}
 ])
-const stared = ref([
+const starred = ref([
 	{
 		id: 1,
 		projectid: 1
@@ -289,7 +289,7 @@ console.log(getCurrentUrl().route + '?' + getCurrentUrl().key)
 		</div>
 		<div class="straightline"></div>
 		<div class="mainprojects px-4 py-3">
-			<ProjectItem v-for="project  in  projects" :key="project.id" :project="project" :stared="stared" />
+			<ProjectItem v-for="project  in  projects" :key="project.id" :project="project" :starred="starred" />
 			<button class="btn btn-success" @click="clickbtn()">add</button>
 		</div>
 		<div class="rightnav d-none d-lg-block">
