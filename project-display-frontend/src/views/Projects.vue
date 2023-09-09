@@ -216,6 +216,7 @@ const chooseLeftNav = (kind) => {
 		activetags = []
 	}
 	currentkind = kind.id
+	setCurrentUrl()
 }
 const chooseLanguage = (language) => {
 	if (!language.isactive && currentkind == 1) {
@@ -225,6 +226,7 @@ const chooseLanguage = (language) => {
 		language.isactive = true
 		currentlanguage = language.id
 	}
+	setCurrentUrl()
 }
 const chooseTag = (tag) => {
 	activetags = []
@@ -236,6 +238,7 @@ const chooseTag = (tag) => {
 			}
 		}
 	}
+	setCurrentUrl()
 	// console.log(activetags)
 }
 const resetTag = () => {
@@ -243,11 +246,7 @@ const resetTag = () => {
 		tags.value[i].isactive = false
 	}
 	activetags = []
-	let hashParams = new URLSearchParams(window.location.hash.split('?')[1])
-	let page = hashParams.get('page')
-	let key = hashParams.get('key')
-	console.log(page)
-	console.log(key)
+	setCurrentUrl()
 }
 const getCurrentUrl = () => {
 	let currenturl = window.location.href
@@ -297,15 +296,15 @@ const setCurrentUrl = () => {
 		for (let i = 0; i < tagsurl.length; i++) {
 			route += tagsurl[i] + '&'
 		}
-		
+		route = route.slice(0, -1)
 	}
-	console.log(kindurl)
-	console.log(languageurl)
-	console.log(tagsurl)
-	console.log(route)
+	// console.log(kindurl)
+	// console.log(languageurl)
+	// console.log(tagsurl)
+	// console.log(route)
+	window.location = getCurrentUrl().route + '?' + route
+	return getCurrentUrl().route + '?' + route
 }
-setCurrentUrl()
-console.log(getCurrentUrl().route + '?' + getCurrentUrl().key)
 </script>
 
 <template>
