@@ -263,20 +263,23 @@ const setCurrentUrl = () => {
 	let kindurl = ''
 	let languageurl = ''
 	let tagsurl = []
-	for (let i = 0; i < kinds.length; i++) {
-		if (currentkind == kinds[i].id) {
-			kindurl = kinds[i].name
+	for (let i = 0; i < kinds.value.length; i++) {
+		if (currentkind == kinds.value[i].id) {
+			kindurl = kinds.value[i].name
 			break
 		}
 	}
-	for (let i = 0; i < languages.length; i++) {
-		if (currentlanguage == languages[i].id) {
-			languageurl = languages[i].name
+	for (let i = 0; i < languages.value.length; i++) {
+		if (currentlanguage == 0) {
+			break
+		}
+		if (currentlanguage == languages.value[i].id) {
+			languageurl = languages.value[i].name
 			break
 		}
 	}
 	for (const id of activetags) {
-		const matchingObject = tags.find(item => item.id === id)
+		const matchingObject = tags.value.find(item => item.id === id)
 		if (matchingObject) {
 			tagsurl.push(matchingObject.name)
 		} else {
