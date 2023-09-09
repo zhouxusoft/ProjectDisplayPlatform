@@ -282,14 +282,27 @@ const setCurrentUrl = () => {
 		const matchingObject = tags.value.find(item => item.id === id)
 		if (matchingObject) {
 			tagsurl.push(matchingObject.name)
-		} else {
-			tagsurl.push(null)
 		}
 	}
-	let route = 
+	let route = ''
+	if (kindurl) {
+		route = 'kind=' + kindurl
+	}
+	if (languageurl) {
+		route += '&language=' + languageurl 
+	}
+	console.log(tagsurl == [])
+	if (tagsurl.length > 0) {
+		route += '&tags='
+		for (let i = 0; i < tagsurl.length; i++) {
+			route += tagsurl[i] + '&'
+		}
+		
+	}
 	console.log(kindurl)
 	console.log(languageurl)
 	console.log(tagsurl)
+	console.log(route)
 }
 setCurrentUrl()
 console.log(getCurrentUrl().route + '?' + getCurrentUrl().key)
