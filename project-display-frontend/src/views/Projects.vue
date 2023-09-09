@@ -286,6 +286,7 @@ const setCurrentUrl = () => {
 			tagsurl.push(null)
 		}
 	}
+	let route = 
 	console.log(kindurl)
 	console.log(languageurl)
 	console.log(tagsurl)
