@@ -305,6 +305,7 @@ const setCurrentUrl = () => {
 	window.location = getCurrentUrl().route + '?' + route
 	return getCurrentUrl().route + '?' + route
 }
+setCurrentUrl()
 </script>
 
 <template>
