@@ -260,6 +260,9 @@ const getCurrentUrl = () => {
 	// routerurl + '?' + searchkey == currenturl
 	return { route: route, key: key }
 }
+const setCurrentUrl = () => {
+	
+}
 console.log(getCurrentUrl().route + '?' + getCurrentUrl().key)
 </script>
 
