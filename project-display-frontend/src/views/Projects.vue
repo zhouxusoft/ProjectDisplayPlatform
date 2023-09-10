@@ -214,6 +214,7 @@ const chooseLeftNav = (kind) => {
 			tags.value[i].isactive = false
 		}
 		activetags = []
+		currentlanguage = 0
 	}
 	currentkind = kind.id
 	setCurrentUrl()
