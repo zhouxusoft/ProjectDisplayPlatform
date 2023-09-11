@@ -89,6 +89,12 @@ const languages = ref([
 		color: "da1d2c",
 		name: "PHP",
 		isactive: false
+	},
+	{
+		id: 8,
+		color: "ad4a14",
+		name: "Rust",
+		isactive: false
 	}
 ])
 const tags = ref([
