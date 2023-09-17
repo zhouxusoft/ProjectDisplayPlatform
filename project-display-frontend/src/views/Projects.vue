@@ -259,6 +259,8 @@ const clickbtn = () => {
 		updatetime: "2022/8/19"
 	})
 }
+
+/** 点击选择左侧的展示类型 */
 const chooseLeftNav = (kind) => {
 	if (!kind.isactive) {
 		for (let i = 0; i < kinds.value.length; i++) {
@@ -279,6 +281,8 @@ const chooseLeftNav = (kind) => {
 	currentkind = kind.id
 	setCurrentUrl()
 }
+
+/** 点击选择语言 */
 const chooseLanguage = (language) => {
 	if (!language.isactive && currentkind == 1) {
 		for (let i = 0; i < languages.value.length; i++) {
