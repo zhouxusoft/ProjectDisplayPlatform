@@ -107,5 +107,13 @@ def create_database():
                         `starred_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,\
                         PRIMARY KEY (`id`) USING BTREE\
                         ) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci ROW_FORMAT = Dynamic;")
+    # `user_starred` 用于存储用户间的 follow 关系
+    dbcursor.execute("CREATE TABLE IF NOT EXISTS `user_follow` (\
+                        `id` int NOT NULL,\
+                        `user_id` int NULL DEFAULT NULL,\
+                        `follow_id` int NULL DEFAULT NULL,\
+                        `follow_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,\
+                        PRIMARY KEY (`id`) USING BTREE\
+                        ) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci ROW_FORMAT = Dynamic;")
 
     db.close()
