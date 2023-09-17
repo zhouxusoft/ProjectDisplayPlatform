@@ -64,5 +64,13 @@ def create_database():
                         `language_hot` int NULL DEFAULT NULL,\
                         PRIMARY KEY (`id`) USING BTREE\
                         ) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci ROW_FORMAT = Dynamic;")
+    dbcursor.execute("CREATE TABLE IF NOT EXISTS `project_tag` (\
+                        `id` int NOT NULL,\
+                        `project_id` int NULL DEFAULT NULL,\
+                        `tag_id` int NULL DEFAULT NULL,\
+                        PRIMARY KEY (`id`) USING BTREE\
+                        ) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci ROW_FORMAT = Dynamic;") 
+    dbcursor.execute("CREATE TABLE IF NOT EXISTS `project_language` ")
+
 
     db.close()
