@@ -16,7 +16,7 @@ def create_database():
     db = pymysql.connect(
         host=MYSQL_DATABASE_HOST,
         user=MYSQL_DATABASE_USER,
-        password=MYSQL_DATABASE_PASSWORD,
+        password=MYSQL_DATABASE_PASSWORD, # type: ignore
         charset="utf8mb4"
     )
     dbcursor = db.cursor()
@@ -25,7 +25,7 @@ def create_database():
     # 选择数据库
     dbcursor.execute("use project_display")
     # 创建数据表
-    dbcursor.execute("CREATE TABLE IF NOT EXISTS `user_table`  (\
+    dbcursor.execute("CREATE TABLE IF NOT EXISTS `user_table` (\
                         `user_id` int NOT NULL AUTO_INCREMENT,\
                         `username` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,\
                         `password` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,\
@@ -35,11 +35,28 @@ def create_database():
                         `status` int NOT NULL DEFAULT 1 COMMENT '（正常1、封禁0、注销2）',\
                         PRIMARY KEY (`user_id`) USING BTREE\
                         ) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci ROW_FORMAT = Dynamic;")
-    dbcursor.execute("CREATE TABLE IF NOT EXISTS `access_token`(\
+    dbcursor.execute("CREATE TABLE IF NOT EXISTS `access_token` (\
                         `id` int NOT NULL AUTO_INCREMENT,\
                         `user_id` int NOT NULL,\
                         `token` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,\
                         `set_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,\
                         PRIMARY KEY (`id`) USING BTREE\
                         ) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci ROW_FORMAT = Dynamic;")
+    dbcursor.execute("CREATE TABLE IF NOT EXISTS `projects` (\
+                        `id` int NOT NULL AUTO_INCREMENT,\
+                        `project_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL,\
+                        `project_overview` text CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL,\
+                        `main_language_id` int NULL DEFAULT NULL,\
+                        `first_update_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,\
+                        `starred_num` int NULL DEFAULT NULL,\
+                        PRIMARY KEY (`id`) USING BTREE\
+                        ) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci ROW_FORMAT = Dynamic;")
+    dbcursor.execute("CREATE TABLE IF NOT EXISTS `tags` (\
+                        `id` int NOT NULL,\
+                        `tag_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL,\
+                        `tag_hot` int NULL DEFAULT NULL,\
+                        PRIMARY KEY (`id`) USING BTREE\
+                        ) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci ROW_FORMAT = Dynamic;")
+
+
     db.close()
