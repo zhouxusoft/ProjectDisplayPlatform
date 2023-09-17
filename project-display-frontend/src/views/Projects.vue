@@ -293,6 +293,8 @@ const chooseLanguage = (language) => {
 	}
 	setCurrentUrl()
 }
+
+/** 点击选择标签 */
 const chooseTag = (tag) => {
 	activetags = []
 	if (currentkind == 1) {
@@ -306,6 +308,8 @@ const chooseTag = (tag) => {
 	setCurrentUrl()
 	// console.log(activetags)
 }
+
+/** 重置标签按钮 */
 const resetTag = () => {
 	for (let i = 0; i < tags.value.length; i++) {
 		tags.value[i].isactive = false
@@ -313,6 +317,8 @@ const resetTag = () => {
 	activetags = []
 	setCurrentUrl()
 }
+
+/** 获取当前的url */
 const getCurrentUrl = () => {
 	let currenturl = window.location.href
 	let route = currenturl.split('?')[0]
@@ -323,6 +329,8 @@ const getCurrentUrl = () => {
 	// routerurl + '?' + searchkey == currenturl
 	return { route: route, key: key }
 }
+
+/** 根据用户选择的类型、标签、语言，设置url */
 const setCurrentUrl = () => {
 	let kindurl = ''
 	let languageurl = ''
