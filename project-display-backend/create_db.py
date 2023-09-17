@@ -56,13 +56,14 @@ def create_database():
                         `update_time` datetime NULL DEFAULT NULL,\
                         PRIMARY KEY (`id`) USING BTREE\
                         ) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci ROW_FORMAT = Dynamic;")
-
+    # `tags` 用于存储所有的标签，包含标签名以及标签热度
     dbcursor.execute("CREATE TABLE IF NOT EXISTS `tags` (\
                         `id` int NOT NULL,\
                         `tag_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL,\
                         `tag_hot` int NULL DEFAULT NULL,\
                         PRIMARY KEY (`id`) USING BTREE\
                         ) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci ROW_FORMAT = Dynamic;")
+    # `languages` 用于存储所有的语言，包含语言的名称、标识颜色以及标签热度
     dbcursor.execute("CREATE TABLE IF NOT EXISTS `languages` (\
                         `id` int NOT NULL,\
                         `language_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL,\
