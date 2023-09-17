@@ -92,6 +92,20 @@ def create_database():
                         `content` text CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL,\
                         PRIMARY KEY (`id`) USING BTREE\
                         ) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci ROW_FORMAT = Dynamic;") 
-
+    # `project_picture` 用于存放项目的介绍图片
+    dbcursor.execute("CREATE TABLE IF NOT EXISTS `project_picture` (\
+                        `id` int NOT NULL,\
+                        `project_id` int NULL DEFAULT NULL,\
+                        `picture_url` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL,\
+                        PRIMARY KEY (`id`) USING BTREE\
+                        ) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci ROW_FORMAT = Dynamic;")
+    # `user_starred` 用于存储用户和项目间的 starred 关系
+    dbcursor.execute("CREATE TABLE IF NOT EXISTS `user_starred` (\
+                        `id` int NOT NULL,\
+                        `user_id` int NULL DEFAULT NULL,\
+                        `project_id` int NULL DEFAULT NULL,\
+                        `starred_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,\
+                        PRIMARY KEY (`id`) USING BTREE\
+                        ) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci ROW_FORMAT = Dynamic;")
 
     db.close()
