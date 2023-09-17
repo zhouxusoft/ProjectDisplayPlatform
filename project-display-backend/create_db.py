@@ -71,18 +71,21 @@ def create_database():
                         `language_hot` int NULL DEFAULT NULL,\
                         PRIMARY KEY (`id`) USING BTREE\
                         ) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci ROW_FORMAT = Dynamic;")
+    # `project_tag` 用于储存项目所包含的对应标签名
     dbcursor.execute("CREATE TABLE IF NOT EXISTS `project_tag` (\
                         `id` int NOT NULL,\
                         `project_id` int NULL DEFAULT NULL,\
                         `tag_id` int NULL DEFAULT NULL,\
                         PRIMARY KEY (`id`) USING BTREE\
                         ) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci ROW_FORMAT = Dynamic;") 
+    # `project_language` 用于存储项目所包含的对应语言
     dbcursor.execute("CREATE TABLE IF NOT EXISTS `project_language` (\
                         `id` int NOT NULL,\
                         `project_id` int NULL DEFAULT NULL,\
                         `language_id` int NULL DEFAULT NULL,\
                         PRIMARY KEY (`id`) USING BTREE\
                         ) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci ROW_FORMAT = Dynamic;")
+    # `readme` readme 是项目的详细介绍
     dbcursor.execute("CREATE TABLE IF NOT EXISTS `readme` (\
                         `id` int NOT NULL,\
                         `project_id` int NULL DEFAULT NULL,\
