@@ -421,6 +421,9 @@ setCurrentUrl()
 			<div class="rightinfobox">
 				Hello World!
 			</div>
+			<div class="rightinfobox">
+				广告位招租
+			</div>
 		</div>
 	</div>
 </template>
