@@ -244,9 +244,12 @@ for (let i = 0; i < projects.value.length; i++) {
 		projects.value[i].starnum = projects.value[i].starnum + "k"
 	}
 }
+
+// 记录参数；类型、语言、标签、页码
 let currentkind = 1
 let currentlanguage = 0
 let activetags = []
+let currentpage = 1
 
 const clickbtn = () => {
 	projects.value.push({
@@ -375,7 +378,7 @@ const setCurrentUrl = () => {
 	// console.log(languageurl)
 	// console.log(tagsurl)
 	// console.log(route)
-	window.location = getCurrentUrl().route + '?' + route
+	window.location = getCurrentUrl().route + '?' + route + '&page=' + currentpage
 	return getCurrentUrl().route + '?' + route
 }
 setCurrentUrl()
