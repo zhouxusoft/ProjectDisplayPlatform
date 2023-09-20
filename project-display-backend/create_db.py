@@ -53,7 +53,6 @@ def create_database():
                         `main_language_id` int NULL DEFAULT NULL,\
                         `create_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,\
                         `starred_num` int NULL DEFAULT NULL,\
-                        `upline_url` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL,\
                         `update_time` datetime NULL DEFAULT NULL,\
                         PRIMARY KEY (`id`) USING BTREE\
                         ) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci ROW_FORMAT = Dynamic;")
@@ -84,6 +83,15 @@ def create_database():
                         `id` int NOT NULL,\
                         `project_id` int NULL DEFAULT NULL,\
                         `language_id` int NULL DEFAULT NULL,\
+                        PRIMARY KEY (`id`) USING BTREE\
+                        ) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci ROW_FORMAT = Dynamic;")
+    # `project_url` 用于存储项目上线和开源仓库的地址
+    dbcursor.execute("CREATE TABLE IF NOT EXISTS `project_url` (\
+                        `id` int NOT NULL AUTO_INCREMENT,\
+                        `project_id` int NULL DEFAULT NULL,\
+                        `upline_url` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL,\
+                        `github_url` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL,\
+                        `gitee_url` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL,\
                         PRIMARY KEY (`id`) USING BTREE\
                         ) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci ROW_FORMAT = Dynamic;")
     # `readme` readme 是项目的详细介绍
