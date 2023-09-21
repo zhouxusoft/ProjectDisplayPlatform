@@ -26,8 +26,8 @@ def create_database():
     dbcursor.execute("use project_display")
     # 创建数据表
 
-    # `user_table` 用于存储用户信息，包括用户id、用户名、状态等
-    dbcursor.execute("CREATE TABLE IF NOT EXISTS `user_table` (\
+    # `user` 用于存储用户信息，包括用户id、用户名、状态等
+    dbcursor.execute("CREATE TABLE IF NOT EXISTS `user` (\
                         `user_id` int NOT NULL AUTO_INCREMENT,\
                         `username` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,\
                         `password` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,\
@@ -95,7 +95,7 @@ def create_database():
                         PRIMARY KEY (`id`) USING BTREE\
                         ) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci ROW_FORMAT = Dynamic;")
     # `readme` readme 是项目的详细介绍
-    dbcursor.execute("CREATE TABLE IF NOT EXISTS `readme` (\
+    dbcursor.execute("CREATE TABLE IF NOT EXISTS `project_readme` (\
                         `id` int NOT NULL,\
                         `project_id` int NULL DEFAULT NULL,\
                         `content` text CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL,\
