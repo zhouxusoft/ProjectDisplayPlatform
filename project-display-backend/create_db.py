@@ -36,25 +36,30 @@ def create_database():
                         `lastest_login_time` datetime NULL DEFAULT NULL,\
                         `status` int NOT NULL DEFAULT 1 COMMENT '（正常1、封禁0、注销2）',\
                         PRIMARY KEY (`user_id`) USING BTREE\
-                        ) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci ROW_FORMAT = Dynamic;")
+                        ) ENGINE = InnoDB AUTO_INCREMENT = 2 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci ROW_FORMAT = DYNAMIC;")
     # `access_token` 用于存储用户的登录口令
     dbcursor.execute("CREATE TABLE IF NOT EXISTS `access_token` (\
                         `id` int NOT NULL AUTO_INCREMENT,\
                         `user_id` int NOT NULL,\
                         `token` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,\
                         `set_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,\
-                        PRIMARY KEY (`id`) USING BTREE\
-                        ) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci ROW_FORMAT = Dynamic;")
+                        PRIMARY KEY (`id`) USING BTREE,\
+                        INDEX `user_id`(`user_id` ASC) USING BTREE,\
+                        CONSTRAINT `fk_access_token_user_id_users_user_id` FOREIGN KEY (`user_id`) REFERENCES `project_display`.`users` (`user_id`) ON DELETE CASCADE ON UPDATE CASCADE\
+                        ) ENGINE = InnoDB AUTO_INCREMENT = 7 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci ROW_FORMAT = DYNAMIC;")
     # `projects` 用于存储项目的基本信息，包括项目id、项目名称、项目简介、上传时间等
     dbcursor.execute("CREATE TABLE IF NOT EXISTS `projects` (\
                         `id` int NOT NULL AUTO_INCREMENT,\
+                        `user_id` int NULL DEFAULT NULL,\
                         `project_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL,\
                         `project_overview` text CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL,\
                         `main_language_id` int NULL DEFAULT NULL,\
                         `create_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,\
                         `starred_num` int NULL DEFAULT NULL,\
                         `update_time` datetime NULL DEFAULT NULL,\
-                        PRIMARY KEY (`id`) USING BTREE\
+                        PRIMARY KEY (`id`) USING BTREE,\
+                        INDEX `fk_projects_user_id_users_user_id`(`user_id` ASC) USING BTREE,\
+                        CONSTRAINT `fk_projects_user_id_users_user_id` FOREIGN KEY (`user_id`) REFERENCES `project_display`.`users` (`user_id`) ON DELETE CASCADE ON UPDATE CASCADE\
                         ) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci ROW_FORMAT = Dynamic;")
     # `tags` 用于存储所有的标签，包含标签名以及标签热度
     dbcursor.execute("CREATE TABLE IF NOT EXISTS `tags` (\
@@ -114,7 +119,11 @@ def create_database():
                         `user_id` int NULL DEFAULT NULL,\
                         `project_id` int NULL DEFAULT NULL,\
                         `starred_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,\
-                        PRIMARY KEY (`id`) USING BTREE\
+                        PRIMARY KEY (`id`) USING BTREE,\
+                        INDEX `user_id`(`user_id` ASC) USING BTREE,\
+                        INDEX `fk_user_starred_project_id_projects_id`(`project_id` ASC) USING BTREE,\
+                        CONSTRAINT `fk_user_starred_project_id_projects_id` FOREIGN KEY (`project_id`) REFERENCES `project_display`.`projects` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,\
+                        CONSTRAINT `fk_user_starred_user_id_users_userid` FOREIGN KEY (`user_id`) REFERENCES `project_display`.`users` (`user_id`) ON DELETE CASCADE ON UPDATE CASCADE\
                         ) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci ROW_FORMAT = Dynamic;")
     # `user_followed` 用于存储用户间的 follow 关系
     dbcursor.execute("CREATE TABLE IF NOT EXISTS `user_follow` (\
