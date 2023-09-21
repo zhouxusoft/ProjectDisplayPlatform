@@ -81,14 +81,22 @@ def create_database():
                         `id` int NOT NULL,\
                         `project_id` int NULL DEFAULT NULL,\
                         `tag_id` int NULL DEFAULT NULL,\
-                        PRIMARY KEY (`id`) USING BTREE\
+                        PRIMARY KEY (`id`) USING BTREE,\
+                        INDEX `fk_project_tag_project_id_projects_id`(`project_id` ASC) USING BTREE,\
+                        INDEX `fk_project_tag_tag_id_tags_id`(`tag_id` ASC) USING BTREE,\
+                        CONSTRAINT `fk_project_tag_project_id_projects_id` FOREIGN KEY (`project_id`) REFERENCES `project_display`.`projects` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,\
+                        CONSTRAINT `fk_project_tag_tag_id_tags_id` FOREIGN KEY (`tag_id`) REFERENCES `project_display`.`tags` (`id`) ON DELETE CASCADE ON UPDATE CASCADE\
                         ) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci ROW_FORMAT = Dynamic;") 
     # `project_language` 用于存储项目所包含的对应语言
     dbcursor.execute("CREATE TABLE IF NOT EXISTS `project_language` (\
                         `id` int NOT NULL,\
                         `project_id` int NULL DEFAULT NULL,\
                         `language_id` int NULL DEFAULT NULL,\
-                        PRIMARY KEY (`id`) USING BTREE\
+                        PRIMARY KEY (`id`) USING BTREE,\
+                        INDEX `fk_project_language_project_id_projects_id`(`project_id` ASC) USING BTREE,\
+                        INDEX `fk_project_language_language_id_projects_id`(`language_id` ASC) USING BTREE,\
+                        CONSTRAINT `fk_project_language_project_id_projects_id` FOREIGN KEY (`project_id`) REFERENCES `project_display`.`projects` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,\
+                        CONSTRAINT `fk_project_language_language_id_projects_id` FOREIGN KEY (`language_id`) REFERENCES `project_display`.`languages` (`id`) ON DELETE CASCADE ON UPDATE CASCADE\
                         ) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci ROW_FORMAT = Dynamic;")
     # `project_url` 用于存储项目上线和开源仓库的地址
     dbcursor.execute("CREATE TABLE IF NOT EXISTS `project_url` (\
@@ -97,21 +105,27 @@ def create_database():
                         `upline_url` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL,\
                         `github_url` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL,\
                         `gitee_url` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL,\
-                        PRIMARY KEY (`id`) USING BTREE\
-                        ) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci ROW_FORMAT = Dynamic;")
+                        PRIMARY KEY (`id`) USING BTREE,\
+                        INDEX `fk_project_url_project_id_projects_id`(`project_id` ASC) USING BTREE,\
+                        CONSTRAINT `fk_project_url_project_id_projects_id` FOREIGN KEY (`project_id`) REFERENCES `project_display`.`projects` (`id`) ON DELETE CASCADE ON UPDATE CASCADE\
+                        ) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci ROW_FORMAT = Dynamic;")
     # `readme` readme 是项目的详细介绍
     dbcursor.execute("CREATE TABLE IF NOT EXISTS `project_readme` (\
                         `id` int NOT NULL,\
                         `project_id` int NULL DEFAULT NULL,\
                         `content` text CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL,\
-                        PRIMARY KEY (`id`) USING BTREE\
+                        PRIMARY KEY (`id`) USING BTREE,\
+                        INDEX `fk_project_readme_project_id_projects_id`(`project_id` ASC) USING BTREE,\
+                        CONSTRAINT `fk_project_readme_project_id_projects_id` FOREIGN KEY (`project_id`) REFERENCES `project_display`.`projects` (`id`) ON DELETE CASCADE ON UPDATE CASCADE\
                         ) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci ROW_FORMAT = Dynamic;") 
     # `project_picture` 用于存放项目的介绍图片
     dbcursor.execute("CREATE TABLE IF NOT EXISTS `project_picture` (\
                         `id` int NOT NULL,\
                         `project_id` int NULL DEFAULT NULL,\
                         `picture_url` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL,\
-                        PRIMARY KEY (`id`) USING BTREE\
+                        PRIMARY KEY (`id`) USING BTREE,\
+                        INDEX `fk_project_picture_project_url_projects_id`(`project_id` ASC) USING BTREE,\
+                        CONSTRAINT `fk_project_picture_project_url_projects_id` FOREIGN KEY (`project_id`) REFERENCES `project_display`.`projects` (`id`) ON DELETE CASCADE ON UPDATE CASCADE\
                         ) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci ROW_FORMAT = Dynamic;")
     # `user_starred` 用于存储用户和项目间的 starred 关系
     dbcursor.execute("CREATE TABLE IF NOT EXISTS `user_starred` (\
@@ -131,7 +145,11 @@ def create_database():
                         `user_id` int NULL DEFAULT NULL,\
                         `follow_id` int NULL DEFAULT NULL,\
                         `follow_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,\
-                        PRIMARY KEY (`id`) USING BTREE\
+                        PRIMARY KEY (`id`) USING BTREE,\
+                        INDEX `fk_user_follow_follow_id_users_user_id`(`follow_id` ASC) USING BTREE,\
+                        INDEX `fk_user_follow_user_id_users_user_id`(`user_id` ASC) USING BTREE,\
+                        CONSTRAINT `fk_user_follow_follow_id_users_user_id` FOREIGN KEY (`follow_id`) REFERENCES `project_display`.`users` (`user_id`) ON DELETE CASCADE ON UPDATE CASCADE,\
+                        CONSTRAINT `fk_user_follow_user_id_users_user_id` FOREIGN KEY (`user_id`) REFERENCES `project_display`.`users` (`user_id`) ON DELETE CASCADE ON UPDATE CASCADE\
                         ) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci ROW_FORMAT = Dynamic;")
 
     db.close()
