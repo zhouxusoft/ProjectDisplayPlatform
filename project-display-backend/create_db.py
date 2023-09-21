@@ -59,7 +59,9 @@ def create_database():
                         `update_time` datetime NULL DEFAULT NULL,\
                         PRIMARY KEY (`id`) USING BTREE,\
                         INDEX `fk_projects_user_id_users_user_id`(`user_id` ASC) USING BTREE,\
-                        CONSTRAINT `fk_projects_user_id_users_user_id` FOREIGN KEY (`user_id`) REFERENCES `project_display`.`users` (`user_id`) ON DELETE CASCADE ON UPDATE CASCADE\
+                        INDEX `fk_projects_main_language_id_languages_id`(`main_language_id` ASC) USING BTREE,\
+                        CONSTRAINT `fk_projects_user_id_users_user_id` FOREIGN KEY (`user_id`) REFERENCES `project_display`.`users` (`user_id`) ON DELETE CASCADE ON UPDATE CASCADE,\
+                        CONSTRAINT `fk_projects_main_language_id_languages_id` FOREIGN KEY (`main_language_id`) REFERENCES `project_display`.`languages` (`id`) ON DELETE CASCADE ON UPDATE CASCADE\
                         ) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci ROW_FORMAT = Dynamic;")
     # `tags` 用于存储所有的标签，包含标签名以及标签热度
     dbcursor.execute("CREATE TABLE IF NOT EXISTS `tags` (\
