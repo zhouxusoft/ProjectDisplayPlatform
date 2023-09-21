@@ -153,5 +153,14 @@ def create_database():
                         CONSTRAINT `fk_user_follow_follow_id_users_user_id` FOREIGN KEY (`follow_id`) REFERENCES `project_display`.`users` (`user_id`) ON DELETE CASCADE ON UPDATE CASCADE,\
                         CONSTRAINT `fk_user_follow_user_id_users_user_id` FOREIGN KEY (`user_id`) REFERENCES `project_display`.`users` (`user_id`) ON DELETE CASCADE ON UPDATE CASCADE\
                         ) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci ROW_FORMAT = Dynamic;")
+    # `user_info` 用于存储用户的个人信息
+    dbcursor.execute("CREATE TABLE IF NOT EXISTS `user_info` (\
+                        `id` int NOT NULL AUTO_INCREMENT,\
+                        `user_id` int NULL DEFAULT NULL,\
+                        `bio` text CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL,\
+                        PRIMARY KEY (`id`) USING BTREE,\
+                        INDEX `fk_user_info_user_id_users_user_id`(`user_id` ASC) USING BTREE,\
+                        CONSTRAINT `fk_user_info_user_id_users_user_id` FOREIGN KEY (`user_id`) REFERENCES `project_display`.`users` (`user_id`) ON DELETE CASCADE ON UPDATE CASCADE\
+                        ) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci ROW_FORMAT = Dynamic;")
 
     db.close()
