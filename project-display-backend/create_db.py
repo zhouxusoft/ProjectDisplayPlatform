@@ -27,7 +27,7 @@ def create_database():
     # 创建数据表
 
     # `user` 用于存储用户信息，包括用户id、用户名、状态等
-    dbcursor.execute("CREATE TABLE IF NOT EXISTS `user` (\
+    dbcursor.execute("CREATE TABLE IF NOT EXISTS `users` (\
                         `user_id` int NOT NULL AUTO_INCREMENT,\
                         `username` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,\
                         `password` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,\
@@ -116,7 +116,7 @@ def create_database():
                         `starred_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,\
                         PRIMARY KEY (`id`) USING BTREE\
                         ) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci ROW_FORMAT = Dynamic;")
-    # `user_starred` 用于存储用户间的 follow 关系
+    # `user_followed` 用于存储用户间的 follow 关系
     dbcursor.execute("CREATE TABLE IF NOT EXISTS `user_follow` (\
                         `id` int NOT NULL,\
                         `user_id` int NULL DEFAULT NULL,\

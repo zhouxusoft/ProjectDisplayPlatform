@@ -48,7 +48,7 @@ def login():
     data = request.get_json()
     # print(data)
     # 从用户表中查询用户， 并对密码作出判断
-    sql = "SELECT * FROM `user` WHERE username = %s"
+    sql = "SELECT * FROM `users` WHERE username = %s"
     val = (data['username'],)
     dbcursor.execute(sql, val)
     result = dbcursor.fetchall()
@@ -96,7 +96,7 @@ def login():
 def register():
     data = request.get_json()
     # print(data)
-    sql = "SELECT * FROM `user` WHERE username = %s"
+    sql = "SELECT * FROM `users` WHERE username = %s"
     val = (data['username'],)
     dbcursor.execute(sql, val)
     result = dbcursor.fetchall()
@@ -114,7 +114,7 @@ def register():
         # 对用户的密码进行加密存储
         hashed_password = bcrypt.hashpw(
             data['password'].encode('utf-8'), bcrypt.gensalt())
-        sql = "INSERT INTO `user` (`username`, `password`, `nickname`) VALUES (%s, %s, %s)"
+        sql = "INSERT INTO `users` (`username`, `password`, `nickname`) VALUES (%s, %s, %s)"
         val = (data['username'], hashed_password, data['username'])
         dbcursor.execute(sql, val)
         db.commit()
