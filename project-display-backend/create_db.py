@@ -164,17 +164,17 @@ def create_database():
                         ) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci ROW_FORMAT = Dynamic;")
 
     # 触发器，使 project 的 starred_num 与 user_starred 的数据保持一致
-    dbcursor.execute("CREATE TRIGGER IF NOT EXISTS update_starred_num\
-                        AFTER INSERT ON user_starred\
-                        FOR EACH ROW\
-                        BEGIN\
-                            DECLARE project_count INT;\
-                            SELECT COUNT(*) INTO project_count\
-                            FROM user_starred\
-                            WHERE project_id = NEW.project_id;\
-                            UPDATE projects\
-                            SET starred_num = project_count\
-                            WHERE id = NEW.project_id;\
-                        END;")
+    dbcursor.execute("""CREATE TRIGGER IF NOT EXISTS update_starred_num
+                        AFTER INSERT ON user_starred
+                        FOR EACH ROW
+                        BEGIN
+                            DECLARE project_count INT;
+                            SELECT COUNT(*) INTO project_count
+                            FROM user_starred
+                            WHERE project_id = NEW.project_id;
+                            UPDATE projects
+                            SET starred_num = project_count
+                            WHERE id = NEW.project_id;
+                        END;""")
 
     db.close()
