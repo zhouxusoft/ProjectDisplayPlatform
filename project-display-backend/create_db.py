@@ -177,4 +177,45 @@ def create_database():
                             WHERE id = NEW.project_id;
                         END;""")
 
+    # 触发器，使 tags 的 hot 值，与 project_tag 中包含该 tag_id 的数据量保持一致
+    dbcursor.execute("""CREATE TRIGGER IF NOT EXISTS update_tag_hot
+                        AFTER INSERT ON project_tag
+                        FOR EACH ROW
+                        BEGIN
+                            UPDATE tags
+                            SET tag_hot = tag_hot + 1
+                            WHERE id = NEW.tag_id;
+                        END;""")
+
+    # 触发器，使 tags 的 hot 值，与 project_tag 中包含该 tag_id 的数据量保持一致
+    dbcursor.execute("""CREATE TRIGGER IF NOT EXISTS update_tag_hot_after_delete
+                        AFTER DELETE ON project_tag
+                        FOR EACH ROW
+                        BEGIN
+                            UPDATE tags
+                            SET tag_hot = tag_hot - 1
+                            WHERE id = OLD.tag_id;
+                        END;""")
+
+    # 触发器，使 languages 的 hot 值，与 project_language 中包含该 language_id 的数据量保持一致
+    dbcursor.execute("""CREATE TRIGGER IF NOT EXISTS update_language_hot
+                    AFTER INSERT ON project_language
+                    FOR EACH ROW
+                    BEGIN
+                        UPDATE languages
+                        SET language_hot = language_hot + 1
+                        WHERE id = NEW.language_id;
+                    END;""")
+
+    # 触发器，使 languages 的 hot 值，与 project_language 中包含该 language_id 的数据量保持一致
+    dbcursor.execute("""CREATE TRIGGER IF NOT EXISTS update_language_hot_after_delete
+                        AFTER DELETE ON project_language
+                        FOR EACH ROW
+                        BEGIN
+                            UPDATE languages
+                            SET language_hot = language_hot - 1
+                            WHERE id = OLD.language_id;
+                        END;""")
+
+
     db.close()
