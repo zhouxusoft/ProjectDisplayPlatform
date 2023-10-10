@@ -219,5 +219,30 @@ def create_database():
                             WHERE id = OLD.language_id;
                         END;""")
 
+    # 触发器，使 users 的 following_num 和 follower_num 的数据，与 user_follow 中包含该 user_id 的数据量保持一致
+    dbcursor.execute("""CREATE TRIGGER IF NOT EXISTS update_follow_num
+                        AFTER INSERT ON user_follow
+                        FOR EACH ROW
+                        BEGIN
+                            UPDATE users
+                            SET following_num = following_num + 1
+                            WHERE user_id = NEW.user_id;
+                            UPDATE users
+                            SET follower_num = follower_num + 1
+                            WHERE user_id = NEW.follow_id;
+                        END;""")
+    
+    # 触发器，使 users 的 following_num 和 follower_num 的数据，与 user_follow 中包含该 user_id 的数据量保持一致
+    dbcursor.execute("""CREATE TRIGGER IF NOT EXISTS update_follow_num_after_delete
+                        AFTER DELETE ON user_follow
+                        FOR EACH ROW
+                        BEGIN
+                            UPDATE users
+                            SET following_num = following_num - 1
+                            WHERE user_id = OLD.user_id;
+                            UPDATE users
+                            SET follower_num = follower_num - 1
+                            WHERE user_id = OLD.follow_id;
+                        END;""")
 
     db.close()
