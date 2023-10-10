@@ -34,6 +34,8 @@ def create_database():
                         `nickname` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,\
                         `create_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,\
                         `lastest_login_time` datetime NULL DEFAULT NULL,\
+                        `follower_num` int NOT NULL DEFAULT 0,\
+                        `following_num` int NOT NULL DEFAULT 0,\
                         `status` int NOT NULL DEFAULT 1 COMMENT '（正常1、封禁0、注销2）',\
                         PRIMARY KEY (`user_id`) USING BTREE\
                         ) ENGINE = InnoDB AUTO_INCREMENT = 2 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci ROW_FORMAT = DYNAMIC;")
