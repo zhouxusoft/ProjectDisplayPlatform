@@ -67,7 +67,7 @@ def create_database():
     dbcursor.execute("CREATE TABLE IF NOT EXISTS `tags` (\
                         `id` int NOT NULL,\
                         `tag_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL,\
-                        `tag_hot` int NULL DEFAULT NULL,\
+                        `tag_hot` int NOT NULL DEFAULT 0,\
                         PRIMARY KEY (`id`) USING BTREE\
                         ) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci ROW_FORMAT = Dynamic;")
     # `languages` 用于存储所有的语言，包含语言的名称、标识颜色以及标签热度
@@ -75,7 +75,7 @@ def create_database():
                         `id` int NOT NULL,\
                         `language_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL,\
                         `language_color` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL,\
-                        `language_hot` int NULL DEFAULT NULL,\
+                        `language_hot` int int NOT NULL DEFAULT 0,\
                         PRIMARY KEY (`id`) USING BTREE\
                         ) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci ROW_FORMAT = Dynamic;")
     # `project_tag` 用于储存项目所包含的对应标签名
