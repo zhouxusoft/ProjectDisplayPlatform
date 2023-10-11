@@ -140,10 +140,15 @@ def projects():
     sql = "SELECT * FROM `languages`"
     dbcursor.execute(sql)
     languages = dbcursor.fetchall()
+    sql = "SELECT * FROM `languages`"
+    dbcursor.execute(sql)
+    languages = dbcursor.fetchall()
     projectlist = []
     for i in range(0, len(result)):
         project = {
             'id': result[i][0],
+            'userid': result[i][1],
+            'usericon': result[i][1],
             'name': result[i][2],
         }
 

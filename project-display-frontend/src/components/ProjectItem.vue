@@ -3,7 +3,7 @@
 		<div class="projectinfo">
 			<div class="projecttop">
 				<div class="projectusericonbox">
-					<img src="https://avatars.githubusercontent.com/u/96218937?s=96&v=4" alt="User Icon"
+					<img :src="project.usericon" alt="User Icon"
 						class="projectusericon">
 				</div>
 				<div class="projectnamebox">

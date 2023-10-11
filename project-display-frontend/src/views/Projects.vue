@@ -7,6 +7,7 @@ import LeftTagItem from '../components/LeftTagItem.vue'
 const projects = ref([
 	{
 		id: 1,
+		usericon: "https://avatars.githubusercontent.com/u/96218937?s=96&v=4",
 		name: "RainManGO/vue3-composition-admin",
 		main: "🎉 基于vue3 的管理端模板(Vue3 TS Vuex4 element-plus vue-i18n-next composition-api) vue3-admin vue3-ts-admin",
 		tags: ["JavaScript", "Flask", "Vue", "BootStrap"],
@@ -16,6 +17,7 @@ const projects = ref([
 	},
 	{
 		id: 2,
+		usericon: "https://avatars.githubusercontent.com/u/96218937?s=96&v=4",
 		name: "jeecgboot/jeecgboot-vue3",
 		main: "🔥 JeecgBoot—Vue3版前端源码，采用 Vue3.0+TypeScript+Vite+Ant-Design-Vue等新技术方案，包括二次封装组件、utils、hooks、动态菜单、权限校验、按钮级别权限控制等功能。 是JeecgBoot低代码平台的vue3技术栈的全…",
 		tags: ["JavaScript", "Vue", "BootStrap"],
@@ -25,6 +27,7 @@ const projects = ref([
 	},
 	{
 		id: 3,
+		usericon: "https://avatars.githubusercontent.com/u/96218937?s=96&v=4",
 		name: "Godxu电商平台",
 		main: "Nodejs",
 		tags: ["Flask", "Vue", "BootStrap", "JavaScript", "Flask", "BootStrap", "JavaScript", "Flask", "BootStrap"],
@@ -34,6 +37,7 @@ const projects = ref([
 	},
 	{
 		id: 4,
+		usericon: "https://avatars.githubusercontent.com/u/96218937?s=96&v=4",
 		name: "RainManGO/vue3-composition-admin",
 		main: "🎉 基于vue3 的管理端模板(Vue3 TS Vuex4 element-plus vue-i18n-next composition-api) vue3-admin vue3-ts-admin",
 		tags: ["JavaScript", "Flask", "Vue", "BootStrap"],
@@ -43,6 +47,7 @@ const projects = ref([
 	},
 	{
 		id: 5,
+		usericon: "https://avatars.githubusercontent.com/u/96218937?s=96&v=4",
 		name: "jeecgboot/jeecgboot-vue3",
 		main: "🔥 JeecgBoot—Vue3版前端源码，采用 Vue3.0+TypeScript+Vite+Ant-Design-Vue等新技术方案，包括二次封装组件、utils、hooks、动态菜单、权限校验、按钮级别权限控制等功能。 是JeecgBoot低代码平台的vue3技术栈的全…",
 		tags: ["JavaScript", "Vue", "BootStrap"],
@@ -52,6 +57,7 @@ const projects = ref([
 	},
 	{
 		id: 6,
+		usericon: "https://avatars.githubusercontent.com/u/96218937?s=96&v=4",
 		name: "Godxu电商平台",
 		main: "Nodejs",
 		tags: ["Flask", "Vue", "BootStrap", "JavaScript", "Flask", "BootStrap", "JavaScript", "Flask", "BootStrap"],
@@ -61,6 +67,7 @@ const projects = ref([
 	},
 	{
 		id: 7,
+		usericon: "https://avatars.githubusercontent.com/u/96218937?s=96&v=4",
 		name: "RainManGO/vue3-composition-admin",
 		main: "🎉 基于vue3 的管理端模板(Vue3 TS Vuex4 element-plus vue-i18n-next composition-api) vue3-admin vue3-ts-admin",
 		tags: ["JavaScript", "Flask", "Vue", "BootStrap"],
@@ -70,6 +77,7 @@ const projects = ref([
 	},
 	{
 		id: 8,
+		usericon: "https://avatars.githubusercontent.com/u/96218937?s=96&v=4",
 		name: "jeecgboot/jeecgboot-vue3",
 		main: "🔥 JeecgBoot—Vue3版前端源码，采用 Vue3.0+TypeScript+Vite+Ant-Design-Vue等新技术方案，包括二次封装组件、utils、hooks、动态菜单、权限校验、按钮级别权限控制等功能。 是JeecgBoot低代码平台的vue3技术栈的全…",
 		tags: ["JavaScript", "Vue", "BootStrap"],
@@ -79,6 +87,7 @@ const projects = ref([
 	},
 	{
 		id: 9,
+		usericon: "https://avatars.githubusercontent.com/u/96218937?s=96&v=4",
 		name: "Godxu电商平台",
 		main: "Nodejs",
 		tags: ["Flask", "Vue", "BootStrap", "JavaScript", "Flask", "BootStrap", "JavaScript", "Flask", "BootStrap"],
@@ -366,7 +375,7 @@ const setCurrentUrl = () => {
 	if (languageurl) {
 		route += '&language=' + languageurl
 	}
-	console.log(tagsurl == [])
+	// console.log(tagsurl == [])
 	if (tagsurl.length > 0) {
 		route += '&tags='
 		for (let i = 0; i < tagsurl.length; i++) {
