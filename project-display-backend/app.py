@@ -158,11 +158,14 @@ def projects():
         tags = []
         tagids = []
         language = {}
+        # 将时间进行格式化
         updatetime = result[i][7].strftime('%Y/%m/%d')
+        # 匹配用户信息，包括头像的 url
         for j in userinfos:
             if j[1] == result[i][1]:
                 usericon = j[2]
                 break
+        # 匹配标签，一个项目可以有多个标签
         for x in projecttags:
             if x[1] == result[i][0]:
                 tagids.append(x[2])
@@ -170,6 +173,7 @@ def projects():
                     if y[0] == x[2]:
                         tags.append(y[1])
                         break
+        # 匹配语言，一个项目只有一个 main_language
         for m in languages:
             if m[0] == result[i][4]:
                 language = {
@@ -177,6 +181,7 @@ def projects():
                     'name': m[1]
                 }
                 break
+        # 格式化项目信息
         project = {
             'id': result[i][0],
             'userid': result[i][1],
