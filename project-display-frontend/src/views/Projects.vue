@@ -364,7 +364,7 @@ const setCurrentUrl = () => {
 		route = 'kind=' + kindurl
 	}
 	if (languageurl) {
-		route += '&language=' + languageurl 
+		route += '&language=' + languageurl
 	}
 	console.log(tagsurl == [])
 	if (tagsurl.length > 0) {
@@ -382,6 +382,25 @@ const setCurrentUrl = () => {
 	return getCurrentUrl().route + '?' + route
 }
 setCurrentUrl()
+
+/** 向后端发送请求，获取项目列表数据 */
+const getProjects = () => {
+	// 发送获取数据请求
+	fetch('http://127.0.0.1:5000/projects', {
+		method: 'POST',
+		headers: {
+			'Content-Type': 'application/json', // 设置请求头
+		},
+		credentials: 'include', // 在跨域请求中发送cookie
+		body: JSON.stringify({ username: username, password: password }), // 设置请求体
+	}).then(response => response.json()).then(data => {
+		// 处理获取的数据
+		console.log(data)
+	}).catch(error => {
+		// 处理请求错误
+		console.error('Error:', error)
+	})
+}
 </script>
 
 <template>

@@ -160,7 +160,6 @@ onMounted(() => {
 
 .ltop {
     margin: auto;
-
     padding: 5px;
     font-size: 24px;
     width: 300px;

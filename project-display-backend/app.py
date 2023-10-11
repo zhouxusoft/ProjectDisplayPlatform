@@ -120,5 +120,12 @@ def register():
         db.commit()
         return jsonify({'success': True, 'message': '注册成功'})
 
+
+@app.route('/projects', methods=['POST'])
+def projects():
+    data = request.get_json()
+
+    return jsonify({'success': True})
+
 if __name__ == '__main__':
     app.run(host='0.0.0.0', debug=True)
