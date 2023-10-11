@@ -19,6 +19,7 @@ if ALLOW_ORIGIN:
     ALLOW_ORIGIN = ALLOW_ORIGIN.split(",")
     ALLOW_ORIGIN = [origin.strip() for origin in ALLOW_ORIGIN]
 DOMAIN = os.getenv("DOMAIN")
+PER_PAGE_NUM = os.getenv("PER_PAGE_NUM")
 
 create_database()
 
@@ -48,7 +49,7 @@ def login():
     data = request.get_json()
     # print(data)
     # 从用户表中查询用户， 并对密码作出判断
-    sql = "SELECT * FROM `users` WHERE username = %s"
+    sql = "SELECT * FROM `users` WHERE username = ?"
     val = (data['username'],)
     dbcursor.execute(sql, val)
     result = dbcursor.fetchall()
@@ -73,12 +74,12 @@ def login():
             accesstoken = access + token.decode('utf-8')
             # print(accesstoken)
             # 将该用户原有的token删除
-            sql = "DELETE FROM `access_token` WHERE `user_id` = %s"
+            sql = "DELETE FROM `access_token` WHERE `user_id` = ?"
             val = (result[0][0])
             dbcursor.execute(sql, val)
             db.commit()
             # 将accesstoken存入数据库
-            sql = "INSERT INTO `access_token` (`user_id`, `token`) VALUES (%s, %s)"
+            sql = "INSERT INTO `access_token` (`user_id`, `token`) VALUES (?, ?)"
             val = (result[0][0], accesstoken)
             dbcursor.execute(sql, val)
             db.commit()
@@ -96,7 +97,7 @@ def login():
 def register():
     data = request.get_json()
     # print(data)
-    sql = "SELECT * FROM `users` WHERE username = %s"
+    sql = "SELECT * FROM `users` WHERE username = ?"
     val = (data['username'],)
     dbcursor.execute(sql, val)
     result = dbcursor.fetchall()
@@ -114,17 +115,16 @@ def register():
         # 对用户的密码进行加密存储
         hashed_password = bcrypt.hashpw(
             data['password'].encode('utf-8'), bcrypt.gensalt())
-        sql = "INSERT INTO `users` (`username`, `password`, `nickname`) VALUES (%s, %s, %s)"
+        sql = "INSERT INTO `users` (`username`, `password`, `nickname`) VALUES (?, ?, ?)"
         val = (data['username'], hashed_password, data['username'])
         dbcursor.execute(sql, val)
         db.commit()
         return jsonify({'success': True, 'message': '注册成功'})
 
-
 @app.route('/projects', methods=['POST'])
 def projects():
     data = request.get_json()
-
+    sql = "SELECT * FROM `projects` ORDER BY `hot` DESC LIMIT ? OFFSET ?"
     return jsonify({'success': True})
 
 if __name__ == '__main__':

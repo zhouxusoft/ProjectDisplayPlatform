@@ -385,14 +385,17 @@ setCurrentUrl()
 
 /** 向后端发送请求，获取项目列表数据 */
 const getProjects = () => {
+	toSend = {
+		page: currentpage,
+	}
 	// 发送获取数据请求
 	fetch('http://127.0.0.1:5000/projects', {
 		method: 'POST',
 		headers: {
 			'Content-Type': 'application/json', // 设置请求头
 		},
-		credentials: 'include', // 在跨域请求中发送cookie
-		body: JSON.stringify({ username: username, password: password }), // 设置请求体
+		credentials: 'include', // 在跨域请求中发送 cookies 和 http 认证信息
+		body: JSON.stringify(toSend), // 设置请求体
 	}).then(response => response.json()).then(data => {
 		// 处理获取的数据
 		console.log(data)
