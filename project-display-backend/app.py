@@ -151,7 +151,9 @@ def projects():
     dbcursor.execute(sql)
     userinfos = dbcursor.fetchall()
     projectlist = []
+    # 为每个项目，匹配对应的语言标签用户等信息
     for i in range(0, len(result)):
+        # 初始化信息
         usericon = ''
         tags = []
         tagids = []
