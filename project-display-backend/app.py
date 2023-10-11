@@ -137,8 +137,17 @@ def projects():
     sql = "SELECT * FROM `tags`"
     dbcursor.execute(sql)
     tags = dbcursor.fetchall()
+    sql = "SELECT * FROM `languages`"
+    dbcursor.execute(sql)
+    languages = dbcursor.fetchall()
+    projectlist = []
+    for i in range(0, len(result)):
+        project = {
+            'id': result[i][0],
+            'name': result[i][2],
+        }
 
-    return jsonify({'success': True})
+    return jsonify({'success': True, 'data': projectlist})
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', debug=True)
