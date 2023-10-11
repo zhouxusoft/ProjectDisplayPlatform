@@ -31,7 +31,6 @@ def create_database():
                         `user_id` int NOT NULL AUTO_INCREMENT,\
                         `username` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,\
                         `password` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,\
-                        `nickname` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,\
                         `create_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,\
                         `lastest_login_time` datetime NULL DEFAULT NULL,\
                         `follower_num` int NOT NULL DEFAULT 0,\
@@ -159,6 +158,8 @@ def create_database():
     dbcursor.execute("CREATE TABLE IF NOT EXISTS `user_info` (\
                         `id` int NOT NULL AUTO_INCREMENT,\
                         `user_id` int NULL DEFAULT NULL,\
+                        `user_icon` int NULL DEFAULT NULL,\
+                        `nickname` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,\
                         `bio` text CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL,\
                         PRIMARY KEY (`id`) USING BTREE,\
                         INDEX `fk_user_info_user_id_users_user_id`(`user_id` ASC) USING BTREE,\

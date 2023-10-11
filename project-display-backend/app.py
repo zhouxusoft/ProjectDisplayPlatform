@@ -140,15 +140,20 @@ def projects():
     sql = "SELECT * FROM `languages`"
     dbcursor.execute(sql)
     languages = dbcursor.fetchall()
-    sql = "SELECT * FROM `languages`"
+    sql = "SELECT * FROM `user_info`"
     dbcursor.execute(sql)
-    languages = dbcursor.fetchall()
+    userinfos = dbcursor.fetchall()
     projectlist = []
     for i in range(0, len(result)):
+        usericon = ''
+        for j in userinfos:
+            if j[1] == result[i][2]:
+                usericon = j[2]
+                break
         project = {
             'id': result[i][0],
             'userid': result[i][1],
-            'usericon': result[i][1],
+            'usericon': usericon,
             'name': result[i][2],
         }
 
