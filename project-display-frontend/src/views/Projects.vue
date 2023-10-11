@@ -407,7 +407,8 @@ const getProjects = () => {
 		body: JSON.stringify(toSend), // 设置请求体
 	}).then(response => response.json()).then(data => {
 		// 处理获取的数据
-		console.log(data)
+		console.log(data.data)
+		projects.value = data.data
 	}).catch(error => {
 		// 处理请求错误
 		console.error('Error:', error)

@@ -133,29 +133,61 @@ def projects():
     val = (PER_PAGE_NUM, (data['page'] - 1) * PER_PAGE_NUM)
     dbcursor.execute(sql, val)
     result = dbcursor.fetchall()
-    print(result)
+    # print(result)
+    # 获取所有的标签
     sql = "SELECT * FROM `tags`"
     dbcursor.execute(sql)
-    tags = dbcursor.fetchall()
+    alltags = dbcursor.fetchall()
+    # 获取所有的项目对应的标签
+    sql = "SELECT * FROM `project_tag`"
+    dbcursor.execute(sql)
+    projecttags = dbcursor.fetchall()
+    # 获取所有的语言
     sql = "SELECT * FROM `languages`"
     dbcursor.execute(sql)
     languages = dbcursor.fetchall()
+    # 获取所有的用户信息
     sql = "SELECT * FROM `user_info`"
     dbcursor.execute(sql)
     userinfos = dbcursor.fetchall()
     projectlist = []
     for i in range(0, len(result)):
         usericon = ''
+        tags = []
+        tagids = []
+        language = {}
+        updatetime = result[i][7].strftime('%Y/%m/%d')
         for j in userinfos:
-            if j[1] == result[i][2]:
+            if j[1] == result[i][1]:
                 usericon = j[2]
+                break
+        for x in projecttags:
+            if x[1] == result[i][0]:
+                tagids.append(x[2])
+                for y in alltags:
+                    if y[0] == x[2]:
+                        tags.append(y[1])
+                        break
+        for m in languages:
+            if m[0] == result[i][4]:
+                language = {
+                    'color': m[2],
+                    'name': m[1]
+                }
                 break
         project = {
             'id': result[i][0],
             'userid': result[i][1],
             'usericon': usericon,
             'name': result[i][2],
+            'tags': tags,
+            'tagids': tagids,
+            'language': language,
+            'starnum': result[i][6],
+            'updatetime': updatetime
         }
+        # print(project)
+        projectlist.append(project)
 
     return jsonify({'success': True, 'data': projectlist})
 
