@@ -20,6 +20,10 @@ if ALLOW_ORIGIN:
     ALLOW_ORIGIN = [origin.strip() for origin in ALLOW_ORIGIN]
 DOMAIN = os.getenv("DOMAIN")
 PER_PAGE_NUM = os.getenv("PER_PAGE_NUM")
+if not PER_PAGE_NUM:
+    PER_PAGE_NUM = 15
+PER_PAGE_NUM = int(PER_PAGE_NUM)
+
 
 create_database()
 
@@ -124,7 +128,16 @@ def register():
 @app.route('/projects', methods=['POST'])
 def projects():
     data = request.get_json()
-    sql = "SELECT * FROM `projects` ORDER BY `hot` DESC LIMIT ? OFFSET ?"
+    # print(data['page'], PER_PAGE_NUM * 2)
+    sql = "SELECT * FROM `projects` ORDER BY `starred_num` DESC LIMIT %s OFFSET %s"
+    val = (PER_PAGE_NUM, (data['page'] - 1) * PER_PAGE_NUM)
+    dbcursor.execute(sql, val)
+    result = dbcursor.fetchall()
+    print(result)
+    sql = "SELECT * FROM `tags`"
+    dbcursor.execute(sql)
+    tags = dbcursor.fetchall()
+
     return jsonify({'success': True})
 
 if __name__ == '__main__':

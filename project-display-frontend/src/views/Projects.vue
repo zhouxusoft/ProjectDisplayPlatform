@@ -385,7 +385,7 @@ setCurrentUrl()
 
 /** 向后端发送请求，获取项目列表数据 */
 const getProjects = () => {
-	toSend = {
+	let toSend = {
 		page: currentpage,
 	}
 	// 发送获取数据请求
@@ -404,6 +404,7 @@ const getProjects = () => {
 		console.error('Error:', error)
 	})
 }
+getProjects()
 </script>
 
 <template>

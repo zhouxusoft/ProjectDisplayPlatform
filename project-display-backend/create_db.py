@@ -57,7 +57,7 @@ def create_database():
                         `project_overview` text CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL,\
                         `main_language_id` int NULL DEFAULT NULL,\
                         `create_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,\
-                        `starred_num` int NULL DEFAULT NULL,\
+                        `starred_num` int not NULL DEFAULT 0,\
                         `update_time` datetime NULL DEFAULT NULL,\
                         PRIMARY KEY (`id`) USING BTREE,\
                         INDEX `fk_projects_user_id_users_user_id`(`user_id` ASC) USING BTREE,\
