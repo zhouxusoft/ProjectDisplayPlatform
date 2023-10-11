@@ -77,7 +77,7 @@ def create_database():
                         `id` int NOT NULL,\
                         `language_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL,\
                         `language_color` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL,\
-                        `language_hot` int int NOT NULL DEFAULT 0,\
+                        `language_hot` int NOT NULL DEFAULT 0,\
                         PRIMARY KEY (`id`) USING BTREE\
                         ) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci ROW_FORMAT = Dynamic;")
     # `project_tag` 用于储存项目所包含的对应标签名
