@@ -6,6 +6,7 @@ from modules import *
 import pymysql
 import bcrypt
 import os
+import threading
 
 load_dotenv()
 # 从配置文件中读取数据
@@ -33,9 +34,13 @@ db = pymysql.connect(
     user=MYSQL_DATABASE_USER,
     password=MYSQL_DATABASE_PASSWORD,
     db="project_display",
-    charset="utf8mb4"
+    charset="utf8mb4",
+    autocommit=True
 )
 dbcursor = db.cursor()
+
+# 创建一个线程锁对象，用于解决多个请求同时访问数据库问题
+lock = threading.Lock()
 
 app = Flask(__name__)
 
@@ -55,7 +60,9 @@ def login():
     # 从用户表中查询用户， 并对密码作出判断
     sql = "SELECT * FROM `users` WHERE username = ?"
     val = (data['username'],)
+    lock.acquire()
     dbcursor.execute(sql, val)
+    lock.release()
     result = dbcursor.fetchall()
     # 判断该用户名是否存在
     if len(result) > 0:
@@ -80,12 +87,16 @@ def login():
             # 将该用户原有的token删除
             sql = "DELETE FROM `access_token` WHERE `user_id` = ?"
             val = (result[0][0])
+            lock.acquire()
             dbcursor.execute(sql, val)
+            lock.release()
             db.commit()
             # 将accesstoken存入数据库
             sql = "INSERT INTO `access_token` (`user_id`, `token`) VALUES (?, ?)"
             val = (result[0][0], accesstoken)
+            lock.acquire()
             dbcursor.execute(sql, val)
+            lock.release()
             db.commit()
             response = make_response(
                 jsonify({'success': True, 'message': '登录成功'}))
@@ -103,7 +114,9 @@ def register():
     # print(data)
     sql = "SELECT * FROM `users` WHERE username = ?"
     val = (data['username'],)
+    lock.acquire()
     dbcursor.execute(sql, val)
+    lock.release()
     result = dbcursor.fetchall()
     # 判断该用户名是否存在
     if len(result) > 0:
@@ -121,7 +134,9 @@ def register():
             data['password'].encode('utf-8'), bcrypt.gensalt())
         sql = "INSERT INTO `users` (`username`, `password`, `nickname`) VALUES (?, ?, ?)"
         val = (data['username'], hashed_password, data['username'])
+        lock.acquire()
         dbcursor.execute(sql, val)
+        lock.release()
         db.commit()
         return jsonify({'success': True, 'message': '注册成功'})
 
@@ -131,24 +146,34 @@ def projects():
     # print(data['page'], PER_PAGE_NUM * 2)
     sql = "SELECT * FROM `projects` ORDER BY `starred_num` DESC LIMIT %s OFFSET %s"
     val = (PER_PAGE_NUM, (data['page'] - 1) * PER_PAGE_NUM)
+    lock.acquire()
     dbcursor.execute(sql, val)
+    lock.release()
     result = dbcursor.fetchall()
     # print(result)
     # 获取所有的标签
     sql = "SELECT * FROM `tags`"
+    lock.acquire()
     dbcursor.execute(sql)
+    lock.release()
     alltags = dbcursor.fetchall()
     # 获取所有的项目对应的标签
     sql = "SELECT * FROM `project_tag`"
+    lock.acquire()
     dbcursor.execute(sql)
+    lock.release()
     projecttags = dbcursor.fetchall()
     # 获取所有的语言
     sql = "SELECT * FROM `languages`"
+    lock.acquire()
     dbcursor.execute(sql)
+    lock.release()
     languages = dbcursor.fetchall()
     # 获取所有的用户信息
     sql = "SELECT * FROM `user_info`"
+    lock.acquire()
     dbcursor.execute(sql)
+    lock.release()
     userinfos = dbcursor.fetchall()
     projectlist = []
     # 为每个项目，匹配对应的语言标签用户等信息
@@ -198,12 +223,27 @@ def projects():
 
     return jsonify({'success': True, 'data': projectlist})
 
-@app.route('/kinds', methods=['POST'])
+@app.route('/kinds', methods=['GET'])
 def kinds():
     sql = "SELECT * FROM `kinds`"
+    lock.acquire()
     dbcursor.execute(sql)
+    lock.release()
     kinds = dbcursor.fetchall()
-    return jsonify({'success': True, 'data': kinds})
+    kindlist = []
+    for i in kinds:
+        kind = {
+            'id': i[0],
+            'name': i[1],
+            'icon': i[2],
+            'isactive': False
+        }
+        kindlist.append(kind)
+    # print(kindlist[0]['isactive'])
+    if len(kindlist) > 0:
+        kindlist[0]['isactive'] = True
+    
+    return jsonify({'success': True, 'data': kindlist})
 
 
 if __name__ == '__main__':

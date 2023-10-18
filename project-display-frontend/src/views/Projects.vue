@@ -345,11 +345,11 @@ const getProjects = () => {
 	})
 }
 
-/** 向后端发送请求，获取项目列表数据 */
+/** 向后端发送请求，获取展示类型数据 */
 const getKinds = () => {
 	// 发送获取数据请求
 	fetch('http://127.0.0.1:5000/kinds', {
-		method: 'POST',
+		method: 'GET',
 		headers: {
 			'Content-Type': 'application/json', // 设置请求头
 		},
@@ -357,13 +357,16 @@ const getKinds = () => {
 	}).then(response => response.json()).then(data => {
 		// 处理获取的数据
 		console.log(data.data)
-		projects.value = data.data
+		kinds.value = data.data
 	}).catch(error => {
 		// 处理请求错误
 		console.error('Error:', error)
 	})
 }
-getProjects()
+// getProjects()
+// getKinds()
+getKinds()
+getKinds()
 </script>
 
 <template>
