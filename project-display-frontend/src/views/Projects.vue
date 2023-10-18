@@ -337,7 +337,7 @@ const getProjects = () => {
 		body: JSON.stringify(toSend), // 设置请求体
 	}).then(response => response.json()).then(data => {
 		// 处理获取的数据
-		console.log(data.data)
+		// console.log(data.data)
 		projects.value = data.data
 	}).catch(error => {
 		// 处理请求错误
@@ -356,7 +356,7 @@ const getKinds = () => {
 		credentials: 'include', // 在跨域请求中发送 cookies 和 http 认证信息
 	}).then(response => response.json()).then(data => {
 		// 处理获取的数据
-		console.log(data.data)
+		// console.log(data.data)
 		kinds.value = data.data
 	}).catch(error => {
 		// 处理请求错误
