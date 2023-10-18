@@ -363,10 +363,10 @@ const getKinds = () => {
 		console.error('Error:', error)
 	})
 }
-// getProjects()
-// getKinds()
+
+getProjects()
 getKinds()
-getKinds()
+
 </script>
 
 <template>
