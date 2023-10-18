@@ -198,5 +198,13 @@ def projects():
 
     return jsonify({'success': True, 'data': projectlist})
 
+@app.route('/kinds', methods=['POST'])
+def kinds():
+    sql = "SELECT * FROM `kinds`"
+    dbcursor.execute(sql)
+    kinds = dbcursor.fetchall()
+    return jsonify({'success': True, 'data': kinds})
+
+
 if __name__ == '__main__':
     app.run(host='0.0.0.0', debug=True)

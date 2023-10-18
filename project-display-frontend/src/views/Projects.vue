@@ -24,56 +24,6 @@ const projects = ref([
 		language: { color: "481828", name: "JavaScript" },
 		starnum: 758,
 		updatetime: "2022/8/19"
-	},
-	{
-		id: 3,
-		usericon: "https://avatars.githubusercontent.com/u/96218937?s=96&v=4",
-		name: "Godxu电商平台",
-		main: "Nodejs",
-		tags: ["Flask", "Vue", "BootStrap", "JavaScript", "Flask", "BootStrap", "JavaScript", "Flask", "BootStrap"],
-		language: { color: "995333", name: "HTML" },
-		starnum: 10000,
-		updatetime: "2022/8/19"
-	},
-	{
-		id: 4,
-		usericon: "https://avatars.githubusercontent.com/u/96218937?s=96&v=4",
-		name: "RainManGO/vue3-composition-admin",
-		main: "🎉 基于vue3 的管理端模板(Vue3 TS Vuex4 element-plus vue-i18n-next composition-api) vue3-admin vue3-ts-admin",
-		tags: ["JavaScript", "Flask", "Vue", "BootStrap"],
-		language: { color: "449633", name: "Vue" },
-		starnum: 99586,
-		updatetime: "2022/8/19"
-	},
-	{
-		id: 5,
-		usericon: "https://avatars.githubusercontent.com/u/96218937?s=96&v=4",
-		name: "jeecgboot/jeecgboot-vue3",
-		main: "🔥 JeecgBoot—Vue3版前端源码，采用 Vue3.0+TypeScript+Vite+Ant-Design-Vue等新技术方案，包括二次封装组件、utils、hooks、动态菜单、权限校验、按钮级别权限控制等功能。 是JeecgBoot低代码平台的vue3技术栈的全…",
-		tags: ["JavaScript", "Vue", "BootStrap"],
-		language: { color: "481828", name: "JavaScript" },
-		starnum: 758,
-		updatetime: "2022/8/19"
-	},
-	{
-		id: 6,
-		usericon: "https://avatars.githubusercontent.com/u/96218937?s=96&v=4",
-		name: "Godxu电商平台",
-		main: "Nodejs",
-		tags: ["Flask", "Vue", "BootStrap", "JavaScript", "Flask", "BootStrap", "JavaScript", "Flask", "BootStrap"],
-		language: { color: "995333", name: "HTML" },
-		starnum: 10000,
-		updatetime: "2022/8/19"
-	},
-	{
-		id: 7,
-		usericon: "https://avatars.githubusercontent.com/u/96218937?s=96&v=4",
-		name: "RainManGO/vue3-composition-admin",
-		main: "🎉 基于vue3 的管理端模板(Vue3 TS Vuex4 element-plus vue-i18n-next composition-api) vue3-admin vue3-ts-admin",
-		tags: ["JavaScript", "Flask", "Vue", "BootStrap"],
-		language: { color: "449633", name: "Vue" },
-		starnum: 99586,
-		updatetime: "2022/8/19"
 	}
 ])
 const kinds = ref([
@@ -385,6 +335,25 @@ const getProjects = () => {
 		},
 		credentials: 'include', // 在跨域请求中发送 cookies 和 http 认证信息
 		body: JSON.stringify(toSend), // 设置请求体
+	}).then(response => response.json()).then(data => {
+		// 处理获取的数据
+		console.log(data.data)
+		projects.value = data.data
+	}).catch(error => {
+		// 处理请求错误
+		console.error('Error:', error)
+	})
+}
+
+/** 向后端发送请求，获取项目列表数据 */
+const getKinds = () => {
+	// 发送获取数据请求
+	fetch('http://127.0.0.1:5000/kinds', {
+		method: 'POST',
+		headers: {
+			'Content-Type': 'application/json', // 设置请求头
+		},
+		credentials: 'include', // 在跨域请求中发送 cookies 和 http 认证信息
 	}).then(response => response.json()).then(data => {
 		// 处理获取的数据
 		console.log(data.data)

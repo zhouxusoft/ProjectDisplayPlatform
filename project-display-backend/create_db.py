@@ -165,6 +165,13 @@ def create_database():
                         INDEX `fk_user_info_user_id_users_user_id`(`user_id` ASC) USING BTREE,\
                         CONSTRAINT `fk_user_info_user_id_users_user_id` FOREIGN KEY (`user_id`) REFERENCES `project_display`.`users` (`user_id`) ON DELETE CASCADE ON UPDATE CASCADE\
                         ) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci ROW_FORMAT = Dynamic;")
+    
+    dbcursor.execute("""CREATE TABLE IF NOT EXISTS `kinds` (
+                        `id` int NOT NULL AUTO_INCREMENT,
+                        `name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL,
+                        `icon` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL,
+                        PRIMARY KEY (`id`) USING BTREE
+                        ) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci ROW_FORMAT = Dynamic;""")
 
     # 触发器，使 project 的 starred_num 与 user_starred 的数据保持一致
     dbcursor.execute("""CREATE TRIGGER IF NOT EXISTS update_starred_num
