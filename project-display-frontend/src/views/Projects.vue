@@ -196,9 +196,11 @@ let alltags = []
 let baselanguageaddnum = 10
 let basetagaddnum = 16
 // 记录语言的加载次数
-let languageaddnum = 0
+let languageaddnum = 1
 // 记录标签的加载次数
-let tagaddnum = 0
+let tagaddnum = 1
+// 
+const lastlanguageaddtip = ref([true, 'More languages...'])
 
 const clickbtn = () => {
 	projects.value.push({
@@ -272,12 +274,34 @@ const resetTag = () => {
 
 /** 加载更多语言 */
 const addMoreLanguages = () => {
-	
+	languageaddnum = languageaddnum + 1
+	setCurrentLanguageList()
 }
 
 /** 加载更多标签 */
 const addMoreTags = () => {
-	
+
+}
+
+/** 设置当前的显示的语言列表 */
+const setCurrentLanguageList = () => {
+	let endnum = baselanguageaddnum * languageaddnum
+	if (alllanguages.length > endnum) {
+		languages.value = alllanguages.slice(0, endnum)
+	} else {
+		languages.value = alllanguages
+		lastlanguageaddtip.value = [false, 'No more languages']
+	}
+}
+
+/** 设置当前的显示的标签列表 */
+const setCurrentTagList = () => {
+	let endnum = basetagaddnum * tagaddnum
+	if (alltags.length > endnum) {
+		tags.value = alltags.slice(0, endnum)
+	} else {
+		tags.value = alltags
+	}
 }
 
 /** 获取当前的url */
@@ -420,7 +444,7 @@ const getTags = () => {
 		// 处理获取的数据
 		// console.log(data.data)
 		alltags = data.data
-		tags.value = alltags.slice(0, basetagaddnum)
+		setCurrentTagList()
 	}).catch(error => {
 		// 处理请求错误
 		console.error('Error:', error)
@@ -444,7 +468,9 @@ getTags()
 				<div class="languagegroupbox p-2">
 					<LeftLanguageItem v-for="language in languages" :key="language.id" :language="language"
 						@click="chooseLanguage(language)" />
-					<div class="addmorelanguage" @click="addMoreLanguages"><span class="addmoreicon">&#x2b</span>More languages...</div>
+					<div class="addmorelanguage" @click="addMoreLanguages"><span class="addmoreicon"
+							v-if="lastlanguageaddtip[0]">&#x2b</span><span class="addlessicon" v-else>&#xf068</span>{{
+								lastlanguageaddtip[1] }}</div>
 				</div>
 				<div class="fengeline"></div>
 				<div class="resettagbox">
@@ -570,25 +596,32 @@ getTags()
 }
 
 .addmorelanguage {
-    display: flex;
-    white-space: nowrap;
-    align-items: center;
-    padding: 6px 8px;
-    margin: 0 8px;
-    border-radius: 6px;
-    color: #0E1116;
-    cursor: pointer;
-    user-select: none;
+	display: flex;
+	white-space: nowrap;
+	align-items: center;
+	padding: 6px 8px;
+	margin: 0 8px;
+	border-radius: 6px;
+	color: #0E1116;
+	cursor: pointer;
+	user-select: none;
 	font-size: 14px;
 }
 
 .addmorelanguage:hover {
-    background-color: rgb(231, 236, 240);
+	background-color: rgb(231, 236, 240);
 }
 
 .addmoreicon {
 	font-family: "Font Awesome 6 Free";
 	font-weight: 300;
+	margin: 0 8px 0 4px;
+	padding-top: 1px;
+}
+
+.addlessicon {
+	font-family: "Font Awesome 6 Free";
+	font-weight: 600;
 	margin: 0 8px 0 4px;
 	padding-top: 1px;
 }
