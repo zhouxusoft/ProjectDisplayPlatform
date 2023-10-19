@@ -600,5 +600,6 @@ getTags()
 	font-weight: 600;
 	margin: 0 8px 0 4px;
 	padding-top: 1px;
+	color: red;
 }
 </style>
