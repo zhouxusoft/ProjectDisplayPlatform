@@ -189,6 +189,11 @@ let currentkind = 1
 let currentlanguage = 0
 let activetags = []
 let currentpage = 1
+// 记录所有语言、标签
+let alllanguages = []
+let alltags = []
+// 语言、标签基础加载数量
+let baseaddnum = 10
 
 const clickbtn = () => {
 	projects.value.push({
@@ -378,7 +383,7 @@ const getLanguages = () => {
 	}).then(response => response.json()).then(data => {
 		// 处理获取的数据
 		// console.log(data.data)
-		languages.value = data.data
+		alllanguages = data.data
 	}).catch(error => {
 		// 处理请求错误
 		console.error('Error:', error)
@@ -398,7 +403,8 @@ const getTags = () => {
 	}).then(response => response.json()).then(data => {
 		// 处理获取的数据
 		// console.log(data.data)
-		tags.value = data.data
+		alltags = data.data
+		tags.value = alltags.slice()
 	}).catch(error => {
 		// 处理请求错误
 		console.error('Error:', error)
