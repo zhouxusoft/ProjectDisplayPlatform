@@ -100,66 +100,6 @@ const tags = ref([
 		id: 2,
 		name: "HTML",
 		isactive: false
-	},
-	{
-		id: 3,
-		name: "JavaScript",
-		isactive: false
-	},
-	{
-		id: 4,
-		name: "Vue",
-		isactive: false
-	},
-	{
-		id: 5,
-		name: "C++",
-		isactive: false
-	},
-	{
-		id: 6,
-		name: "Golang",
-		isactive: false
-	},
-	{
-		id: 7,
-		name: "SpringBoot",
-		isactive: false
-	},
-	{
-		id: 8,
-		name: "JavaEE",
-		isactive: false
-	},
-	{
-		id: 9,
-		name: "MongoDB",
-		isactive: false
-	},
-	{
-		id: 10,
-		name: "Express",
-		isactive: false
-	},
-	{
-		id: 11,
-		name: "React",
-		isactive: false
-	},
-	{
-		id: 12,
-		name: "MySql",
-		isactive: false
-	},
-	{
-		id: 13,
-		name: "Nodejs",
-		isactive: false
-	},
-	{
-		id: 14,
-		name: "Docker",
-		isactive: false
 	}
 ])
 const starred = ref([
@@ -199,8 +139,9 @@ let basetagaddnum = 16
 let languageaddnum = 1
 // 记录标签的加载次数
 let tagaddnum = 1
-// 
-const lastlanguageaddtip = ref([true, 'More languages ...'])
+// 显示不同的加载样式
+const lastlanguageaddtip = ref([true, 'More languages...'])
+const lasttagaddtip = ref([true, 'More tags...'])
 
 const clickbtn = () => {
 	projects.value.push({
@@ -280,7 +221,8 @@ const addMoreLanguages = () => {
 
 /** 加载更多标签 */
 const addMoreTags = () => {
-
+	tagaddnum = tagaddnum + 1
+	setCurrentTagList()
 }
 
 /** 设置当前的显示的语言列表 */
@@ -303,8 +245,13 @@ const setCurrentTagList = () => {
 	let endnum = basetagaddnum * tagaddnum
 	if (alltags.length > endnum) {
 		tags.value = alltags.slice(0, endnum)
+	} else if (alltags.length <= endnum - basetagaddnum) {
+		tagaddnum = 1
+		tags.value = alltags.slice(0, basetagaddnum)
+		lasttagaddtip.value = [true, 'More tags...']
 	} else {
 		tags.value = alltags
+		lasttagaddtip.value = [false, 'No more tags']
 	}
 }
 
@@ -483,6 +430,9 @@ getTags()
 				</div>
 				<div class="taggroupbox">
 					<LeftTagItem v-for="tag in tags" :key="tag.id" :tag="tag" @click="chooseTag(tag)" />
+					<div class="addmorelanguage" @click="addMoreTags"><span class="addmoreicon"
+							v-if="lasttagaddtip[0]">&#x2b</span><span class="addlessicon" v-else>&#xf068</span>{{
+								lasttagaddtip[1] }}</div>
 				</div>
 			</div>
 		</div>
@@ -597,6 +547,10 @@ getTags()
 	border-radius: 6px;
 	padding: 16px;
 	margin-bottom: 16px;
+}
+
+.leftnavborder {
+	padding-bottom: 60px;
 }
 
 .addmorelanguage {
