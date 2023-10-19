@@ -7,6 +7,7 @@ import pymysql
 import bcrypt
 import os
 import threading
+import random
 
 load_dotenv()
 # 从配置文件中读取数据
@@ -46,6 +47,10 @@ app = Flask(__name__)
 
 # 自定义允许跨域的源
 CORS(app, resources={r"/*": {"origins": ALLOW_ORIGIN, "supports_credentials": True}})
+
+def random_color():
+    color = '{:06x}'.format(random.randint(0, 0xFFFFFF))
+    return color
 
 # 在所有请求前判断数据库连接状态
 @app.before_request
