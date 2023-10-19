@@ -193,7 +193,8 @@ let currentpage = 1
 let alllanguages = []
 let alltags = []
 // 语言、标签基础加载数量
-let baseaddnum = 10
+let baselanguageaddnum = 10
+let basetagaddnum = 16
 
 const clickbtn = () => {
 	projects.value.push({
@@ -384,6 +385,7 @@ const getLanguages = () => {
 		// 处理获取的数据
 		// console.log(data.data)
 		alllanguages = data.data
+		languages.value = alllanguages.slice(0, baselanguageaddnum)
 	}).catch(error => {
 		// 处理请求错误
 		console.error('Error:', error)
@@ -404,7 +406,7 @@ const getTags = () => {
 		// 处理获取的数据
 		// console.log(data.data)
 		alltags = data.data
-		tags.value = alltags.slice()
+		tags.value = alltags.slice(0, basetagaddnum)
 	}).catch(error => {
 		// 处理请求错误
 		console.error('Error:', error)
