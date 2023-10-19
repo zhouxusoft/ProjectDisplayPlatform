@@ -200,7 +200,7 @@ let languageaddnum = 1
 // 记录标签的加载次数
 let tagaddnum = 1
 // 
-const lastlanguageaddtip = ref([true, 'More languages...'])
+const lastlanguageaddtip = ref([true, 'More languages ...'])
 
 const clickbtn = () => {
 	projects.value.push({
@@ -288,6 +288,10 @@ const setCurrentLanguageList = () => {
 	let endnum = baselanguageaddnum * languageaddnum
 	if (alllanguages.length > endnum) {
 		languages.value = alllanguages.slice(0, endnum)
+	} else if (alllanguages.length <= endnum - baselanguageaddnum) {
+		languageaddnum = 1
+		languages.value = alllanguages.slice(0, baselanguageaddnum)
+		lastlanguageaddtip.value = [true, 'More languages...']
 	} else {
 		languages.value = alllanguages
 		lastlanguageaddtip.value = [false, 'No more languages']
