@@ -583,6 +583,7 @@ getTags()
 	cursor: pointer;
 	user-select: none;
 	font-size: 13px;
+	padding-right: 12px;
 }
 
 .addmoretag:hover {
