@@ -429,10 +429,13 @@ getTags()
 					<div class="resettags" @click="resetTag()">Reset</div>
 				</div>
 				<div class="taggroupbox">
-					<LeftTagItem v-for="tag in tags" :key="tag.id" :tag="tag" @click="chooseTag(tag)" />
-					<div class="addmorelanguage" @click="addMoreTags"><span class="addmoreicon"
+					<LeftTagItem v-for="tag in tags" :key="tag.id" :tag="tag" @click="chooseTag(tag)" />	
+					<div class="addmoretag" @click="addMoreTags"><span class="addmoreicon"
 							v-if="lasttagaddtip[0]">&#x2b</span><span class="addlessicon" v-else>&#xf068</span>{{
-								lasttagaddtip[1] }}</div>
+								lasttagaddtip[1] }}</div>	
+				</div>
+				<div class="languagegroupbox px-2">
+					
 				</div>
 			</div>
 		</div>
@@ -570,11 +573,26 @@ getTags()
 	background-color: rgb(231, 236, 240);
 }
 
+.addmoretag {
+	display: flex;
+	white-space: nowrap;
+	align-items: center;
+	padding: 3px 8px;
+	border-radius: 6px;
+	color: #0E1116;
+	cursor: pointer;
+	user-select: none;
+	font-size: 13px;
+}
+
+.addmoretag:hover {
+	background-color: rgb(223, 247, 255);
+}
+
 .addmoreicon {
 	font-family: "Font Awesome 6 Free";
 	font-weight: 300;
 	margin: 0 8px 0 4px;
-	padding-top: 1px;
 }
 
 .addlessicon {
