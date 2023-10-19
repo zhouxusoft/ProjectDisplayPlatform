@@ -364,8 +364,28 @@ const getKinds = () => {
 	})
 }
 
+/** 向后端发送请求，获取语言类型数据 */
+const getLanguages = () => {
+	// 发送获取数据请求
+	fetch('http://127.0.0.1:5000/languages', {
+		method: 'GET',
+		headers: {
+			'Content-Type': 'application/json', // 设置请求头
+		},
+		credentials: 'include', // 在跨域请求中发送 cookies 和 http 认证信息
+	}).then(response => response.json()).then(data => {
+		// 处理获取的数据
+		// console.log(data.data)
+		languages.value = data.data
+	}).catch(error => {
+		// 处理请求错误
+		console.error('Error:', error)
+	})
+}
+
 getProjects()
 getKinds()
+getLanguages()
 
 </script>
 

@@ -245,6 +245,26 @@ def kinds():
     
     return jsonify({'success': True, 'data': kindlist})
 
+@app.route('/languages', methods=['GET'])
+def languages():
+    sql = "SELECT * FROM `languages` ORDER BY `language_hot` DESC"
+    lock.acquire()
+    dbcursor.execute(sql)
+    lock.release()
+    languages = dbcursor.fetchall()
+    languagelist = []
+    for i in languages:
+        language = {
+            'id': i[0],
+            'name': i[1],
+            'color': i[2],
+            'isactive': False
+        }
+        languagelist.append(language)
+    # print(kindlist[0]['isactive'])
+    
+    return jsonify({'success': True, 'data': languagelist})
+
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', debug=True)
