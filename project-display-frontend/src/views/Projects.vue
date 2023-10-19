@@ -195,6 +195,10 @@ let alltags = []
 // 语言、标签基础加载数量
 let baselanguageaddnum = 10
 let basetagaddnum = 16
+// 记录语言的加载次数
+let languageaddnum = 0
+// 记录标签的加载次数
+let tagaddnum = 0
 
 const clickbtn = () => {
 	projects.value.push({
@@ -264,6 +268,16 @@ const resetTag = () => {
 	}
 	activetags = []
 	setCurrentUrl()
+}
+
+/** 加载更多语言 */
+const addMoreLanguages = () => {
+	
+}
+
+/** 加载更多标签 */
+const addMoreTags = () => {
+	
 }
 
 /** 获取当前的url */
@@ -430,6 +444,7 @@ getTags()
 				<div class="languagegroupbox p-2">
 					<LeftLanguageItem v-for="language in languages" :key="language.id" :language="language"
 						@click="chooseLanguage(language)" />
+					<div class="addmorelanguage" @click="addMoreLanguages"><span class="addmoreicon">&#x2b</span>More languages...</div>
 				</div>
 				<div class="fengeline"></div>
 				<div class="resettagbox">
@@ -552,5 +567,29 @@ getTags()
 	border-radius: 6px;
 	padding: 16px;
 	margin-bottom: 16px;
+}
+
+.addmorelanguage {
+    display: flex;
+    white-space: nowrap;
+    align-items: center;
+    padding: 6px 8px;
+    margin: 0 8px;
+    border-radius: 6px;
+    color: #0E1116;
+    cursor: pointer;
+    user-select: none;
+	font-size: 14px;
+}
+
+.addmorelanguage:hover {
+    background-color: rgb(231, 236, 240);
+}
+
+.addmoreicon {
+	font-family: "Font Awesome 6 Free";
+	font-weight: 300;
+	margin: 0 8px 0 4px;
+	padding-top: 1px;
 }
 </style>
