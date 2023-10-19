@@ -270,6 +270,25 @@ def languages():
     
     return jsonify({'success': True, 'data': languagelist})
 
+@app.route('/tags', methods=['GET'])
+def tags():
+    sql = "SELECT * FROM `tags` ORDER BY `tag_hot` DESC"
+    lock.acquire()
+    dbcursor.execute(sql)
+    lock.release()
+    tags = dbcursor.fetchall()
+    taglist = []
+    for i in tags:
+        language = {
+            'id': i[0],
+            'name': i[1],
+            'isactive': False
+        }
+        taglist.append(language)
+    # print(kindlist[0]['isactive'])
+    
+    return jsonify({'success': True, 'data': taglist})
+
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', debug=True)
