@@ -1,5 +1,8 @@
 <script setup>
 import { onMounted, ref } from 'vue'
+import { useRouter } from 'vue-router'
+
+const router = useRouter()
 
 let userLengthCase
 let lengthCase
@@ -15,6 +18,9 @@ let usernameInput
 let passwordInput
 let rpasswordInput
 
+/**
+ * 检查所有用户输入是否合法
+ */
 function inputOK() {
     if (userNameOK.value === 1 && checkPasswordOK.value === 1 && recheckPasswordOK.value === 1) {
         rbtn.disabled = false
@@ -27,10 +33,18 @@ function inputOK() {
     }
 }
 
+/**
+ * 判断字符串是否包含空白符
+ * @param {*} str 
+ */
 function hasWhiteSpace(str) {
     return /\s/g.test(str)
 }
 
+/**
+ * 判断用户名是否合法
+ * @param {string} data 
+ */
 function checkUserName(data) {
     const length = new RegExp('(^.{1,12}$)')
 
@@ -45,6 +59,10 @@ function checkUserName(data) {
     inputOK()
 }
 
+/**
+ * 判断密码是否合法
+ * @param {string} data 
+ */
 function checkPassword(data) {
     pwd = data
 
@@ -63,6 +81,10 @@ function checkPassword(data) {
     inputOK()
 }
 
+/**
+ * 判断两次密码是否一致
+ * @param {string} data 
+ */
 function recheckPassword(data) {
     rpwd = data
 
@@ -99,6 +121,15 @@ const register = () => {
     }).then(response => response.json()).then(data => {
         // 处理获取的数据
         console.log(data)
+        if (data.success) {
+            // 注册成功
+            alert(data.message)
+            router.push({ path: '/login' })
+        } else {
+            // 注册失败
+            alert(data.message)
+        }
+        
     }).catch(error => {
         // 处理请求错误
         console.error('Error:', error)

@@ -117,7 +117,7 @@ def login():
 def register():
     data = request.get_json()
     # print(data)
-    sql = "SELECT * FROM `users` WHERE username = ?"
+    sql = "SELECT * FROM `users` WHERE username = %s"
     val = (data['username'],)
     lock.acquire()
     dbcursor.execute(sql, val)
@@ -137,8 +137,8 @@ def register():
         # 对用户的密码进行加密存储
         hashed_password = bcrypt.hashpw(
             data['password'].encode('utf-8'), bcrypt.gensalt())
-        sql = "INSERT INTO `users` (`username`, `password`, `nickname`) VALUES (?, ?, ?)"
-        val = (data['username'], hashed_password, data['username'])
+        sql = "INSERT INTO `users` (`username`, `password`) VALUES (%s, %s)"
+        val = (data['username'], hashed_password)
         lock.acquire()
         dbcursor.execute(sql, val)
         lock.release()
