@@ -101,6 +101,9 @@ function recheckPassword(data) {
     inputOK()
 }
 
+/**
+ * 向后端发送注册请求
+ */
 const register = () => {
     let username = usernameInput.value
     let password = passwordInput.value
@@ -126,10 +129,16 @@ const register = () => {
             alert(data.message)
             router.push({ path: '/login' })
         } else {
-            // 注册失败
+            // 注册失败, 将输入判断还原
+            userNameOK.value = 0
+            checkPasswordOK.value = 0
+            recheckPasswordOK.value = 0
+            userLengthCase.classList.remove('valid')
+            lengthCase.classList.remove('valid')
+            recheckCase.classList.remove('valid')
+            inputOK()
             alert(data.message)
         }
-        
     }).catch(error => {
         // 处理请求错误
         console.error('Error:', error)
