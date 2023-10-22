@@ -1,8 +1,14 @@
 <script setup>
 import { onMounted, ref } from 'vue';
+import { useRouter } from 'vue-router'
+
+const router = useRouter()
 
 const pageheight = ref(window.innerHeight)
 
+/**
+ * 根据当前页面高度判断是否显示底部信息
+ */
 const shouldDisplayBottom = () => {
     return pageheight.value >= 630
 }
@@ -26,13 +32,19 @@ const login = () => {
         }).then(response => response.json()).then(data => {
             // 处理获取的数据
             console.log(data)
+            if (data.success) {
+                alert(data.message)
+                router.push({ path: '/' })
+                usernameInput.value = ''
+                passwordInput.value = ''
+            } else {
+                alert(data.message)
+            }
         }).catch(error => {
             // 处理请求错误
             console.error('Error:', error)
         })
     }
-    usernameInput.value = ''
-    passwordInput.value = ''
 }
 
 

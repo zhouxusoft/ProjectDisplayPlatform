@@ -63,7 +63,7 @@ def login():
     data = request.get_json()
     # print(data)
     # 从用户表中查询用户， 并对密码作出判断
-    sql = "SELECT * FROM `users` WHERE username = ?"
+    sql = "SELECT * FROM `users` WHERE username = %s"
     val = (data['username'],)
     lock.acquire()
     dbcursor.execute(sql, val)
@@ -72,9 +72,9 @@ def login():
     # 判断该用户名是否存在
     if len(result) > 0:
         # 判断账户状态
-        if result[0][6] == 0:
+        if result[0][7] == 0:
             return jsonify({'success': False, 'message': '该账号已被封禁'})
-        if result[0][6] == 2:
+        if result[0][7] == 2:
             return jsonify({'success': False, 'message': '该账号已被注销'})
         # 将用户输入的密码转换为字节串
         user_password_bytes = data['password'].encode('utf-8')
@@ -85,19 +85,20 @@ def login():
             user_password_bytes, hashed_passowrd)
         if is_password_match:
             # 生成accesstoken
+            
             access = f'${result[0][3]}${result[0][0]}'
             token = bcrypt.hashpw(access.encode('utf-8'), bcrypt.gensalt())
             accesstoken = access + token.decode('utf-8')
             # print(accesstoken)
             # 将该用户原有的token删除
-            sql = "DELETE FROM `access_token` WHERE `user_id` = ?"
+            sql = "DELETE FROM `access_token` WHERE `user_id` = %s"
             val = (result[0][0])
             lock.acquire()
             dbcursor.execute(sql, val)
             lock.release()
             db.commit()
             # 将accesstoken存入数据库
-            sql = "INSERT INTO `access_token` (`user_id`, `token`) VALUES (?, ?)"
+            sql = "INSERT INTO `access_token` (`user_id`, `token`) VALUES (%s, %s)"
             val = (result[0][0], accesstoken)
             lock.acquire()
             dbcursor.execute(sql, val)
