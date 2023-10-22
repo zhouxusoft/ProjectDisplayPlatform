@@ -123,13 +123,16 @@ const register = () => {
         body: JSON.stringify(toSend), // 设置请求体
     }).then(response => response.json()).then(data => {
         // 处理获取的数据
-        console.log(data)
+        // console.log(data)
         if (data.success) {
             // 注册成功
             alert(data.message)
             router.push({ path: '/login' })
         } else {
             // 注册失败, 将输入判断还原
+            usernameInput.value = ''
+            passwordInput.value = ''
+            rpasswordInput.value = ''
             userNameOK.value = 0
             checkPasswordOK.value = 0
             recheckPasswordOK.value = 0
@@ -143,10 +146,6 @@ const register = () => {
         // 处理请求错误
         console.error('Error:', error)
     })
-
-    usernameInput.value = ''
-    passwordInput.value = ''
-    rpasswordInput.value = ''
 }
 
 onMounted(() => {

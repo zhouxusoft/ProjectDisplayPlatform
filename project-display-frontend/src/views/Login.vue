@@ -31,7 +31,7 @@ const login = () => {
             body: JSON.stringify({ username: username, password: password }), // 设置请求体
         }).then(response => response.json()).then(data => {
             // 处理获取的数据
-            console.log(data)
+            // console.log(data)
             if (data.success) {
                 alert(data.message)
                 router.push({ path: '/' })

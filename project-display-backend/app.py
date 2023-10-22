@@ -85,7 +85,7 @@ def login():
             user_password_bytes, hashed_passowrd)
         if is_password_match:
             # 生成accesstoken
-            sql = "SELECT `nick_name` FROM `user_info` WHERE `user_id` = %s"
+            sql = "SELECT `nickname` FROM `user_info` WHERE `user_id` = %s"
             val = (result[0][0],)
             lock.acquire()
             dbcursor.execute(sql, val)

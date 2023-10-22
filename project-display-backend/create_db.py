@@ -253,4 +253,12 @@ def create_database():
                             WHERE user_id = OLD.follow_id;
                         END;""")
 
+    # 触发器，创建 user 的同时，创建改 user 的 user_info
+    dbcursor.execute("""CREATE TRIGGER IF NOT EXISTS create_user_info 
+                        AFTER INSERT ON `users`
+                        FOR EACH ROW 
+                        BEGIN 
+                            INSERT INTO `user_info` (`user_id`, `nickname`) VALUES (NEW.user_id, NEW.username);
+                        END;""")
+
     db.close()
