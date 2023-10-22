@@ -85,8 +85,17 @@ def login():
             user_password_bytes, hashed_passowrd)
         if is_password_match:
             # 生成accesstoken
-            
-            access = f'${result[0][3]}${result[0][0]}'
+            sql = "SELECT `nick_name` FROM `user_info` WHERE `user_id` = %s"
+            val = (result[0][0],)
+            lock.acquire()
+            dbcursor.execute(sql, val)
+            lock.release()
+            nickname = dbcursor.fetchall()
+            if len(nickname) > 0:
+                nickname = nickname[0][0]
+            else:
+                nickname = 'Unknown'
+            access = f'${nickname}${result[0][0]}'
             token = bcrypt.hashpw(access.encode('utf-8'), bcrypt.gensalt())
             accesstoken = access + token.decode('utf-8')
             # print(accesstoken)
