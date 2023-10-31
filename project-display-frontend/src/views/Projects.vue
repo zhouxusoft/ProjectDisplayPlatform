@@ -339,7 +339,6 @@ const getProjects = () => {
 		console.error('Error:', error)
 	})
 }
-getProjects()
 
 /** 向后端发送请求，获取展示类型数据 */
 const getKinds = () => {
@@ -359,7 +358,6 @@ const getKinds = () => {
 		console.error('Error:', error)
 	})
 }
-getKinds()
 
 /** 向后端发送请求，获取语言类型数据 */
 const getLanguages = () => {
@@ -380,7 +378,6 @@ const getLanguages = () => {
 		console.error('Error:', error)
 	})
 }
-getLanguages()
 
 /** 向后端发送请求，获取标签类型数据 */
 const getTags = () => {
@@ -401,8 +398,15 @@ const getTags = () => {
 		console.error('Error:', error)
 	})
 }
-getTags()
 
+/** 加载页面时获取数据 */
+const getAllInfo = () => {
+	getKinds()
+	getLanguages()
+	getTags()
+	getProjects()
+}
+getAllInfo()
 
 </script>
 
