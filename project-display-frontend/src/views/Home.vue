@@ -8,6 +8,11 @@ const goLogin = () => {
 const goRegister = () => {
     router.push({ path: '/register' })
 }
+
+/** 判断用户当前的登录状态 */
+const isLogin = () => {
+    
+}
 </script>
 
 <template>
