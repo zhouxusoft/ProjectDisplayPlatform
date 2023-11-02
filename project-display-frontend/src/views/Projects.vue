@@ -300,7 +300,6 @@ const setCurrentUrl = () => {
 	if (languageurl) {
 		route += '&language=' + languageurl
 	}
-	// console.log(tagsurl == [])
 	if (tagsurl.length > 0) {
 		route += '&tags='
 		for (let i = 0; i < tagsurl.length; i++) {
