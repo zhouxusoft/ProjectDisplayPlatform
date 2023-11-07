@@ -75,7 +75,16 @@ const logout = () => {
                 </div>
             </div>
             <div class="rightbox">
-                awdwada
+                <div class="projectboxborder">
+                    <div class="projectboxtitlebox">
+                        <div class="projectboxtitle">Projects of Mine</div>
+                        <div>Sort by Most Stars</div>
+                    </div>
+                    <div class="projectbox">
+
+                    </div>
+                </div>
+                
             </div>
         </div>
         您已登录
@@ -131,18 +140,14 @@ const logout = () => {
 
 .rightbox {
     flex: 1;
-	display: grid;
-	gap: 16px;
 	min-width: 0px;
-	grid-template-columns: 1fr;
     padding: 16px;
     padding-top: 32px;
-    border-right: 1px solid black;
+    /* border-right: 1px solid black; */
     height: 100vh;
 }
 
 .headpicturebox {
-    
     width: 264px;
     height: 264px;
     border: 2px solid black;
@@ -154,5 +159,21 @@ const logout = () => {
     width: 100%;
     height: 100%;
     object-fit: cover;
+}
+
+.projectboxtitlebox {
+    display: flex;
+    justify-content: space-between;
+}
+
+.projectboxtitle {
+    margin-bottom: 8px;
+}
+
+.projectbox {
+    width: 100%;
+    height: 400px;
+    border: 1px solid black;
+    border-radius: 4px;
 }
 </style>
