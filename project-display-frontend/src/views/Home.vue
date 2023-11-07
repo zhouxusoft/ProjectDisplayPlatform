@@ -37,7 +37,7 @@ checkLogin()
  * 退出登录
  */
 const logout = () => {
-    // 发送请求, 清除cookie
+    // 发送请求, 清除 cookie
     fetch('http://127.0.0.1:5000/clearCookie', {
         method: 'POST',
         headers: {
@@ -68,6 +68,14 @@ const logout = () => {
         </div>
     </div>
     <div v-else>
+        <div class="container">
+            <div class="leftbox d-none d-md-block">
+                wadaw
+            </div>
+            <div class="rightbox">
+                awdwada
+            </div>
+        </div>
         您已登录
         <button class="btn btn-outline-success" @click="logout">退出登录</button>
     </div>
@@ -104,5 +112,28 @@ const logout = () => {
 
 .notloginbtn {
     width: 120px;
+}
+
+.container {
+	display: flex;
+}
+
+.leftbox {
+    width: 300px;
+    padding: 16px;
+    height: 100vh;
+    border-left: 1px solid black;
+    border-right: 1px solid black;
+}
+
+.rightbox {
+    flex: 1;
+	display: grid;
+	gap: 16px;
+	min-width: 0px;
+	grid-template-columns: 1fr;
+    padding: 16px;
+    border-right: 1px solid black;
+    height: 100vh;
 }
 </style>
