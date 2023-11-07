@@ -12,21 +12,24 @@ import datetime
 
 load_dotenv()
 # 从配置文件中读取数据
-MYSQL_DATABASE_HOST = os.getenv("MYSQL_DATABASE_HOST")
-MYSQL_DATABASE_USER = os.getenv("MYSQL_DATABASE_USER")
-MYSQL_DATABASE_PASSWORD = os.getenv("MYSQL_DATABASE_PASSWORD")
+MYSQL_DATABASE_HOST = os.getenv("MYSQL_DATABASE_HOST") # 数据库主机地址
+MYSQL_DATABASE_USER = os.getenv("MYSQL_DATABASE_USER") # 数据库用户名
+MYSQL_DATABASE_PASSWORD = os.getenv("MYSQL_DATABASE_PASSWORD") # 数据库密码
 if not MYSQL_DATABASE_PASSWORD:
     exit()
-ALLOW_ORIGIN = os.getenv("ALLOW_ORIGIN")
+ALLOW_ORIGIN = os.getenv("ALLOW_ORIGIN") # 允许跨域的源
 if ALLOW_ORIGIN:
     ALLOW_ORIGIN = ALLOW_ORIGIN.split(",")
     ALLOW_ORIGIN = [origin.strip() for origin in ALLOW_ORIGIN]
-DOMAIN = os.getenv("DOMAIN")
-PER_PAGE_NUM = os.getenv("PER_PAGE_NUM")
+DOMAIN = os.getenv("DOMAIN") # 项目运行的 IPV4 地址
+PER_PAGE_NUM = os.getenv("PER_PAGE_NUM") # 项目加载时，每页的数量
 if not PER_PAGE_NUM:
-    PER_PAGE_NUM = 15
+    PER_PAGE_NUM = 15 # 默认 15
 PER_PAGE_NUM = int(PER_PAGE_NUM)
-
+TOKEN_INVALID_TIME = os.getenv("TOKEN_INVALID_TIME") # access-token 过期时间
+if not TOKEN_INVALID_TIME:
+    TOKEN_INVALID_TIME = 15 # 默认 15
+TOKEN_INVALID_TIME = int(TOKEN_INVALID_TIME)
 
 create_database()
 
@@ -161,8 +164,11 @@ def register():
 # 用于校验前端的登录状态
 @app.route('/checkLogin', methods=['POST'])
 def checkLogin():
+    # 获取前端携带的 cookie
     token = request.cookies.get('access-token')
+    # 判断该 cookie 是否有效
     check = checkCookie(token)
+    # 向前端返回当前的登录状态
     if check['success']:
         return jsonify({'success': True, 'data': '当前已登陆'})
     else:
@@ -179,7 +185,9 @@ def clearCookie():
         # 删除数据库中的 access-token 信息
         sql = "DELETE FROM `access-token` WHERE `token` = %s"
         val = (token)
+        lock.acquire()
         dbcursor.execute(sql, val)
+        lock.release()
         db.commit()
     response = make_response()
     # 将前端的 cookie 设置为空
@@ -333,10 +341,14 @@ def tags():
 
 # 判断 access-token 是否有效
 def checkCookie(token):
+    # 判断当前 token 是否存在于数据库中
     sql = "SELECT * FROM `access-token` WHERE `token` = %s"
     val = (token,)
+    lock.acquire()
     dbcursor.execute(sql, val)
+    lock.release()
     result = dbcursor.fetchall()
+    # 若数据库中存在当前 cookie, 判断其时间是否过期
     if len(result) > 0:
         current_time = datetime.now()  # type: ignore
         if isTimeOut(result[0][3], current_time):
