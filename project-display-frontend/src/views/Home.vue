@@ -78,7 +78,18 @@ const logout = () => {
                 <div class="projectboxborder">
                     <div class="projectboxtitlebox">
                         <div class="projectboxtitle">Projects of Mine</div>
-                        <div>Sort by Most Stars</div>
+                        <div class="projectsortbox">Sort by:
+                            <div class="dropdown">
+                                <button type="button" class="btn btn-primary dropdown-toggle" data-bs-toggle="dropdown">
+                                    Most stars
+                                </button>
+                                <ul class="dropdown-menu">
+                                    <li><a class="dropdown-item" href="#">Most stars</a></li>
+                                    <li><a class="dropdown-item" href="#">Recently updated</a></li>
+                                    <li><a class="dropdown-item" href="#">Least recently updated</a></li>
+                                </ul>
+                            </div>
+                        </div>
                     </div>
                     <div class="projectbox">
 
@@ -175,5 +186,12 @@ const logout = () => {
     height: 400px;
     border: 1px solid black;
     border-radius: 4px;
+}
+
+.projectsortbox {
+    font-size: 14px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 </style>
