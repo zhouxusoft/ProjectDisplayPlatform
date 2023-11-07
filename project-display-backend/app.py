@@ -8,6 +8,7 @@ import bcrypt
 import os
 import threading
 import random
+import datetime
 
 load_dotenv()
 # 从配置文件中读取数据
@@ -155,6 +156,32 @@ def register():
         db.commit()
         return jsonify({'success': True, 'message': '注册成功'})
 
+@app.route('/checkLogin', methods=['POST'])
+def checkLogin():
+    token = request.cookies.get('access-token')
+    check = checkCookie(token)
+    if check['success']:
+        return jsonify({'success': True, 'data': ''})
+    else:
+        return jsonify({'success': False, 'data': ''})
+    
+'''
+    清除前端cookie
+'''
+@app.route('/clearCookie', methods=['POST'])
+def clearCookie():
+    token = request.cookies.get('access-token')
+    check = checkCookie(token)
+    if check['success']:
+        sql = "DELETE FROM `access-token` WHERE `token` = %s"
+        val = (token)
+        dbcursor.execute(sql, val)
+        db.commit()
+    response = make_response()
+    response.set_cookie('access-token', '', expires=0, httponly=True)
+    return response
+    
+
 @app.route('/projects', methods=['POST'])
 def projects():
     data = request.get_json()
@@ -299,6 +326,28 @@ def tags():
     
     return jsonify({'success': True, 'data': taglist})
 
+
+def checkCookie(token):
+    sql = "SELECT * FROM `access-token` WHERE `token` = %s"
+    val = (token,)
+    dbcursor.execute(sql, val)
+    result = dbcursor.fetchall()
+    if len(result) > 0:
+        current_time = datetime.now() 
+        if isTimeOut(result[0][3], current_time):
+            return ({'success': False, 'message': '登陆已过期，请重新登录'})
+        return  ({'success': True, 'message': '可下载'})
+    else:
+        return ({'success': False, 'message': '登陆后方可下载'})
+
+def isTimeOut(time1, time2):
+    # 计算时间差值
+    difference = abs(time2 - time1)
+    # 判断差值是否大于15天
+    if difference.days > 15:
+        return True
+    else:
+        return False
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', debug=True)
