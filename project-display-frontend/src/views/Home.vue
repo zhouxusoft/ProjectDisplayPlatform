@@ -14,28 +14,46 @@ const isLogin = ref(false)
 
 /** 判断用户当前的登录状态 */
 const checkLogin = () => {
-    // 发送获取数据请求
-	fetch('http://127.0.0.1:5000/checkLogin', {
-		method: 'POST',
-		headers: {
-			'Content-Type': 'application/json', // 设置请求头
-		},
-		credentials: 'include', // 在跨域请求中发送 cookies 和 http 认证信息
-	}).then(response => response.json()).then(data => {
-		// 处理获取的数据
+    // 发送请求
+    fetch('http://127.0.0.1:5000/checkLogin', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json', // 设置请求头
+        },
+        credentials: 'include', // 在跨域请求中发送 cookies 和 http 认证信息
+    }).then(response => response.json()).then(data => {
+        // 处理获取的数据
         // console.log(data)
         isLogin.value = data.success
         // console.log(isLogin.value)
-	}).catch(error => {
-		// 处理请求错误
-		console.error('Error:', error)
-	})
+    }).catch(error => {
+        // 处理请求错误
+        console.error('Error:', error)
+    })
 }
+checkLogin()
 
 /**
  * 退出登录
  */
-checkLogin()
+const logout = () => {
+    // 发送请求, 清除cookie
+    fetch('http://127.0.0.1:5000/clearCookie', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json', // 设置请求头
+        },
+        credentials: 'include', // 在跨域请求中发送 cookies 和 http 认证信息
+    }).then(response => response.json()).then(data => {
+        console.log(data)
+        // 设置登录状态
+        isLogin.value = false
+    }).catch(error => {
+        // 处理请求错误
+        console.error('Error:', error)
+    })
+}
+
 </script>
 
 <template>
@@ -56,13 +74,13 @@ checkLogin()
 </template>
 
 <style scoped>
-
 .notlogincontainer {
     display: flex;
     justify-content: center;
     align-items: center;
-    height:80vh;
+    height: 80vh;
 }
+
 .notloginbox {
     width: fit-content;
     margin: auto;

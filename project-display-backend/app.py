@@ -192,7 +192,7 @@ def clearCookie():
         dbcursor.execute(sql, val)
         lock.release()
         db.commit()
-    response = make_response()
+    response = make_response(jsonify({'success': True, 'message': '已登出'}))
     # 将前端的 cookie 设置为空
     response.set_cookie('access-token', '', expires=0, httponly=True)
     return response
