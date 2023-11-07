@@ -3,12 +3,12 @@ from flask_cors import CORS
 from dotenv import load_dotenv
 from create_db import create_database
 from modules import *
+from datetime import datetime
 import pymysql
 import bcrypt
 import os
 import threading
 import random
-import datetime
 
 load_dotenv()
 # 从配置文件中读取数据
@@ -96,9 +96,15 @@ def login():
                 nickname = nickname[0][0]
             else:
                 nickname = 'Unknown'
-            access = f'${nickname}${result[0][0]}'
-            token = bcrypt.hashpw(access.encode('utf-8'), bcrypt.gensalt())
-            accesstoken = access + token.decode('utf-8')
+            access = f'${nickname}${result[0][0]}$'
+            current_time = str(datetime.now())
+            # 将 $用户名$id$ 作为 front
+            # 将时间戳加密, 作为 end
+            # 将用户名及其 id 加密, 作为 center
+            # 剪去 bcrypt 加密的标志
+            token_end = bcrypt.hashpw(current_time.encode('utf-8'), bcrypt.gensalt())
+            token_center = bcrypt.hashpw(access.encode('utf-8'), bcrypt.gensalt())
+            accesstoken = access + token_center.decode('utf-8').split('$')[-1] + token_end.decode('utf-8').split('$')[-1]
             # print(accesstoken)
             # 将该用户原有的token删除
             sql = "DELETE FROM `access_token` WHERE `user_id` = %s"
@@ -180,7 +186,7 @@ def clearCookie():
     check = checkCookie(token)
     if check['success']:
         # 删除数据库中的 access-token 信息
-        sql = "DELETE FROM `access-token` WHERE `token` = %s"
+        sql = "DELETE FROM `access_token` WHERE `token` = %s"
         val = (token)
         lock.acquire()
         dbcursor.execute(sql, val)
@@ -342,7 +348,7 @@ def tags():
 # 判断 access-token 是否有效
 def checkCookie(token):
     # 判断当前 token 是否存在于数据库中
-    sql = "SELECT * FROM `access-token` WHERE `token` = %s"
+    sql = "SELECT * FROM `access_token` WHERE `token` = %s"
     val = (token,)
     lock.acquire()
     dbcursor.execute(sql, val)

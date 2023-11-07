@@ -11,8 +11,22 @@ const goRegister = () => {
 
 /** 判断用户当前的登录状态 */
 const isLogin = () => {
-    
+    // 发送获取数据请求
+	fetch('http://127.0.0.1:5000/checkLogin', {
+		method: 'POST',
+		headers: {
+			'Content-Type': 'application/json', // 设置请求头
+		},
+		credentials: 'include', // 在跨域请求中发送 cookies 和 http 认证信息
+	}).then(response => response.json()).then(data => {
+		// 处理获取的数据
+        console.log(data)
+	}).catch(error => {
+		// 处理请求错误
+		console.error('Error:', error)
+	})
 }
+isLogin()
 </script>
 
 <template>
