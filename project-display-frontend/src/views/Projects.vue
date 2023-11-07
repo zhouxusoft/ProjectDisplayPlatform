@@ -116,13 +116,20 @@ const starred = ref([
 		projectid: 5
 	}
 ])
-for (let i = 0; i < projects.value.length; i++) {
-	if (projects.value[i].starnum >= 1000) {
-		projects.value[i].starnum = Math.floor(projects.value[i].starnum / 100)
-		projects.value[i].starnum = projects.value[i].starnum / 10
-		projects.value[i].starnum = projects.value[i].starnum + "k"
+
+/**
+ * 格式化收藏数量
+ */
+const starnumFormat = () => {
+	for (let i = 0; i < projects.value.length; i++) {
+		if (projects.value[i].starnum >= 1000) {
+			projects.value[i].starnum = Math.floor(projects.value[i].starnum / 100)
+			projects.value[i].starnum = projects.value[i].starnum / 10
+			projects.value[i].starnum = projects.value[i].starnum + "k"
+		}
 	}
 }
+
 
 // 记录参数；类型、语言、标签、页码
 let currentkind = 1
@@ -150,12 +157,16 @@ const clickbtn = () => {
 		main: "Flask",
 		tags: ["JavaScript", "Flask", "BootStrap"],
 		language: { color: "747252", name: "Golang" },
-		starnum: "9.7k",
+		starnum: "97000",
 		updatetime: "2022/8/19"
 	})
+	starnumFormat()
 }
 
-/** 点击选择左侧的展示类型 */
+/**
+ * 点击选择左侧的展示类型
+ * @param {JSON} kind 
+ */
 const chooseLeftNav = (kind) => {
 	if (!kind.isactive) {
 		for (let i = 0; i < kinds.value.length; i++) {
@@ -177,7 +188,10 @@ const chooseLeftNav = (kind) => {
 	setCurrentUrl()
 }
 
-/** 点击选择语言 */
+/**
+ * 点击选择语言
+ * @param {JSON} language 
+ */
 const chooseLanguage = (language) => {
 	if (!language.isactive && currentkind == 1) {
 		for (let i = 0; i < languages.value.length; i++) {
@@ -189,7 +203,10 @@ const chooseLanguage = (language) => {
 	setCurrentUrl()
 }
 
-/** 点击选择标签 */
+/**
+ * 点击选择标签
+ * @param {JSON} tag 
+ */
 const chooseTag = (tag) => {
 	activetags = []
 	if (currentkind == 1) {
@@ -204,7 +221,9 @@ const chooseTag = (tag) => {
 	// console.log(activetags)
 }
 
-/** 重置标签按钮 */
+/** 
+ * 重置标签按钮 
+ */
 const resetTag = () => {
 	for (let i = 0; i < tags.value.length; i++) {
 		tags.value[i].isactive = false
@@ -213,19 +232,25 @@ const resetTag = () => {
 	setCurrentUrl()
 }
 
-/** 加载更多语言 */
+/**
+ * 加载更多语言 
+ */
 const addMoreLanguages = () => {
 	languageaddnum = languageaddnum + 1
 	setCurrentLanguageList()
 }
 
-/** 加载更多标签 */
+/**
+ * 加载更多标签 
+ */
 const addMoreTags = () => {
 	tagaddnum = tagaddnum + 1
 	setCurrentTagList()
 }
 
-/** 设置当前的显示的语言列表 */
+/**
+ * 设置当前的显示的语言列表
+ */
 const setCurrentLanguageList = () => {
 	let endnum = baselanguageaddnum * languageaddnum
 	if (alllanguages.length > endnum) {
@@ -240,7 +265,9 @@ const setCurrentLanguageList = () => {
 	}
 }
 
-/** 设置当前的显示的标签列表 */
+/**
+ * 设置当前的显示的标签列表
+ */
 const setCurrentTagList = () => {
 	let endnum = basetagaddnum * tagaddnum
 	if (alltags.length > endnum) {
@@ -255,7 +282,9 @@ const setCurrentTagList = () => {
 	}
 }
 
-/** 获取当前的url */
+/**
+ * 获取当前的url
+ */
 const getCurrentUrl = () => {
 	let currenturl = window.location.href
 	let route = currenturl.split('?')[0]
@@ -267,7 +296,9 @@ const getCurrentUrl = () => {
 	return { route: route, key: key }
 }
 
-/** 根据用户选择的类型、标签、语言，设置url */
+/**
+ * 根据用户选择的类型、标签、语言，设置url
+ */
 const setCurrentUrl = () => {
 	let kindurl = ''
 	let languageurl = ''
@@ -316,7 +347,9 @@ const setCurrentUrl = () => {
 }
 setCurrentUrl()
 
-/** 向后端发送请求，获取项目列表数据 */
+/**
+ * 向后端发送请求，获取项目列表数据
+ */
 const getProjects = () => {
 	let toSend = {
 		page: currentpage,
@@ -333,13 +366,16 @@ const getProjects = () => {
 		// 处理获取的数据
 		// console.log(data.data)
 		projects.value = data.data
+		starnumFormat()
 	}).catch(error => {
 		// 处理请求错误
 		console.error('Error:', error)
 	})
 }
 
-/** 向后端发送请求，获取展示类型数据 */
+/**
+ * 向后端发送请求，获取展示类型数据
+ */
 const getKinds = () => {
 	// 发送获取数据请求
 	fetch('http://127.0.0.1:5000/kinds', {
@@ -358,7 +394,9 @@ const getKinds = () => {
 	})
 }
 
-/** 向后端发送请求，获取语言类型数据 */
+/**
+ * 向后端发送请求，获取语言类型数据
+ */
 const getLanguages = () => {
 	// 发送获取数据请求
 	fetch('http://127.0.0.1:5000/languages', {
@@ -378,7 +416,9 @@ const getLanguages = () => {
 	})
 }
 
-/** 向后端发送请求，获取标签类型数据 */
+/**
+ * 向后端发送请求，获取标签类型数据
+ */
 const getTags = () => {
 	// 发送获取数据请求
 	fetch('http://127.0.0.1:5000/tags', {
@@ -398,7 +438,9 @@ const getTags = () => {
 	})
 }
 
-/** 加载页面时获取数据 */
+/**
+ * 加载页面时获取数据
+ */
 const getAllInfo = () => {
 	getKinds()
 	getLanguages()
@@ -432,13 +474,13 @@ getAllInfo()
 					<div class="resettags" @click="resetTag()">Reset</div>
 				</div>
 				<div class="taggroupbox">
-					<LeftTagItem v-for="tag in tags" :key="tag.id" :tag="tag" @click="chooseTag(tag)" />	
+					<LeftTagItem v-for="tag in tags" :key="tag.id" :tag="tag" @click="chooseTag(tag)" />
 					<div class="addmoretag" @click="addMoreTags"><span class="addmoreicon"
 							v-if="lasttagaddtip[0]">&#x2b</span><span class="addlessicon" v-else>&#xf068</span>{{
-								lasttagaddtip[1] }}</div>	
+								lasttagaddtip[1] }}</div>
 				</div>
 				<div class="languagegroupbox px-2">
-					
+
 				</div>
 			</div>
 		</div>
