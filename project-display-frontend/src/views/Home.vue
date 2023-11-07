@@ -70,7 +70,9 @@ const logout = () => {
     <div v-else>
         <div class="container">
             <div class="leftbox d-none d-md-block">
-                wadaw
+                <div class="headpicturebox">
+                    <img class="img-fluid headpicture" src="https://avatars.githubusercontent.com/u/96218937?v=4" alt="">
+                </div>
             </div>
             <div class="rightbox">
                 awdwada
@@ -121,9 +123,10 @@ const logout = () => {
 .leftbox {
     width: 300px;
     padding: 16px;
+    padding-top: 32px;
     height: 100vh;
-    border-left: 1px solid black;
-    border-right: 1px solid black;
+    /* border-left: 1px solid black; */
+    /* border-right: 1px solid black; */
 }
 
 .rightbox {
@@ -133,7 +136,23 @@ const logout = () => {
 	min-width: 0px;
 	grid-template-columns: 1fr;
     padding: 16px;
+    padding-top: 32px;
     border-right: 1px solid black;
     height: 100vh;
+}
+
+.headpicturebox {
+    
+    width: 264px;
+    height: 264px;
+    border: 2px solid black;
+    border-radius: 50%;
+    overflow: hidden;
+}
+
+.headpicture {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
 }
 </style>
