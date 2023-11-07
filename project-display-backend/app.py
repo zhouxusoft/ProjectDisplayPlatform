@@ -52,10 +52,6 @@ app = Flask(__name__)
 # 自定义允许跨域的源
 CORS(app, resources={r"/*": {"origins": ALLOW_ORIGIN, "supports_credentials": True}})
 
-def random_color():
-    color = '{:06x}'.format(random.randint(0, 0xFFFFFF))
-    return color
-
 # 在所有请求前判断数据库连接状态
 @app.before_request
 def before_request():
@@ -120,8 +116,9 @@ def login():
             db.commit()
             response = make_response(
                 jsonify({'success': True, 'message': '登录成功'}))
+            # 登录成功，配置前端 cookie
             response.set_cookie('access-token', accesstoken, domain=DOMAIN,
-                                max_age=15*24*3600, httponly=True)
+                                max_age=TOKEN_INVALID_TIME*24*3600, httponly=True)
             return response
         else:
             return jsonify({'success': False, 'message': '用户名或密码不正确'})
@@ -194,7 +191,7 @@ def clearCookie():
     response.set_cookie('access-token', '', expires=0, httponly=True)
     return response
     
-
+# 返回 projects 数据
 @app.route('/projects', methods=['POST'])
 def projects():
     data = request.get_json()
@@ -278,6 +275,7 @@ def projects():
 
     return jsonify({'success': True, 'data': projectlist})
 
+# 返回 kinds 数据
 @app.route('/kinds', methods=['GET'])
 def kinds():
     sql = "SELECT * FROM `kinds`"
@@ -300,6 +298,7 @@ def kinds():
     
     return jsonify({'success': True, 'data': kindlist})
 
+# 返回 languages 数据
 @app.route('/languages', methods=['GET'])
 def languages():
     sql = "SELECT * FROM `languages` ORDER BY `language_hot` DESC"
@@ -320,6 +319,7 @@ def languages():
     
     return jsonify({'success': True, 'data': languagelist})
 
+# 返回 tags 数据
 @app.route('/tags', methods=['GET'])
 def tags():
     sql = "SELECT * FROM `tags` ORDER BY `tag_hot` DESC"
@@ -361,8 +361,8 @@ def checkCookie(token):
 def isTimeOut(time1, time2):
     # 计算时间差值
     difference = abs(time2 - time1)
-    # 判断差值是否大于15天
-    if difference.days > 15:
+    # 判断差值是否大于 TOKEN_INVALID_TIME 天
+    if difference.days >TOKEN_INVALID_TIME:
         return True
     else:
         return False
