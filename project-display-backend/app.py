@@ -59,6 +59,7 @@ def before_request():
     if not db.open:
         db.connect()
 
+# 处理前端登录请求
 @app.route('/login', methods=['POST'])
 def login():
     data = request.get_json()
@@ -124,6 +125,7 @@ def login():
     else:
         return jsonify({'success': False, 'message': '用户名或密码不正确'})
 
+# 处理前端注册请求
 @app.route('/register', methods=['POST'])
 def register():
     data = request.get_json()
@@ -156,28 +158,31 @@ def register():
         db.commit()
         return jsonify({'success': True, 'message': '注册成功'})
 
+# 用于校验前端的登录状态
 @app.route('/checkLogin', methods=['POST'])
 def checkLogin():
     token = request.cookies.get('access-token')
     check = checkCookie(token)
     if check['success']:
-        return jsonify({'success': True, 'data': ''})
+        return jsonify({'success': True, 'data': '当前已登陆'})
     else:
-        return jsonify({'success': False, 'data': ''})
+        return jsonify({'success': False, 'data': '当前未登录'})
     
-'''
-    清除前端cookie
-'''
+# 退出登录时，清楚前端的 cookie
 @app.route('/clearCookie', methods=['POST'])
 def clearCookie():
+    # 获取前端的 cookie
     token = request.cookies.get('access-token')
+    # 判断该 cookie 是否有效
     check = checkCookie(token)
     if check['success']:
+        # 删除数据库中的 access-token 信息
         sql = "DELETE FROM `access-token` WHERE `token` = %s"
         val = (token)
         dbcursor.execute(sql, val)
         db.commit()
     response = make_response()
+    # 将前端的 cookie 设置为空
     response.set_cookie('access-token', '', expires=0, httponly=True)
     return response
     
@@ -326,20 +331,21 @@ def tags():
     
     return jsonify({'success': True, 'data': taglist})
 
-
+# 判断 access-token 是否有效
 def checkCookie(token):
     sql = "SELECT * FROM `access-token` WHERE `token` = %s"
     val = (token,)
     dbcursor.execute(sql, val)
     result = dbcursor.fetchall()
     if len(result) > 0:
-        current_time = datetime.now() 
+        current_time = datetime.now()  # type: ignore
         if isTimeOut(result[0][3], current_time):
-            return ({'success': False, 'message': '登陆已过期，请重新登录'})
-        return  ({'success': True, 'message': '可下载'})
+            return ({'success': False, 'message': '登陆过期'})
+        return  ({'success': True, 'message': '已登录'})
     else:
-        return ({'success': False, 'message': '登陆后方可下载'})
+        return ({'success': False, 'message': '未登录'})
 
+# 判断 cookie 是否过期
 def isTimeOut(time1, time2):
     # 计算时间差值
     difference = abs(time2 - time1)
