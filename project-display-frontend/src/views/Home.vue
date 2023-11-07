@@ -79,23 +79,16 @@ const logout = () => {
                     <div class="projectboxtitlebox">
                         <div class="projectboxtitle">Projects of Mine</div>
                         <div class="projectsortbox">Sort by:
-                            <div class="dropdown">
-                                <button type="button" class="btn btn-primary dropdown-toggle" data-bs-toggle="dropdown">
-                                    Most stars
-                                </button>
-                                <ul class="dropdown-menu">
-                                    <li><a class="dropdown-item" href="#">Most stars</a></li>
-                                    <li><a class="dropdown-item" href="#">Recently updated</a></li>
-                                    <li><a class="dropdown-item" href="#">Least recently updated</a></li>
-                                </ul>
-                            </div>
+                            <button class="projectsortitembox">
+                                Most stars <span class="dropdownicon">&#xf0d7</span>
+                            </button>
                         </div>
                     </div>
                     <div class="projectbox">
 
                     </div>
                 </div>
-                
+
             </div>
         </div>
         您已登录
@@ -137,7 +130,7 @@ const logout = () => {
 }
 
 .container {
-	display: flex;
+    display: flex;
 }
 
 .leftbox {
@@ -151,7 +144,7 @@ const logout = () => {
 
 .rightbox {
     flex: 1;
-	min-width: 0px;
+    min-width: 0px;
     padding: 16px;
     padding-top: 32px;
     /* border-right: 1px solid black; */
@@ -193,5 +186,23 @@ const logout = () => {
     display: flex;
     justify-content: center;
     align-items: center;
+}
+
+.projectsortitembox {
+    font-size: 12px;
+    background-color: rgb(231, 236, 240);
+    border: 1px solid #666666;
+    border-radius: 4px;
+    margin-left: 4px;
+}
+
+.projectsortitembox:hover {
+    background-color: rgb(206, 213, 220);
+}
+
+.dropdownicon {
+    font-family: "Font Awesome 6 Free";
+	font-weight: 600;
+    margin: 0 2px 0 4px;
 }
 </style>
