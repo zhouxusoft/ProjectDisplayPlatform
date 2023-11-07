@@ -1,4 +1,5 @@
 <script setup>
+import { onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
 
 const router = useRouter()
@@ -9,8 +10,10 @@ const goRegister = () => {
     router.push({ path: '/register' })
 }
 
+const isLogin = ref(false)
+
 /** 判断用户当前的登录状态 */
-const isLogin = () => {
+const checkLogin = () => {
     // 发送获取数据请求
 	fetch('http://127.0.0.1:5000/checkLogin', {
 		method: 'POST',
@@ -20,17 +23,23 @@ const isLogin = () => {
 		credentials: 'include', // 在跨域请求中发送 cookies 和 http 认证信息
 	}).then(response => response.json()).then(data => {
 		// 处理获取的数据
-        console.log(data)
+        // console.log(data)
+        isLogin.value = data.success
+        // console.log(isLogin.value)
 	}).catch(error => {
 		// 处理请求错误
 		console.error('Error:', error)
 	})
 }
-isLogin()
+
+/**
+ * 退出登录
+ */
+checkLogin()
 </script>
 
 <template>
-    <div class="notlogincontainer">
+    <div v-if="!isLogin" class="notlogincontainer">
         <div class="notloginbox">
             <img src="/notlogin.png" alt="" class="notloginimg img-fluid">
             <div class="notlogincontent mb-4">你还未登录哦</div>
@@ -39,6 +48,10 @@ isLogin()
                 <button @click="goRegister()" class="btn btn-outline-primary m-1 notloginbtn">去注册</button>
             </div>
         </div>
+    </div>
+    <div v-else>
+        您已登录
+        <button class="btn btn-outline-success" @click="logout">退出登录</button>
     </div>
 </template>
 
