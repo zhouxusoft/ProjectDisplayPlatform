@@ -11,14 +11,6 @@ const goRegister = () => {
 }
 
 const isLogin = ref(false)
-const isSortListShow = ref(false)
-
-/** 
- * 点击显示排序下拉菜单
- */
-const showSortList = () => {
-    isSortListShow.value = !isSortListShow.value
-}
 
 /**
  * 判断用户当前的登录状态
@@ -89,11 +81,13 @@ const logout = () => {
                     <div class="projectboxtitlebox">
                         <div class="projectboxtitle">Projects of Mine</div>
                         <div class="projectsortbox">Sort by:
-                            <button class="projectsortitembox" @click="showSortList()">
+                            <button class="projectsortitembox" @click="">
                                 Most stars <span class="dropdownicon">&#xf0d7</span>
+                                <div class="dropdownboxborder">
+                                    <div class="dropdownbox"></div>
+                                </div>
                             </button>
-                            <div v-show="isSortListShow" class="dropdownbox">
-                            </div>
+                            
                         </div>
                     </div>
                     <div class="projectbox">
@@ -216,18 +210,39 @@ const logout = () => {
     background-color: rgb(206, 213, 220);
 }
 
+.projectsortitembox:hover .dropdownicon{
+    transform: rotate(90deg);
+    transition: transform 0.3s ease-out;
+}
+
+.projectsortitembox:hover .dropdownboxborder {
+    height: 100px;
+    border-radius: 4px;
+    background-color: rgb(255, 255, 255);
+    box-shadow: rgba(1, 4, 9, 0.12) 0px 1px 3px, rgba(52, 59, 67, 0.12) 0px 8px 24px;
+}
+
 .dropdownicon {
+    transform: rotate(180deg);
     font-family: "Font Awesome 6 Free";
 	font-weight: 600;
     margin: 0 2px 0 4px;
 }
 
-.dropdownbox {
+.dropdownboxborder {
+    padding-top: 3px;
+    z-index: 99;
     position: absolute;
-    left: 32px;
-    top: 32px;
+    left: 33px;
+    top: 30px;
     width: 120px;
-    height: 100px;
-    border: 1px solid black;
+    height: 0;
+    overflow: hidden;
+    
+    transition: 0.15s;
+}
+
+.dropdownbox {
+    height: 90px;
 }
 </style>
