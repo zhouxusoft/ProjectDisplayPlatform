@@ -199,19 +199,15 @@ const logout = () => {
 
 .projectsortitembox {
     font-size: 13px;
-    background-color: rgb(231, 236, 240);
+    background-color: rgb(255, 255, 255);
     border: 1px solid #666666;
     border-radius: 4px;
     margin-left: 4px;
     padding: 2px 6px;
 }
 
-.projectsortitembox:hover {
-    background-color: rgb(206, 213, 220);
-}
-
 .projectsortitembox:hover .dropdownicon{
-    transform: rotate(90deg);
+    transform: rotate(360deg);
     transition: transform 0.3s ease-out;
 }
 
@@ -223,14 +219,14 @@ const logout = () => {
 }
 
 .dropdownicon {
-    transform: rotate(180deg);
+    display: inline-block;
     font-family: "Font Awesome 6 Free";
 	font-weight: 600;
     margin: 0 2px 0 4px;
 }
 
 .dropdownboxborder {
-    padding-top: 3px;
+    padding: 5px;
     z-index: 99;
     position: absolute;
     left: 33px;
@@ -238,11 +234,10 @@ const logout = () => {
     width: 120px;
     height: 0;
     overflow: hidden;
-    
-    transition: 0.15s;
+    transition: 0.2s;
 }
 
 .dropdownbox {
-    height: 90px;
+    height: 100%;
 }
 </style>
