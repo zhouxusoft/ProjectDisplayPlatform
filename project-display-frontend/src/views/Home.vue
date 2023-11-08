@@ -168,10 +168,12 @@ const logout = () => {
 .projectboxtitlebox {
     display: flex;
     justify-content: space-between;
+    height: 36px;
 }
 
 .projectboxtitle {
-    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
 }
 
 .projectbox {
@@ -189,11 +191,12 @@ const logout = () => {
 }
 
 .projectsortitembox {
-    font-size: 12px;
+    font-size: 13px;
     background-color: rgb(231, 236, 240);
     border: 1px solid #666666;
     border-radius: 4px;
     margin-left: 4px;
+    padding: 2px 6px;
 }
 
 .projectsortitembox:hover {
