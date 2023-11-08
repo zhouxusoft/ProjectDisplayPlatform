@@ -11,8 +11,18 @@ const goRegister = () => {
 }
 
 const isLogin = ref(false)
+const isSortListShow = ref(false)
 
-/** 判断用户当前的登录状态 */
+/** 
+ * 点击显示排序下拉菜单
+ */
+const showSortList = () => {
+    isSortListShow.value = !isSortListShow.value
+}
+
+/**
+ * 判断用户当前的登录状态
+ */
 const checkLogin = () => {
     // 发送请求
     fetch('http://127.0.0.1:5000/checkLogin', {
@@ -79,9 +89,11 @@ const logout = () => {
                     <div class="projectboxtitlebox">
                         <div class="projectboxtitle">Projects of Mine</div>
                         <div class="projectsortbox">Sort by:
-                            <button class="projectsortitembox">
+                            <button class="projectsortitembox" @click="showSortList()">
                                 Most stars <span class="dropdownicon">&#xf0d7</span>
                             </button>
+                            <div v-show="isSortListShow" class="dropdownbox">
+                            </div>
                         </div>
                     </div>
                     <div class="projectbox">
@@ -184,6 +196,7 @@ const logout = () => {
 }
 
 .projectsortbox {
+    position: relative;
     font-size: 14px;
     display: flex;
     justify-content: center;
@@ -207,5 +220,14 @@ const logout = () => {
     font-family: "Font Awesome 6 Free";
 	font-weight: 600;
     margin: 0 2px 0 4px;
+}
+
+.dropdownbox {
+    position: absolute;
+    left: 32px;
+    top: 32px;
+    width: 120px;
+    height: 100px;
+    border: 1px solid black;
 }
 </style>
