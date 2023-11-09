@@ -1,5 +1,5 @@
 <script setup>
-import { onMounted, ref } from 'vue'
+import { onMounted, ref} from 'vue'
 import { useRouter } from 'vue-router'
 
 //当前所处的路由
@@ -13,6 +13,10 @@ const inputFocus = () => {
 // 当搜索框失去焦点时
 const inputBlur = () => {
   isinputfocus.value = false
+}
+
+const inputInput = (value) => {
+	console.log(value.value)
 }
 
 onMounted(() => {
@@ -65,14 +69,15 @@ onMounted(() => {
 					</li>
 				</ul>
 				<div class="p-2" v-show="currentroute != '/login' && currentroute != '/register'">
-					<div class="searchinputbox d-flex me-1" :class="{ focused: isinputfocus }">
+					<div id="app" class="searchinputbox d-flex me-1" :class="{ focused: isinputfocus }">
 						<div class="form-control form-control-sm searchlogo"></div>
-						<input class="form-control form-control-sm searchinput p-0"
-							type="search" placeholder="Search"
+						<input class="form-control form-control-sm searchinput p-0" placeholder="Search"
 							aria-label="Search"
 							@focus="inputFocus()"
-      						@blur="inputBlur()">
-						<button class="searchbutton" type="submit"></button>
+      						@blur="inputBlur()"
+							@input="doSomething(value)">
+						<span id="clear">&#xf057</span>
+						<button class="searchbutton" type="button"></button>
 					</div>
 				</div>
 			</div>
@@ -166,5 +171,25 @@ onMounted(() => {
 	content: '\f105';
 	font-family: 'Font Awesome 6 Free';
 	font-weight: 600;
+}
+
+#clear {
+	font-family: 'Font Awesome 6 Free';
+	font-weight: 300;
+  	cursor: pointer;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	font-size: 14px;
+	width: 14px;
+	height: 14px;
+	margin: 8px 0;
+	border-radius: 50%;
+	display: none;
+}
+
+#clear:hover {
+	background-color: white;
+	background-color: #e7ecf0;
 }
 </style>
