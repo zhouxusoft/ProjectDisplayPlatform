@@ -82,7 +82,7 @@ const logout = () => {
                         <div class="projectboxtitle">Projects of Mine</div>
                         <div class="projectsortbox">Sort by:
                             <button class="projectsortitembox" @click="">
-                                Most stars <span class="dropdownicon">&#xf0d7</span>
+                                Most stars<span class="dropdownicon">&#xf0d7</span>
                                 <div class="dropdownboxborder">
                                     <div class="dropdownbox"></div>
                                 </div>
@@ -144,8 +144,6 @@ const logout = () => {
     padding: 16px;
     padding-top: 32px;
     height: 100vh;
-    /* border-left: 1px solid black; */
-    /* border-right: 1px solid black; */
 }
 
 .rightbox {
@@ -153,7 +151,6 @@ const logout = () => {
     min-width: 0px;
     padding: 16px;
     padding-top: 32px;
-    /* border-right: 1px solid black; */
     height: 100vh;
 }
 
@@ -174,7 +171,7 @@ const logout = () => {
 .projectboxtitlebox {
     display: flex;
     justify-content: space-between;
-    height: 42px;
+    height: 40px;
 }
 
 .projectboxtitle {
@@ -220,7 +217,7 @@ const logout = () => {
     display: inline-block;
     font-family: "Font Awesome 6 Free";
 	font-weight: 600;
-    margin: 0 2px 0 4px;
+    margin: 0 2px 0 6px;
 }
 
 .dropdownboxborder {
