@@ -270,14 +270,16 @@ const logout = () => {
 }
 
 .dropdownbox {
-    height: 0%;
+    height: 100%;
+    padding: 0 5px;
     overflow: hidden;
-    padding: 5px;
     width: 120px;
+    visibility: hidden;
 }
 
 .projectsortitembox:hover .dropdownbox {
-    height: 100%;
+    visibility: visible;
+    padding: 5px;
     border-radius: 4px;
     background-color: rgb(255, 255, 255);
     box-shadow: rgba(1, 4, 9, 0.12) 0px 1px 3px, rgba(52, 59, 67, 0.12) 0px 8px 24px;
