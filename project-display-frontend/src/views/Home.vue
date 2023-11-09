@@ -174,7 +174,7 @@ const logout = () => {
 .projectboxtitlebox {
     display: flex;
     justify-content: space-between;
-    height: 36px;
+    height: 42px;
 }
 
 .projectboxtitle {
@@ -214,9 +214,6 @@ const logout = () => {
 .projectsortitembox:hover .dropdownboxborder {
     height: 100px;
     padding: 5px;
-    border-radius: 4px;
-    background-color: rgb(255, 255, 255);
-    box-shadow: rgba(1, 4, 9, 0.12) 0px 1px 3px, rgba(52, 59, 67, 0.12) 0px 8px 24px;
 }
 
 .dropdownicon {
@@ -229,15 +226,20 @@ const logout = () => {
 .dropdownboxborder {
     z-index: 99;
     position: absolute;
-    left: 33px;
-    top: 30px;
+    left: 38px;
+    top: 33px;
     width: 120px;
     height: 0;
-    overflow: hidden;
     transition: 0.2s;
 }
 
 .dropdownbox {
     height: 100%;
+}
+
+.projectsortitembox:hover .dropdownbox {
+    border-radius: 4px;
+    background-color: rgb(255, 255, 255);
+    box-shadow: rgba(1, 4, 9, 0.12) 0px 1px 3px, rgba(52, 59, 67, 0.12) 0px 8px 24px;
 }
 </style>
