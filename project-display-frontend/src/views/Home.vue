@@ -26,7 +26,18 @@ const sortModes = [
 ]
 
 const isLogin = ref(false)
-const currentSortMode = ref(3)
+const currentSortMode = ref({
+    id: 2,
+    name: 'Last updated'
+})
+
+/**
+ * 切换项目列表排序方式
+ * @param {JSON} sortMode
+ */
+const changeSortMode = (sortMode) => {
+    currentSortMode.value = sortMode
+}
 
 /**
  * 判断用户当前的登录状态
@@ -98,11 +109,12 @@ const logout = () => {
                         <div class="projectboxtitle">Projects of Mine</div>
                         <div class="projectsortbox">Sort by:
                             <button class="projectsortitembox" @click="">
-                                Most stars<span class="dropdownicon">&#xf0d7</span>
+                                <span class="dropdownname">{{ currentSortMode.name }}</span>
+                                <span class="dropdownicon">&#xf0d7</span>
                                 <div class="dropdownboxborder">
                                     <div class="dropdownbox">
-                                        <div v-for="sortMode in sortModes" class="dropdownboxitem">
-                                            <span class="dropdownboxitemselect"><span v-if="currentSortMode == sortMode.id">&#xf00c</span></span>
+                                        <div v-for="sortMode in sortModes" class="dropdownboxitem" :key="sortMode.id" :sortMode="sortMode" @click="changeSortMode(sortMode)">
+                                            <span class="dropdownboxitemselect"><span v-if="currentSortMode.id == sortMode.id">&#xf00c</span></span>
                                             <span class="dropdownboxitemname">{{ sortMode.name }}</span>
                                         </div>
                                     </div>
@@ -220,6 +232,7 @@ const logout = () => {
     border-radius: 4px;
     margin-left: 4px;
     padding: 2px 6px;
+    width: 111px;
 }
 
 .projectsortitembox:hover .dropdownicon{
@@ -239,10 +252,14 @@ const logout = () => {
     margin: 0 2px 0 6px;
 }
 
+.dropdownname {
+    width: 81px;
+}
+
 .dropdownboxborder {
     z-index: 99;
     position: absolute;
-    left: 28px;
+    left: 42px;
     top: 33px;
     width: 130px;
     height: 0;
