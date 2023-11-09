@@ -5,6 +5,8 @@ import { useRouter } from 'vue-router'
 //当前所处的路由
 const currentroute = ref('/')
 const isinputfocus = ref(false)
+const searchKey = ref()
+const showClear = ref(false)
 
 // 当搜索框获得焦点时
 const inputFocus = () => {
@@ -15,8 +17,20 @@ const inputBlur = () => {
   isinputfocus.value = false
 }
 
-const inputInput = (value) => {
-	console.log(value.value)
+const inputInput = () => {
+	if (searchKey.value == '') {
+		showClear.value = false
+		
+	} else {
+		showClear.value = true
+	}
+	console.log(showClear.value)
+}
+
+const clearInput = () => {
+	searchKey.value = ''
+	showClear.value = false
+	console.log(searchKey.value)
 }
 
 onMounted(() => {
@@ -69,14 +83,17 @@ onMounted(() => {
 					</li>
 				</ul>
 				<div class="p-2" v-show="currentroute != '/login' && currentroute != '/register'">
-					<div id="app" class="searchinputbox d-flex me-1" :class="{ focused: isinputfocus }">
+					<div class="searchinputbox d-flex me-1" :class="{ focused: isinputfocus }">
 						<div class="form-control form-control-sm searchlogo"></div>
 						<input class="form-control form-control-sm searchinput p-0" placeholder="Search"
+							v-model="searchKey"
 							aria-label="Search"
 							@focus="inputFocus()"
       						@blur="inputBlur()"
-							@input="doSomething(value)">
-						<span id="clear">&#xf057</span>
+							@input="inputInput()">
+						<span class="clearbox">
+							<span v-show="showClear" class="clear" @click="clearInput()">&#xf00d</span>
+						</span>
 						<button class="searchbutton" type="button"></button>
 					</div>
 				</div>
@@ -159,7 +176,7 @@ onMounted(() => {
 	border-radius: 0.25rem;
 	background-color: white;
 	width: 30px;
-	height: 26px;
+	height: 27px;
 	margin: 2px;
 }
 
@@ -173,22 +190,26 @@ onMounted(() => {
 	font-weight: 600;
 }
 
-#clear {
+.clear {
 	font-family: 'Font Awesome 6 Free';
-	font-weight: 300;
+	font-weight: 600;
   	cursor: pointer;
 	display: flex;
 	align-items: center;
 	justify-content: center;
-	font-size: 14px;
-	width: 14px;
-	height: 14px;
+	font-size: 13px;
+	width: 16px;
+	height: 16px;
 	margin: 8px 0;
-	border-radius: 50%;
-	display: none;
+	border-radius: 0.25rem;
 }
 
-#clear:hover {
+.clearbox {
+	width: 14px;
+	height: 14px;
+}
+
+.clear:hover {
 	background-color: white;
 	background-color: #e7ecf0;
 }
