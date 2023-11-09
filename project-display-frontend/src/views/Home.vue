@@ -253,6 +253,7 @@ const logout = () => {
 }
 
 .dropdownname {
+    display: inline-block;
     width: 81px;
 }
 
