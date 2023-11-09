@@ -10,7 +10,23 @@ const goRegister = () => {
     router.push({ path: '/register' })
 }
 
+const sortModes = [
+    {
+        id: 1,
+        name: 'Most stars'
+    },
+    {
+        id: 2,
+        name: 'Last updated'
+    },
+    {
+        id: 3,
+        name: 'Create time'
+    }
+]
+
 const isLogin = ref(false)
+const currentSortMode = ref(3)
 
 /**
  * 判断用户当前的登录状态
@@ -84,17 +100,20 @@ const logout = () => {
                             <button class="projectsortitembox" @click="">
                                 Most stars<span class="dropdownicon">&#xf0d7</span>
                                 <div class="dropdownboxborder">
-                                    <div class="dropdownbox"></div>
+                                    <div class="dropdownbox">
+                                        <div v-for="sortMode in sortModes" class="dropdownboxitem">
+                                            <span class="dropdownboxitemselect"><span v-if="currentSortMode == sortMode.id">&#xf00c</span></span>
+                                            <span class="dropdownboxitemname">{{ sortMode.name }}</span>
+                                        </div>
+                                    </div>
                                 </div>
                             </button>
-                            
                         </div>
                     </div>
                     <div class="projectbox">
 
                     </div>
                 </div>
-
             </div>
         </div>
         您已登录
@@ -209,8 +228,8 @@ const logout = () => {
 }
 
 .projectsortitembox:hover .dropdownboxborder {
-    height: 100px;
-    padding: 5px;
+    height: 82px;
+    padding: 0 5px;
 }
 
 .dropdownicon {
@@ -223,20 +242,54 @@ const logout = () => {
 .dropdownboxborder {
     z-index: 99;
     position: absolute;
-    left: 38px;
+    left: 28px;
     top: 33px;
-    width: 120px;
+    width: 130px;
     height: 0;
     transition: 0.2s;
+    display: flex;
+    justify-content: center;
 }
 
 .dropdownbox {
     height: 100%;
+    overflow: hidden;
+    padding: 5px;
+    width: 120px;
 }
 
 .projectsortitembox:hover .dropdownbox {
     border-radius: 4px;
     background-color: rgb(255, 255, 255);
     box-shadow: rgba(1, 4, 9, 0.12) 0px 1px 3px, rgba(52, 59, 67, 0.12) 0px 8px 24px;
+}
+
+.dropdownboxitem {
+    display: flex;
+    justify-content: space-between;
+    font-size: 13px;
+    padding: 4px 0;
+    height: 24px;
+    align-items: center;
+    border-radius: 4px;
+}
+
+.dropdownboxitem:hover {
+    background-color: rgb(231, 236, 240);
+}
+
+.dropdownboxitemselect {
+    font-family: "Font Awesome 6 Free";
+	font-weight: 600;
+    width: 20px;
+    display: flex;
+    justify-content: center;
+
+}
+
+.dropdownboxitemname {
+    flex: 1;
+    text-align: left;
+    margin-left: 2px;
 }
 </style>
