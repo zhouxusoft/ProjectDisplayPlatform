@@ -36,7 +36,15 @@ const currentSortMode = ref({
  * @param {JSON} sortMode
  */
 const changeSortMode = (sortMode) => {
+    const sortitembox = document.getElementById("sortitembox")
     currentSortMode.value = sortMode
+    sortitembox.classList.remove("projectsortitembox")
+    sortitembox.classList.add("clickdisvisable")
+    // 设置延迟才能使属性暂时失效
+    setTimeout(() => {
+        sortitembox.classList.remove("clickdisvisable")
+        sortitembox.classList.add("projectsortitembox")
+    }, 1000)
 }
 
 /**
@@ -108,7 +116,7 @@ const logout = () => {
                     <div class="projectboxtitlebox">
                         <div class="projectboxtitle">Projects of Mine</div>
                         <div class="projectsortbox">Sort by:
-                            <button class="projectsortitembox" @click="">
+                            <button id="sortitembox" class="projectsortitembox" @click="">
                                 <span class="dropdownname">{{ currentSortMode.name }}</span>
                                 <span class="dropdownicon">&#xf0d7</span>
                                 <div class="dropdownboxborder">
@@ -225,6 +233,16 @@ const logout = () => {
 }
 
 .projectsortitembox {
+    font-size: 13px;
+    background-color: rgb(255, 255, 255);
+    border: 1px solid #666666;
+    border-radius: 4px;
+    margin-left: 4px;
+    padding: 2px 6px;
+    width: 111px;
+}
+
+.clickdisvisable {
     font-size: 13px;
     background-color: rgb(255, 255, 255);
     border: 1px solid #666666;
