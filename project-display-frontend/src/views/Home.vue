@@ -128,7 +128,6 @@ const logout = () => {
                 </div>
             </div>
         </div>
-        您已登录
         <button class="btn btn-outline-success" @click="logout">退出登录</button>
     </div>
 </template>
