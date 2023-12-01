@@ -290,6 +290,7 @@ def kinds():
     lock.release()
     kinds = dbcursor.fetchall()
     kindlist = []
+    # 定义返回的数据
     for i in kinds:
         kind = {
             'id': i[0],
