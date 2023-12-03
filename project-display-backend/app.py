@@ -8,7 +8,6 @@ import pymysql
 import bcrypt
 import os
 import threading
-import random
 
 load_dotenv()
 # 从配置文件中读取数据
@@ -98,7 +97,7 @@ def login():
                 nickname = 'Unknown'
             access = f'${nickname}${result[0][0]}$'
             current_time = str(datetime.now())
-            # 将 $用户名$id$ 作为 front
+            # 将 $用户名 $id$ 作为 front
             # 将时间戳加密, 作为 end
             # 将用户名及其 id 加密, 作为 center
             # 剪去 bcrypt 加密的标志

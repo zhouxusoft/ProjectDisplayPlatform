@@ -110,10 +110,6 @@ const starred = ref([
 	{
 		id: 2,
 		projectid: 3
-	},
-	{
-		id: 3,
-		projectid: 5
 	}
 ])
 
