@@ -139,7 +139,7 @@ onMounted(() => {
                     class="icon vcode">
             </div>
             <div>友情链接：
-                <a href="https://apee.top/" class="yqlj" target="_blank">Apee-爱优鹏</a>
+                <a href="https://www.iuroc.com/" class="yqlj" target="_blank">Iuroc-爱优鹏</a>
             </div>
         </div>
     </div>
