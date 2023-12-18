@@ -20,7 +20,6 @@ const inputBlur = () => {
 const inputInput = () => {
 	if (searchKey.value == '') {
 		showClear.value = false
-		
 	} else {
 		showClear.value = true
 	}
