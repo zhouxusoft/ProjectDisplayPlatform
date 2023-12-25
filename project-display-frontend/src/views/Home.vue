@@ -131,12 +131,11 @@ const logout = () => {
                         </div>
                     </div>
                     <div class="projectbox">
-
                     </div>
                 </div>
             </div>
         </div>
-        <button class="btn btn-outline-success" @click="logout">退出登录</button>
+        <button class="btn btn-outline-secondary" @click="logout">退出登录</button>
     </div>
 </template>
 
