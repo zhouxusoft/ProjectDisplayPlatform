@@ -485,7 +485,7 @@ getAllInfo()
 			<ProjectItem v-for="project  in  projects" :key="project.id" :project="project" :starred="starred" />
 			<button class="btn btn-success" @click="clickbtn()">add</button>
 		</div>
-		<div class="rightnav d-none d-lg-block">
+		<div class="rightnav d-none d-xl-block">
 			<div class="rightinfobox">
 				Vue.js（通常简称为Vue）是一款流行的JavaScript框架，用于构建交互式的用户界面（UI）。Vue的设计目标是简化Web应用程序的开发，并提供一种灵活且高效的方式来构建单页面应用程序（SPA）和其他前端项目。
 			</div>
