@@ -130,7 +130,7 @@ const logout = () => {
                             </button>
                         </div>
                     </div>
-                    <div class="projectbox">
+                    <div class="projectbox mt-1">
                     </div>
                 </div>
             </div>
@@ -232,23 +232,25 @@ const logout = () => {
 }
 
 .projectsortitembox {
-    font-size: 13px;
+    font-size: 14px;
     background-color: rgb(255, 255, 255);
     border: 1px solid #666666;
     border-radius: 4px;
     margin-left: 4px;
     padding: 2px 6px;
-    width: 111px;
+    width: 116px;
+    white-space: nowrap;
 }
 
 .clickdisvisable {
-    font-size: 13px;
+    font-size: 14px;
     background-color: rgb(255, 255, 255);
     border: 1px solid #666666;
     border-radius: 4px;
     margin-left: 4px;
     padding: 2px 6px;
-    width: 111px;
+    width: 116px;
+    white-space: nowrap;
 }
 
 .projectsortitembox:hover .dropdownicon{
@@ -270,14 +272,14 @@ const logout = () => {
 
 .dropdownname {
     display: inline-block;
-    width: 81px;
+    width: 85px;
 }
 
 .dropdownboxborder {
     z-index: 99;
     position: absolute;
-    left: 42px;
-    top: 33px;
+    left: 47px;
+    top: 34px;
     width: 130px;
     height: 0;
     transition: 0.2s;
