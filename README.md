@@ -14,3 +14,9 @@
 
 - Windows 10
 - VS Code
+
+### 项目部署
+
+- pip install flask
+- pip install flask_cors
+- pip install dotenv
