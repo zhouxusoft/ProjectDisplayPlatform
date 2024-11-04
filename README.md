@@ -6,7 +6,7 @@
 ### 项目信息
 
 - 作者：Godxu
-- 博客：godxu.top
+- 博客：https://godxu.top
 - 完成日期
     - 开发中
 
@@ -20,3 +20,4 @@
 - pip install flask
 - pip install flask_cors
 - pip install dotenv
+- npm i
