@@ -123,7 +123,7 @@ def login():
                 jsonify({'success': True, 'message': '登录成功'}))
             # 登录成功，配置前端 cookie
             response.set_cookie('access-token', accesstoken, domain=DOMAIN,
-                                max_age=TOKEN_INVALID_TIME*24*3600, httponly=True)
+                                max_age=TOKEN_INVALID_TIME*24*3600, httponly=True) # type: ignore
             return response
         else:
             return jsonify({'success': False, 'message': '用户名或密码不正确'})
