@@ -88,7 +88,7 @@ onMounted(() => {
 							v-model="searchKey"
 							aria-label="Search"
 							@focus="inputFocus()"
-      						@blur="inputBlur()"
+      				@blur="inputBlur()"
 							@input="inputInput()">
 						<span class="clearbox">
 							<span v-show="showClear" class="clear" @click="clearInput()">&#xf00d</span>
