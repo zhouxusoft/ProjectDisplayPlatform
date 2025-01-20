@@ -1,5 +1,7 @@
 import { createApp } from 'vue'
 import { createRouter, createWebHashHistory } from 'vue-router'
+import ElementPlus from 'element-plus'
+import 'element-plus/dist/index.css'
 import App from './App.vue'
 import Home from './views/Home.vue'
 import Projects from './views/Projects.vue'
@@ -21,4 +23,8 @@ const router = createRouter(
     }
 )
 
-createApp(App).use(router).mount('#app')
+const app = createApp(App)
+
+app.use(ElementPlus)
+
+app.use(router).mount('#app')

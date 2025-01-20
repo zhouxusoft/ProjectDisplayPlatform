@@ -1,6 +1,8 @@
 <script setup>
 import { onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
+import { ElMessage } from 'element-plus'
+import { registerAPI } from '../api/api'
 
 const router = useRouter()
 
@@ -115,21 +117,20 @@ const register = () => {
         repassword: repassword
     }
     // 发送注册请求
-    fetch('http://127.0.0.1:5000/register', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json', // 设置请求头
-        },
-        body: JSON.stringify(toSend), // 设置请求体
-    }).then(response => response.json()).then(data => {
-        // 处理获取的数据
-        // console.log(data)
-        if (data.success) {
+    registerAPI(toSend).then(res => {
+        if (res.success) {
             // 注册成功
-            alert(data.message)
+            ElMessage({
+                message: res.message,
+                type: 'success',
+                plain: true,
+                offset: 9,
+            })
             router.push({ path: '/login' })
         } else {
             // 注册失败, 将输入判断还原
+            pwd = ''
+            rpwd = ''
             usernameInput.value = ''
             passwordInput.value = ''
             rpasswordInput.value = ''
@@ -140,11 +141,20 @@ const register = () => {
             lengthCase.classList.remove('valid')
             recheckCase.classList.remove('valid')
             inputOK()
-            alert(data.message)
+            ElMessage({
+                message: res.message,
+                type: 'error',
+                plain: true,
+                offset: 9,
+            })
         }
     }).catch(error => {
-        // 处理请求错误
-        console.error('Error:', error)
+        ElMessage({
+            message: '请求失败，请稍后再试',
+            type: 'error',
+            plain: true,
+            offset: 9,
+        })
     })
 }
 

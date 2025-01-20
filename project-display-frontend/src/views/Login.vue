@@ -1,6 +1,8 @@
 <script setup>
-import { onMounted, ref } from 'vue';
+import { onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
+import { ElMessage } from 'element-plus'
+import { loginAPI } from '../api/api'
 
 const router = useRouter()
 
@@ -21,28 +23,37 @@ const login = () => {
     let password = passwordInput.value
     // console.log(username, password)
     if (username && password) {
+        let data = { 
+            username: username,
+            password: password
+        }
         // 发送登录请求
-        fetch('http://127.0.0.1:5000/login', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json', // 设置请求头
-            },
-            credentials: 'include',
-            body: JSON.stringify({ username: username, password: password }), // 设置请求体
-        }).then(response => response.json()).then(data => {
-            // 处理获取的数据
-            // console.log(data)
-            if (data.success) {
-                alert(data.message)
+        loginAPI(data).then(res => {
+            if (res.success) {
+                ElMessage({
+                    message: res.message,
+                    type: 'success',
+                    plain: true,
+                    offset: 9,
+                })
                 router.push({ path: '/' })
                 usernameInput.value = ''
                 passwordInput.value = ''
             } else {
-                alert(data.message)
+                ElMessage({
+                    message: res.message,
+                    type: 'error',
+                    plain: true,
+                    offset: 9,
+                })
             }
         }).catch(error => {
-            // 处理请求错误
-            console.error('Error:', error)
+            ElMessage({
+                message: '请求失败',
+                type: 'error',
+                plain: true,
+                offset: 9,
+            })
         })
     }
 }

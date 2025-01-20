@@ -1,6 +1,8 @@
 <script setup>
 import { onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
+import { ElMessage } from 'element-plus'
+import { checkLoginAPI, clearCookieAPI } from '../api/api'
 
 const router = useRouter()
 const goLogin = () => {
@@ -9,6 +11,8 @@ const goLogin = () => {
 const goRegister = () => {
     router.push({ path: '/register' })
 }
+
+const isLoading = ref(false)
 
 const sortModes = [
     {
@@ -25,7 +29,7 @@ const sortModes = [
     }
 ]
 
-const isLogin = ref(true)
+const isLogin = ref(-1)
 const currentSortMode = ref({
     id: 2,
     name: 'Last updated'
@@ -51,91 +55,106 @@ const changeSortMode = (sortMode) => {
  * 判断用户当前的登录状态
  */
 const checkLogin = () => {
+    isLoading.value = true
     // 发送请求
-    fetch('http://127.0.0.1:5000/checkLogin', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json', // 设置请求头
-        },
-        credentials: 'include', // 在跨域请求中发送 cookies 和 http 认证信息
-    }).then(response => response.json()).then(data => {
-        // 处理获取的数据
-        // console.log(data)
-        isLogin.value = data.success
-        // console.log(isLogin.value)
+    checkLoginAPI().then(res => {
+        if (res.success) {
+            isLogin.value = 1
+        } else {
+            isLogin.value = 0
+        }
+        isLoading.value = false
     }).catch(error => {
-        // 处理请求错误
-        console.error('Error:', error)
+        ElMessage({
+            message: '请求失败',
+            type: 'error',
+            plain: true,
+            offset: 9,
+        })
+        isLogin.value = 0
+        isLoading.value = false
     })
 }
-checkLogin()
 
 /**
  * 退出登录
  */
 const logout = () => {
     // 发送请求, 清除 cookie
-    fetch('http://127.0.0.1:5000/clearCookie', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json', // 设置请求头
-        },
-        credentials: 'include', // 在跨域请求中发送 cookies 和 http 认证信息
-    }).then(response => response.json()).then(data => {
-        console.log(data)
+    clearCookieAPI().then(res => {
+        ElMessage({
+            message: '退出成功',
+            type: 'success',
+            plain: true,
+            offset: 9,
+        })
         // 设置登录状态
-        isLogin.value = false
+        isLogin.value = 0
     }).catch(error => {
-        // 处理请求错误
-        console.error('Error:', error)
+        ElMessage({
+            message: '退出失败',
+            type: 'error',
+            plain: true,
+            offset: 9,
+        })
     })
 }
+
+onMounted(() => {
+    checkLogin()
+})
 
 </script>
 
 <template>
-    <div v-if="!isLogin" class="notlogincontainer">
-        <div class="notloginbox">
-            <img src="/notlogin.png" alt="" class="notloginimg img-fluid">
-            <div class="notlogincontent mb-4">你还未登录哦</div>
-            <div class="notloginbtngroup">
-                <button @click="goLogin()" class="btn btn-outline-success m-1 notloginbtn">去登录</button>
-                <button @click="goRegister()" class="btn btn-outline-primary m-1 notloginbtn">去注册</button>
-            </div>
-        </div>
-    </div>
-    <div v-else>
-        <div class="container">
-            <div class="leftbox d-none d-md-block">
-                <div class="headpicturebox">
-                    <img class="img-fluid headpicture" src="https://avatars.githubusercontent.com/u/96218937?v=4" alt="">
+    <div v-loading="isLoading">
+        <div v-if="isLogin === 0" class="notlogincontainer">
+            <div class="notloginbox">
+                <img src="/notlogin.png" alt="" class="notloginimg img-fluid">
+                <div class="notlogincontent mb-4">你还未登录哦</div>
+                <div class="notloginbtngroup">
+                    <button @click="goLogin()" class="btn btn-outline-success m-1 notloginbtn">去登录</button>
+                    <button @click="goRegister()" class="btn btn-outline-primary m-1 notloginbtn">去注册</button>
                 </div>
             </div>
-            <div class="rightbox">
-                <div class="projectboxborder">
-                    <div class="projectboxtitlebox">
-                        <div class="projectboxtitle">Projects of Mine</div>
-                        <div class="projectsortbox">Sort by:
-                            <button id="sortitembox" class="projectsortitembox" @click="">
-                                <span class="dropdownname">{{ currentSortMode.name }}</span>
-                                <span class="dropdownicon">&#xf0d7</span>
-                                <div class="dropdownboxborder">
-                                    <div class="dropdownbox">
-                                        <div v-for="sortMode in sortModes" class="dropdownboxitem" :key="sortMode.id" :sortMode="sortMode" @click="changeSortMode(sortMode)">
-                                            <span class="dropdownboxitemselect"><span v-if="currentSortMode.id == sortMode.id">&#xf00c</span></span>
-                                            <span class="dropdownboxitemname">{{ sortMode.name }}</span>
+        </div>
+        <div v-if="isLogin === 1">
+            <div class="container">
+                <div class="leftbox d-none d-md-block">
+                    <div class="headpicturebox">
+                        <img class="img-fluid headpicture" src="https://avatars.githubusercontent.com/u/96218937?v=4"
+                            alt="">
+                    </div>
+                </div>
+                <div class="rightbox">
+                    <div class="projectboxborder">
+                        <div class="projectboxtitlebox">
+                            <div class="projectboxtitle">Projects of Mine</div>
+                            <div class="projectsortbox">Sort by:
+                                <button id="sortitembox" class="projectsortitembox" @click="">
+                                    <span class="dropdownname">{{ currentSortMode.name }}</span>
+                                    <span class="dropdownicon">&#xf0d7</span>
+                                    <div class="dropdownboxborder">
+                                        <div class="dropdownbox">
+                                            <div v-for="sortMode in sortModes" class="dropdownboxitem"
+                                                :key="sortMode.id" :sortMode="sortMode"
+                                                @click="changeSortMode(sortMode)">
+                                                <span class="dropdownboxitemselect"><span
+                                                        v-if="currentSortMode.id == sortMode.id">&#xf00c</span></span>
+                                                <span class="dropdownboxitemname">{{ sortMode.name }}</span>
+                                            </div>
                                         </div>
                                     </div>
-                                </div>
-                            </button>
+                                </button>
+                            </div>
                         </div>
-                    </div>
-                    <div class="projectbox mt-1">
+                        <div class="projectbox mt-1">
+                        </div>
                     </div>
                 </div>
             </div>
+            <button class="btn btn-outline-secondary" @click="logout">退出登录</button>
         </div>
-        <button class="btn btn-outline-secondary" @click="logout">退出登录</button>
     </div>
 </template>
 
@@ -253,7 +272,7 @@ const logout = () => {
     white-space: nowrap;
 }
 
-.projectsortitembox:hover .dropdownicon{
+.projectsortitembox:hover .dropdownicon {
     transform: rotate(360deg);
     transition: transform 0.3s ease-out;
 }
@@ -266,7 +285,7 @@ const logout = () => {
 .dropdownicon {
     display: inline-block;
     font-family: "Font Awesome 6 Free";
-	font-weight: 600;
+    font-weight: 600;
     margin: 0 2px 0 6px;
 }
 
@@ -319,7 +338,7 @@ const logout = () => {
 
 .dropdownboxitemselect {
     font-family: "Font Awesome 6 Free";
-	font-weight: 600;
+    font-weight: 600;
     width: 20px;
     display: flex;
     justify-content: center;

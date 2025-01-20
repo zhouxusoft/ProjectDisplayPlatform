@@ -73,9 +73,9 @@ def login():
     if len(result) > 0:
         # 判断账户状态
         if result[0][7] == 0:
-            return jsonify({'success': False, 'message': '该账号已被封禁'})
+            return jsonify({'success': False, 'message': '该账号已被封禁', 'code': 200})
         if result[0][7] == 2:
-            return jsonify({'success': False, 'message': '该账号已被注销'})
+            return jsonify({'success': False, 'message': '该账号已被注销', 'code': 200})
         # 将用户输入的密码转换为字节串
         user_password_bytes = data['password'].encode('utf-8')
         # 将数据库中的密码转换为字节串
@@ -120,15 +120,15 @@ def login():
             lock.release()
             db.commit()
             response = make_response(
-                jsonify({'success': True, 'message': '登录成功'}))
+                jsonify({'success': True, 'message': '登录成功', 'code': 200}))
             # 登录成功，配置前端 cookie
             response.set_cookie('access-token', accesstoken, domain=DOMAIN,
                                 max_age=TOKEN_INVALID_TIME*24*3600, httponly=True) # type: ignore
             return response
         else:
-            return jsonify({'success': False, 'message': '用户名或密码不正确'})
+            return jsonify({'success': False, 'message': '用户名或密码不正确', 'code': 200})
     else:
-        return jsonify({'success': False, 'message': '用户名或密码不正确'})
+        return jsonify({'success': False, 'message': '用户名或密码不正确', 'code': 200})
 
 # 处理前端注册请求
 @app.route('/register', methods=['POST'])
@@ -143,15 +143,15 @@ def register():
     result = dbcursor.fetchall()
     # 判断该用户名是否存在
     if len(result) > 0:
-        return jsonify({'success': False, 'message': '注册失败\n用户名已存在'})
+        return jsonify({'success': False, 'message': '注册失败\n用户名已存在', 'code': 200})
     else:
         # 进行用户名密码的合法化判断
         if not check_username(data['username']):
-            return jsonify({'success': False, 'message': '注册失败\n用户名不合法'})
+            return jsonify({'success': False, 'message': '注册失败\n用户名不合法', 'code': 200})
         if not check_password(data['password']):
-            return jsonify({'success': False, 'message': '注册失败\n密码不合法'})
+            return jsonify({'success': False, 'message': '注册失败\n密码不合法', 'code': 200})
         if data['password'] != data['repassword']:
-            return jsonify({'success': False, 'message': '注册失败\n两次输入密码不一致'})
+            return jsonify({'success': False, 'message': '注册失败\n两次输入密码不一致', 'code': 200})
         # 对用户的密码进行加密存储
         hashed_password = bcrypt.hashpw(
             data['password'].encode('utf-8'), bcrypt.gensalt())
@@ -161,7 +161,7 @@ def register():
         dbcursor.execute(sql, val)
         lock.release()
         db.commit()
-        return jsonify({'success': True, 'message': '注册成功'})
+        return jsonify({'success': True, 'message': '注册成功', 'code': 200})
 
 # 用于校验前端的登录状态
 @app.route('/checkLogin', methods=['POST'])
@@ -172,9 +172,9 @@ def checkLogin():
     check = checkCookie(token)
     # 向前端返回当前的登录状态
     if check['success']:
-        return jsonify({'success': True, 'data': '当前已登陆'})
+        return jsonify({'success': True, 'data': '当前已登陆', 'code': 200})
     else:
-        return jsonify({'success': False, 'data': '当前未登录'})
+        return jsonify({'success': False, 'data': '当前未登录', 'code': 200})
     
 # 退出登录时，清楚前端的 cookie
 @app.route('/clearCookie', methods=['POST'])
@@ -191,7 +191,7 @@ def clearCookie():
         dbcursor.execute(sql, val)
         lock.release()
         db.commit()
-    response = make_response(jsonify({'success': True, 'message': '已登出'}))
+    response = make_response(jsonify({'success': True, 'message': '已登出', 'code': 200}))
     # 将前端的 cookie 设置为空
     response.set_cookie('access-token', '', expires=0, httponly=True)
     return response
@@ -278,7 +278,7 @@ def projects():
         # print(project)
         projectlist.append(project)
 
-    return jsonify({'success': True, 'data': projectlist})
+    return jsonify({'success': True, 'data': projectlist, 'code': 200})
 
 # 返回 kinds 数据
 @app.route('/kinds', methods=['GET'])
@@ -323,7 +323,7 @@ def languages():
         languagelist.append(language)
     # print(kindlist[0]['isactive'])
     
-    return jsonify({'success': True, 'data': languagelist})
+    return jsonify({'success': True, 'data': languagelist, 'code': 200})
 
 # 返回 tags 数据
 @app.route('/tags', methods=['GET'])
@@ -343,7 +343,7 @@ def tags():
         taglist.append(language)
     # print(kindlist[0]['isactive'])
     
-    return jsonify({'success': True, 'data': taglist})
+    return jsonify({'success': True, 'data': taglist, 'code': 200})
 
 # 判断 access-token 是否有效
 def checkCookie(token):
@@ -358,10 +358,10 @@ def checkCookie(token):
     if len(result) > 0:
         current_time = datetime.now()  # type: ignore
         if isTimeOut(result[0][3], current_time):
-            return ({'success': False, 'message': '登陆过期'})
-        return  ({'success': True, 'message': '已登录'})
+            return ({'success': False, 'message': '登陆过期', 'code': 200})
+        return  ({'success': True, 'message': '已登录', 'code': 200})
     else:
-        return ({'success': False, 'message': '未登录'})
+        return ({'success': False, 'message': '未登录', 'code': 200})
 
 # 判断 cookie 是否过期
 def isTimeOut(time1, time2):
