@@ -1,5 +1,6 @@
 // api.js
 import axios from 'axios'
+import { ElMessage } from 'element-plus'
 
 // 创建axios实例
 const instance = axios.create({
@@ -31,7 +32,7 @@ instance.interceptors.response.use(
         plain: true,
         offset: 9,
       })
-      router.push({ path: '/login' })
+      window.location.href = '/login'
     }
 
     return response.data

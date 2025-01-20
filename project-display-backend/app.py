@@ -302,7 +302,7 @@ def kinds():
     if len(kindlist) > 0:
         kindlist[0]['isactive'] = True
     
-    return jsonify({'success': True, 'data': kindlist})
+    return jsonify({'success': True, 'data': kindlist, 'code': 200})
 
 # 返回 languages 数据
 @app.route('/languages', methods=['GET'])
