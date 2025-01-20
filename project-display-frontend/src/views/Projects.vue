@@ -4,6 +4,9 @@ import ProjectItem from '../components/ProjectItem.vue'
 import LeftNavItem from '../components/LeftNavItem.vue'
 import LeftLanguageItem from '../components/LeftLanguageItem.vue'
 import LeftTagItem from '../components/LeftTagItem.vue'
+import { ElMessage } from 'element-plus'
+import { projectsAPI, kindsAPI, languagesAPI, tagsAPI } from '../api/api'
+
 const projects = ref([
 	{
 		id: 1,
@@ -351,20 +354,9 @@ const getProjects = () => {
 		page: currentpage,
 	}
 	// 发送获取数据请求
-	fetch('http://127.0.0.1:5000/projects', {
-		method: 'POST',
-		headers: {
-			'Content-Type': 'application/json', // 设置请求头
-		},
-		credentials: 'include', // 在跨域请求中发送 cookies 和 http 认证信息
-		body: JSON.stringify(toSend), // 设置请求体
-	}).then(response => response.json()).then(data => {
-		// 处理获取的数据
-		// console.log(data.data)
-		projects.value = data.data
-		starnumFormat()
+	projectsAPI(toSend).then(res => {
+		projects.value = res.data
 	}).catch(error => {
-		// 处理请求错误
 		console.error('Error:', error)
 	})
 }
@@ -374,18 +366,9 @@ const getProjects = () => {
  */
 const getKinds = () => {
 	// 发送获取数据请求
-	fetch('http://127.0.0.1:5000/kinds', {
-		method: 'GET',
-		headers: {
-			'Content-Type': 'application/json', // 设置请求头
-		},
-		credentials: 'include', // 在跨域请求中发送 cookies 和 http 认证信息
-	}).then(response => response.json()).then(data => {
-		// 处理获取的数据
-		// console.log(data.data)
-		kinds.value = data.data
+	kindsAPI().then(res => {
+		kinds.value = res.data
 	}).catch(error => {
-		// 处理请求错误
 		console.error('Error:', error)
 	})
 }
@@ -395,19 +378,10 @@ const getKinds = () => {
  */
 const getLanguages = () => {
 	// 发送获取数据请求
-	fetch('http://127.0.0.1:5000/languages', {
-		method: 'GET',
-		headers: {
-			'Content-Type': 'application/json', // 设置请求头
-		},
-		credentials: 'include', // 在跨域请求中发送 cookies 和 http 认证信息
-	}).then(response => response.json()).then(data => {
-		// 处理获取的数据
-		// console.log(data.data)
-		alllanguages = data.data
+	languagesAPI().then(res => {
+		alllanguages = res.data
 		languages.value = alllanguages.slice(0, baselanguageaddnum)
 	}).catch(error => {
-		// 处理请求错误
 		console.error('Error:', error)
 	})
 }
@@ -417,19 +391,10 @@ const getLanguages = () => {
  */
 const getTags = () => {
 	// 发送获取数据请求
-	fetch('http://127.0.0.1:5000/tags', {
-		method: 'GET',
-		headers: {
-			'Content-Type': 'application/json', // 设置请求头
-		},
-		credentials: 'include', // 在跨域请求中发送 cookies 和 http 认证信息
-	}).then(response => response.json()).then(data => {
-		// 处理获取的数据
-		// console.log(data.data)
-		alltags = data.data
+	tagsAPI().then(res => {
+		alltags = res.data
 		setCurrentTagList()
 	}).catch(error => {
-		// 处理请求错误
 		console.error('Error:', error)
 	})
 }
@@ -482,7 +447,7 @@ getAllInfo()
 		</div>
 		<div class="straightline"></div>
 		<div class="mainprojects px-4 py-3">
-			<ProjectItem v-for="project  in  projects" :key="project.id" :project="project" :starred="starred" />
+			<ProjectItem v-for="project in projects" :key="project.id" :project="project" :starred="starred" />
 			<button class="btn btn-success" @click="clickbtn()">add</button>
 		</div>
 		<div class="rightnav d-none d-xl-block">

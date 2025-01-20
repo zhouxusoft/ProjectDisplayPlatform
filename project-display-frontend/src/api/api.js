@@ -19,3 +19,23 @@ export function loginAPI(data) {
 export function registerAPI(data) {
   return api.post('/register', data)
 }
+
+// 获取项目信息
+export function projectsAPI(data) {
+  return api.post('/projects', data)
+}
+
+// 获取展示类型数据
+export function kindsAPI() {
+  return api.get('/kinds', {})
+}
+
+// 获取语言种类数据
+export function languagesAPI() {
+  return api.get('/languages', {})
+}
+
+// 获取标签数据
+export function tagsAPI() {
+  return api.get('/tags', {})
+}
