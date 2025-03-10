@@ -198,6 +198,9 @@ const chooseLanguage = (language) => {
 		}
 		language.isactive = true
 		currentlanguage = language.id
+	} else if (language.isactive && currentkind == 1) {
+		language.isactive = false
+		currentlanguage = 0
 	}
 	setCurrentUrl()
 }

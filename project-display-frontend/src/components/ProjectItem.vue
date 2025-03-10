@@ -1,5 +1,8 @@
 <template>
 	<div class="projectdata p-3">
+		<div class="project_img_box" v-if="true">
+			<img src="../assets/images/test114.png" alt="Project Image" class="project_img" style="width: 160px;">
+		</div>
 		<div class="projectinfo">
 			<div class="projecttop">
 				<div class="projectusericonbox">
@@ -70,11 +73,25 @@ export default {
 }
 </script>
 
-<style scoped>
+<style lang="scss" scoped>
 .projectdata {
 	border: 1px solid #666666;
 	border-radius: 6px;
 	display: flex;
+
+	&:hover {
+		box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.12);
+		background-color: #FDFDFD;
+	}
+}
+
+.project_img_box {
+	width: 160px;
+	height: 90px;
+	margin-right: 16px;
+	background-color: #F5F6F7;
+	display: flex;
+	align-items: center;
 }
 
 .projectinfo {
