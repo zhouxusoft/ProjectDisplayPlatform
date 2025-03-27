@@ -45,7 +45,7 @@ onMounted(() => {
 			homelink.classList.add('activelink')
 			projectslink.classList.remove('activelink')
 			aboutlink.classList.remove('activelink')
-		} else if (to.path === '/projects') {
+		} else if (to.path === '/projects' || to.path === '/project') {
 			homelink.classList.remove('activelink')
 			projectslink.classList.add('activelink')
 			aboutlink.classList.remove('activelink')
@@ -72,13 +72,13 @@ onMounted(() => {
 				<ul class="navbar-nav me-auto mb-2 mb-lg-0"
 					v-show="currentroute != '/login' && currentroute != '/register'">
 					<li class="nav-item px-2 pt-3" id="homelink">
-						<a class="nav-link" aria-current="page" href="#">Hello</a>
+						<a class="nav-link" aria-current="page" href="/">Hello</a>
 					</li>
 					<li class="nav-item px-2 pt-3" id="projectslink">
-						<a class="nav-link" href="#/projects">World</a>
+						<a class="nav-link" href="/projects">World</a>
 					</li>
 					<li class="nav-item px-2 pt-3" id="aboutlink">
-						<a class="nav-link" href="#/about">Stars</a>
+						<a class="nav-link" href="/about">Stars</a>
 					</li>
 				</ul>
 				<div class="p-2" v-show="currentroute != '/login' && currentroute != '/register'">

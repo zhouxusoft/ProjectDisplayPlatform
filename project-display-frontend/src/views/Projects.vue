@@ -6,28 +6,33 @@ import LeftLanguageItem from '../components/LeftLanguageItem.vue'
 import LeftTagItem from '../components/LeftTagItem.vue'
 import { ElMessage } from 'element-plus'
 import { projectsAPI, kindsAPI, languagesAPI, tagsAPI } from '../api/api'
+import { useRouter } from 'vue-router'
+
+const router = useRouter()
 
 const projects = ref([
-	{
-		id: 1,
-		usericon: "https://avatars.githubusercontent.com/u/96218937?s=96&v=4",
-		name: "RainManGO/vue3-composition-admin",
-		main: "🎉 基于vue3 的管理端模板(Vue3 TS Vuex4 element-plus vue-i18n-next composition-api) vue3-admin vue3-ts-admin",
-		tags: ["JavaScript", "Flask", "Vue", "BootStrap"],
-		language: { color: "449633", name: "Vue" },
-		starnum: 99586,
-		updatetime: "2022/8/19"
-	},
-	{
-		id: 2,
-		usericon: "https://avatars.githubusercontent.com/u/96218937?s=96&v=4",
-		name: "jeecgboot/jeecgboot-vue3",
-		main: "🔥 JeecgBoot—Vue3版前端源码，采用 Vue3.0+TypeScript+Vite+Ant-Design-Vue等新技术方案，包括二次封装组件、utils、hooks、动态菜单、权限校验、按钮级别权限控制等功能。 是JeecgBoot低代码平台的vue3技术栈的全…",
-		tags: ["JavaScript", "Vue", "BootStrap"],
-		language: { color: "481828", name: "JavaScript" },
-		starnum: 758,
-		updatetime: "2022/8/19"
-	}
+	// {
+	// 	id: 1,
+	// 	usericon: "https://avatars.githubusercontent.com/u/96218937?s=96&v=4",
+	// 	name: "RainManGO/vue3-composition-admin",
+	// 	main: "🎉 基于vue3 的管理端模板(Vue3 TS Vuex4 element-plus vue-i18n-next composition-api) vue3-admin vue3-ts-admin",
+	// 	tags: ["JavaScript", "Flask", "Vue", "BootStrap"],
+	// 	language: { color: "449633", name: "Vue" },
+	// 	starnum: 99586,
+	// 	updatetime: "2022/8/19",
+	// 	cover: '123',
+	// },
+	// {
+	// 	id: 2,
+	// 	usericon: "https://avatars.githubusercontent.com/u/96218937?s=96&v=4",
+	// 	name: "jeecgboot/jeecgboot-vue3",
+	// 	main: "🔥 JeecgBoot—Vue3版前端源码，采用 Vue3.0+TypeScript+Vite+Ant-Design-Vue等新技术方案，包括二次封装组件、utils、hooks、动态菜单、权限校验、按钮级别权限控制等功能。 是JeecgBoot低代码平台的vue3技术栈的全…",
+	// 	tags: ["JavaScript", "Vue", "BootStrap"],
+	// 	language: { color: "481828", name: "JavaScript" },
+	// 	starnum: 758,
+	// 	updatetime: "2022/8/19",
+	// 	cover: '123',
+	// }
 ])
 const kinds = ref([
 	{
@@ -301,51 +306,34 @@ const getCurrentUrl = () => {
 /**
  * 根据用户选择的类型、标签、语言，设置url
  */
-const setCurrentUrl = () => {
-	let kindurl = ''
-	let languageurl = ''
-	let tagsurl = []
-	for (let i = 0; i < kinds.value.length; i++) {
-		if (currentkind == kinds.value[i].id) {
-			kindurl = kinds.value[i].name
-			break
-		}
-	}
-	for (let i = 0; i < languages.value.length; i++) {
-		if (currentlanguage == 0) {
-			break
-		}
-		if (currentlanguage == languages.value[i].id) {
-			languageurl = languages.value[i].name
-			break
-		}
-	}
-	for (const id of activetags) {
-		const matchingObject = tags.value.find(item => item.id === id)
-		if (matchingObject) {
-			tagsurl.push(matchingObject.name)
-		}
-	}
-	let route = ''
-	if (kindurl) {
-		route = 'kind=' + kindurl
-	}
-	if (languageurl) {
-		route += '&language=' + languageurl
-	}
-	if (tagsurl.length > 0) {
-		route += '&tags='
-		for (let i = 0; i < tagsurl.length; i++) {
-			route += tagsurl[i] + '&'
-		}
-		route = route.slice(0, -1)
-	}
-	// console.log(kindurl)
-	// console.log(languageurl)
-	// console.log(tagsurl)
-	// console.log(route)
-	window.location = getCurrentUrl().route + '?' + route + '&page=' + currentpage
-	return getCurrentUrl().route + '?' + route
+ const setCurrentUrl = () => {
+  const queryParams = new URLSearchParams()
+
+  // 处理 kind 参数
+  const activeKind = kinds.value.find(k => k.id === currentkind)
+  if (activeKind) queryParams.set('kind', activeKind.name)
+
+  // 处理 language 参数
+  if (currentlanguage !== 0) {
+    const activeLang = languages.value.find(l => l.id === currentlanguage)
+    if (activeLang) queryParams.set('language', activeLang.name)
+  }
+
+  // 处理 tags 参数
+  const activeTags = tags.value
+    .filter(t => activetags.includes(t.id))
+    .map(t => t.name);
+  if (activeTags.length > 0) {
+    queryParams.set('tags', activeTags.join(','))
+  }
+
+  // 添加页码
+  queryParams.set('page', currentpage)
+
+  // 执行路由跳转
+  router.push({
+    query: Object.fromEntries(queryParams)
+  })
 }
 setCurrentUrl()
 

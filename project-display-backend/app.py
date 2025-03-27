@@ -269,6 +269,8 @@ def projects():
             'userid': result[i][1],
             'usericon': usericon,
             'name': result[i][2],
+            'main': result[i][3],
+            'cover': result[i][8],
             'tags': tags,
             'tagids': tagids,
             'language': language,

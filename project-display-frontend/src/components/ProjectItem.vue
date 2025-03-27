@@ -1,15 +1,16 @@
 <template>
 	<div class="projectdata p-3">
-		<div class="project_img_box" v-if="true">
-			<img src="../assets/images/test114.png" alt="Project Image" class="project_img" style="width: 160px;">
+		<div class="project_img_box_border d-none d-lg-block" v-if="project.cover">
+			<div class="project_img_box">
+				<img :src="imgUrl" alt="图片加载失败" class="project_img" style="width: 160px;" @error="handleImageError">
+			</div>
 		</div>
 		<div class="projectinfo">
 			<div class="projecttop">
 				<div class="projectusericonbox">
-					<img :src="project.usericon" alt="User Icon"
-						class="projectusericon">
+					<img :src="project.usericon" alt="User Icon" class="projectusericon">
 				</div>
-				<div class="projectnamebox">
+				<div class="projectnamebox" @click="toProjectDetail(project.id)">
 					<span class="projectname">{{ project.name }}</span>
 				</div>
 			</div>
@@ -55,12 +56,17 @@ export default {
 			required: true
 		},
 	},
+	data() {
+		return {
+			imgUrl: this.project.cover
+		}
+	},
 	methods: {
 		isStared(projectid) {
 			return this.starred.some((item) => item.projectid === projectid)
 		},
 		projectStar(projectid) {
-			this.starred.push({id: this.starred.length + 1, projectid: projectid})
+			this.starred.push({ id: this.starred.length + 1, projectid: projectid })
 		},
 		projectUnstar(projectid) {
 			for (let i = 0; i < this.starred.length; i++) {
@@ -69,6 +75,15 @@ export default {
 				}
 			}
 		},
+		handleImageError(event) {
+      // 检查当前src是否已经是默认图片，避免无限循环
+      if (!event.target.src.endsWith('/error_img.png')) {
+        this.imgUrl = '/error_img.png'
+      }
+    },
+		toProjectDetail(projectid) {
+			this.$router.push({ path: `/projectDetail/${projectid}` })
+		}
 	},
 }
 </script>
@@ -85,9 +100,13 @@ export default {
 	}
 }
 
+.project_img_box_border {
+	display: flex;
+}
+
 .project_img_box {
 	width: 160px;
-	height: 90px;
+	height: 100px;
 	margin-right: 16px;
 	background-color: #F5F6F7;
 	display: flex;
@@ -164,6 +183,15 @@ export default {
 	margin-top: 4px;
 	font-size: 14px;
 	word-wrap: break-word;
+	display: -webkit-box;
+	/* 必须指定为块级元素 */
+	-webkit-box-orient: vertical;
+	/* 设置为垂直布局 */
+	-webkit-line-clamp: 2;
+	line-clamp: 2;
+	/* 显示的行数 */
+	overflow: hidden;
+	/* 隐藏溢出的文本 */
 }
 
 .starfontbtn {

@@ -104,7 +104,7 @@ onMounted(() => {
   <div class="container">
     <div class="borderbox">
       <div class="ltop top">
-        <a href="#/">GodxuHub 登录</a>
+        <a href="/">GodxuHub 登录</a>
       </div>
       <div class="hr"></div>
       <div class="box">
@@ -117,7 +117,7 @@ onMounted(() => {
         </div>
         <div class="btnbox">
           <button @click="login()" type="submit" class="sbtn" id="loginbtn">确认登录</button>
-          <button type="button" class="sbtn" onclick="location='#/register'">前往注册</button>
+          <button type="button" class="sbtn" onclick="location='/register'">前往注册</button>
         </div>
       </div>
       <div class="hr"></div>
