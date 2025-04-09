@@ -8,7 +8,9 @@ import Projects from './views/Projects.vue'
 import About from './views/About.vue'
 import Login from './views/Login.vue'
 import Register from './views/Register.vue'
-import projectDetail from './views/projectDetail.vue'
+import ProjectDetail from './views/ProjectDetail.vue'
+import NewProject from './views/NewProject.vue'
+import Chat from './views/Chat.vue'
 
 // 定义路由
 const router = createRouter(
@@ -22,9 +24,11 @@ const router = createRouter(
             { path: '/register', component: Register },
             {
                 path: '/projectDetail/:id',
-                component: projectDetail,
+                component: ProjectDetail,
                 props: true
             },
+            { path: '/newProject', component: NewProject },
+            { path: '/chat', component: Chat },
         ]
     }
 )

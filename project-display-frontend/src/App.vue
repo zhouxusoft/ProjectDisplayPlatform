@@ -70,7 +70,7 @@ onMounted(() => {
 			<div class="autobox d-none d-lg-block"></div>
 			<div class="collapse navbar-collapse" id="navbarTogglerDemo03">
 				<ul class="navbar-nav me-auto mb-2 mb-lg-0"
-					v-show="currentroute != '/login' && currentroute != '/register'">
+					v-show="currentroute != '/login' && currentroute != '/register' && currentroute != '/newProject' && currentroute != '/chat'">
 					<li class="nav-item px-2 pt-3" id="homelink">
 						<a class="nav-link" aria-current="page" href="/">Hello</a>
 					</li>
@@ -81,7 +81,7 @@ onMounted(() => {
 						<a class="nav-link" href="/about">Stars</a>
 					</li>
 				</ul>
-				<div class="p-2" v-show="currentroute != '/login' && currentroute != '/register'">
+				<div class="p-2" v-show="currentroute != '/login' && currentroute != '/register' && currentroute != '/newProject' && currentroute != '/chat'">
 					<div class="searchinputbox d-flex me-1" :class="{ focused: isinputfocus }">
 						<div class="form-control form-control-sm searchlogo"></div>
 						<input class="form-control form-control-sm searchinput p-0" placeholder="Search"

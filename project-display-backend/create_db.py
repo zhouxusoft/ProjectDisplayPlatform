@@ -174,6 +174,57 @@ def create_database():
                         `icon` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL,
                         PRIMARY KEY (`id`) USING BTREE
                         ) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci ROW_FORMAT = Dynamic;""")
+    
+    dbcursor.execute("""CREATE TABLE IF NOT EXISTS `user_browse` (
+                        `id` int NOT NULL AUTO_INCREMENT,
+                        `user_id` int NOT NULL,
+                        `project_id` int NOT NULL,
+                        `browse_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+                        PRIMARY KEY (`id`) USING BTREE,
+                        INDEX `fk_user_browse_user_id_users_user_id`(`user_id` ASC) USING BTREE,
+                        INDEX `fk_user_browse_project_id_projects_id`(`project_id` ASC) USING BTREE,
+                        CONSTRAINT `fk_user_browse_user_id_users_user_id` FOREIGN KEY (`user_id`) REFERENCES `project_display`.`users` (`user_id`) ON DELETE CASCADE ON UPDATE CASCADE,
+                        CONSTRAINT `fk_user_browse_project_id_projects_id` FOREIGN KEY (`project_id`) REFERENCES `project_display`.`projects` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
+                    ) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci ROW_FORMAT = Dynamic;""")
+    
+    dbcursor.execute("""CREATE TABLE IF NOT EXISTS `user_comment` (
+                        `id` int NOT NULL AUTO_INCREMENT,
+                        `user_id` int NOT NULL,
+                        `project_id` int NOT NULL,
+                        `comment_content` text CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
+                        `comment_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+                        PRIMARY KEY (`id`) USING BTREE,
+                        INDEX `fk_user_comment_user_id_users_user_id`(`user_id` ASC) USING BTREE,
+                        INDEX `fk_user_comment_project_id_projects_id`(`project_id` ASC) USING BTREE,
+                        CONSTRAINT `fk_user_comment_user_id_users_user_id` FOREIGN KEY (`user_id`) REFERENCES `project_display`.`users` (`user_id`) ON DELETE CASCADE ON UPDATE CASCADE,
+                        CONSTRAINT `fk_user_comment_project_id_projects_id` FOREIGN KEY (`project_id`) REFERENCES `project_display`.`projects` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
+                    ) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci ROW_FORMAT = Dynamic;""")
+    
+    dbcursor.execute("""CREATE TABLE IF NOT EXISTS `user_message` (
+                        `id` int NOT NULL AUTO_INCREMENT,
+                        `sender_id` int NOT NULL,
+                        `receiver_id` int NOT NULL,
+                        `message_type` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
+                        `message_content` text CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
+                        `send_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+                        PRIMARY KEY (`id`) USING BTREE,
+                        INDEX `fk_user_message_sender_id_users_user_id`(`sender_id` ASC) USING BTREE,
+                        INDEX `fk_user_message_receiver_id_users_user_id`(`receiver_id` ASC) USING BTREE,
+                        CONSTRAINT `fk_user_message_sender_id_users_user_id` FOREIGN KEY (`sender_id`) REFERENCES `project_display`.`users` (`user_id`) ON DELETE CASCADE ON UPDATE CASCADE,
+                        CONSTRAINT `fk_user_message_receiver_id_users_user_id` FOREIGN KEY (`receiver_id`) REFERENCES `project_display`.`users` (`user_id`) ON DELETE CASCADE ON UPDATE CASCADE
+                    ) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci ROW_FORMAT = Dynamic;""")
+    
+    dbcursor.execute("""CREATE TABLE IF NOT EXISTS `system_notification` (
+                        `id` int NOT NULL AUTO_INCREMENT,
+                        `user_id` int NOT NULL,
+                        `notification_type` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
+                        `notification_content` text CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
+                        `notification_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+                        `is_read` boolean NOT NULL DEFAULT 0,
+                        PRIMARY KEY (`id`) USING BTREE,
+                        INDEX `fk_system_notification_user_id_users_user_id`(`user_id` ASC) USING BTREE,
+                        CONSTRAINT `fk_system_notification_user_id_users_user_id` FOREIGN KEY (`user_id`) REFERENCES `project_display`.`users` (`user_id`) ON DELETE CASCADE ON UPDATE CASCADE
+                    ) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci ROW_FORMAT = Dynamic;""")
 
     # 触发器，使 project 的 starred_num 与 user_starred 的数据保持一致
     dbcursor.execute("""CREATE TRIGGER IF NOT EXISTS update_starred_num

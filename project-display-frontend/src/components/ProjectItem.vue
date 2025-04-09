@@ -111,6 +111,7 @@ export default {
 	background-color: #F5F6F7;
 	display: flex;
 	align-items: center;
+	overflow: hidden;
 }
 
 .projectinfo {

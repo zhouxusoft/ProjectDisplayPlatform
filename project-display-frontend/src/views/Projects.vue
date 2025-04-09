@@ -457,6 +457,7 @@ getAllInfo()
 			</div>
 		</div>
 	</div>
+  <div class="addproject" @click="this.$router.push('/newProject')">+</div>
 </template>
 
 <style scoped>
@@ -599,5 +600,21 @@ getAllInfo()
 	margin: 0 8px 0 4px;
 	padding-top: 1px;
 	color: red;
+}
+
+.addproject {
+	width: 40px;
+	height: 40px;
+	position: fixed;
+	bottom: 20px;
+	right: 20px;
+	border: 1px solid #FC5531;
+	border-radius: 50%;
+	background-color: #FC5531;
+	color: white;
+	font-size: 24px;
+	text-align: center;
+	cursor: pointer;
+	box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.2);
 }
 </style>
