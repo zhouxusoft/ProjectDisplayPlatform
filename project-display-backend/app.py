@@ -347,6 +347,98 @@ def tags():
     
     return jsonify({'success': True, 'data': taglist, 'code': 200})
 
+# 查询用户历史记录
+@app.route('/history', methods=['POST'])
+def get_history():
+    if True:
+        return jsonify({"status": "success", "message": "Message sent successfully"}), 201
+    else:
+        return jsonify({"status": "error", "message": "Message sending failed"}), 400
+
+# 获取用户的点赞记录
+@app.route('/likes', methods=['POST'])
+def get_likes():
+    if True:
+        return jsonify({"status": "success", "message": "Message sent successfully"}), 201
+    else:
+        return jsonify({"status": "error", "message": "Message sending failed"}), 400
+
+# 获取用户的关注列表
+@app.route('/followed', methods=['POST'])
+def get_followed():
+    if True:
+        return jsonify({"status": "success", "message": "Message sent successfully"}), 201
+    else:
+        return jsonify({"status": "error", "message": "Message sending failed"}), 400
+    
+# 获取用户的粉丝列表
+@app.route('/following', methods=['POST'])
+def get_following():
+    if True:
+        return jsonify({"status": "success", "message": "Message sent successfully"}), 201
+    else:
+        return jsonify({"status": "error", "message": "Message sending failed"}), 400
+
+# 更新用户个人资料
+@app.route('/updateProfile', methods=['POST'])
+def update_profile():
+    if True:
+        return jsonify({"status": "success", "message": "Message sent successfully"}), 201
+    else:
+        return jsonify({"status": "error", "message": "Message sending failed"}), 400
+
+# 获取用户的私信列表
+@app.route('/messages', methods=['POST'])
+def get_messages():
+    if True:
+        return jsonify({"status": "success", "message": "Message sent successfully"}), 201
+    else:
+        return jsonify({"status": "error", "message": "Message sending failed"}), 400
+
+# 创建私信
+@app.route('/createMessage', methods=['POST'])
+def create_message():
+    if True:
+        return jsonify({"status": "success", "message": "Message sent successfully"}), 201
+    else:
+        return jsonify({"status": "error", "message": "Message sending failed"}), 400
+
+# 发送私信
+@app.route('/sendMessage', methods=['POST'])
+def send_message():
+    if True:
+        return jsonify({"status": "success", "message": "Message sent successfully"}), 201
+    else:
+        return jsonify({"status": "error", "message": "Message sending failed"}), 400
+    
+# 更新私信
+@app.route('/getMessage', methods=['POST'])
+def get_message():
+    if True:
+        return jsonify({"status": "success", "message": "Message sent successfully"}), 201
+    else:
+        return jsonify({"status": "error", "message": "Message sending failed"}), 400
+
+# 查询特定文章的评论
+@app.route('/comments', methods=['POST'])
+def get_comments():
+    if True:
+        return jsonify({"status": "success", "message": "Message sent successfully"}), 201
+    else:
+        return jsonify({"status": "error", "message": "Message sending failed"}), 400
+
+# 删除用户的某条评论
+@app.route('/deleteComment', methods=['POST'])
+def delete_comment():
+    comment_id = request.json.get('comment_id')
+    # 删除评论的数据库逻辑
+    delete_status = # delete_comment_in_database(comment_id)
+    if delete_status:
+        return jsonify({"status": "success", "message": "Comment deleted successfully"}), 200
+    else:
+        return jsonify({"status": "error", "message": "Comment deletion failed"}), 400
+
+
 # 判断 access-token 是否有效
 def checkCookie(token):
     # 判断当前 token 是否存在于数据库中
