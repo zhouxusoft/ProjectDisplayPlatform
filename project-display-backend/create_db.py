@@ -174,7 +174,7 @@ def create_database():
                         `icon` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '类型图标',\
                         PRIMARY KEY (`id`) USING BTREE\
                         ) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci ROW_FORMAT = Dynamic;""")
-    # `user_browse` 用于存储用户浏览项目的记录`
+    # `user_browse` 用于存储用户浏览项目的记录
     dbcursor.execute("""CREATE TABLE IF NOT EXISTS `user_browse` (
                         `id` int NOT NULL AUTO_INCREMENT COMMENT '自增id',\
                         `user_id` int NOT NULL COMMENT '用户id',\
