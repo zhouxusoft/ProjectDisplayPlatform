@@ -120,6 +120,46 @@ const starred = ref([
 		projectid: 3
 	}
 ])
+const users = ref([
+	{
+		id: 1,
+		usericon: "https://avatars.githubusercontent.com/u/96218937?s=96&v=4",
+		nickname: "RainManGO",
+		bio: '代码大师，我可以解答你的任何问题，快关注我吧。',
+		follower: 8,
+		following: 12,
+		projects: 7,
+	},
+	{
+		id: 2,
+		usericon: "https://avatars.githubusercontent.com/u/96218937?s=96&v=4",
+		nickname: "RainManGO",
+		bio: '代码大师，我可以解答你的任何问题，快关注我吧。',
+		follower: 8,
+		following: 12,
+		projects: 7,
+	}
+])
+const circles = ref([
+	{
+		id: 1,
+		circleicon: "https://avatars.githubusercontent.com/u/96218937?s=96&v=4",
+		name: "豫章千万少女的梦",
+		description: '传奇寝室10207，进来听听我们的故事。',
+		members: 8,
+		fans: 120,
+		projects: 17,
+	},
+	{
+		id: 2,
+		circleicon: "https://avatars.githubusercontent.com/u/96218937?s=96&v=4",
+		name: "豫章千万少女的梦",
+		description: '传奇寝室10207，进来听听我们的故事。',
+		members: 8,
+		fans: 120,
+		projects: 17,
+	}
+])
 
 /**
  * 格式化收藏数量
@@ -133,7 +173,6 @@ const starnumFormat = () => {
 		}
 	}
 }
-
 
 // 记录参数；类型、语言、标签、页码
 let currentkind = 1
@@ -154,19 +193,6 @@ let tagaddnum = 1
 const lastlanguageaddtip = ref([true, 'More languages...'])
 const lasttagaddtip = ref([true, 'More tags...'])
 
-const clickbtn = () => {
-	projects.value.push({
-		id: projects.value.length + 1,
-		name: "Godxu字体库Godxu字体库Godxu字体库",
-		main: "Flask",
-		tags: ["JavaScript", "Flask", "BootStrap"],
-		language: { color: "747252", name: "Golang" },
-		starnum: "97000",
-		updatetime: "2022/8/19"
-	})
-	starnumFormat()
-}
-
 /**
  * 点击选择左侧的展示类型
  * @param {JSON} kind 
@@ -178,7 +204,7 @@ const chooseLeftNav = (kind) => {
 		}
 		kind.isactive = true
 	}
-	if (kind.name == "Users") {
+	if (kind.name != "Projects") {
 		for (let i = 0; i < languages.value.length; i++) {
 			languages.value[i].isactive = false
 		}
@@ -306,34 +332,34 @@ const getCurrentUrl = () => {
 /**
  * 根据用户选择的类型、标签、语言，设置url
  */
- const setCurrentUrl = () => {
-  const queryParams = new URLSearchParams()
+const setCurrentUrl = () => {
+	const queryParams = new URLSearchParams()
 
-  // 处理 kind 参数
-  const activeKind = kinds.value.find(k => k.id === currentkind)
-  if (activeKind) queryParams.set('kind', activeKind.name)
+	// 处理 kind 参数
+	const activeKind = kinds.value.find(k => k.id === currentkind)
+	if (activeKind) queryParams.set('kind', activeKind.name)
 
-  // 处理 language 参数
-  if (currentlanguage !== 0) {
-    const activeLang = languages.value.find(l => l.id === currentlanguage)
-    if (activeLang) queryParams.set('language', activeLang.name)
-  }
+	// 处理 language 参数
+	if (currentlanguage !== 0) {
+		const activeLang = languages.value.find(l => l.id === currentlanguage)
+		if (activeLang) queryParams.set('language', activeLang.name)
+	}
 
-  // 处理 tags 参数
-  const activeTags = tags.value
-    .filter(t => activetags.includes(t.id))
-    .map(t => t.name);
-  if (activeTags.length > 0) {
-    queryParams.set('tags', activeTags.join(','))
-  }
+	// 处理 tags 参数
+	const activeTags = tags.value
+		.filter(t => activetags.includes(t.id))
+		.map(t => t.name);
+	if (activeTags.length > 0) {
+		queryParams.set('tags', activeTags.join(','))
+	}
 
-  // 添加页码
-  queryParams.set('page', currentpage)
+	// 添加页码
+	queryParams.set('page', currentpage)
 
-  // 执行路由跳转
-  router.push({
-    query: Object.fromEntries(queryParams)
-  })
+	// 执行路由跳转
+	router.push({
+		query: Object.fromEntries(queryParams)
+	})
 }
 setCurrentUrl()
 
@@ -347,6 +373,7 @@ const getProjects = () => {
 	// 发送获取数据请求
 	projectsAPI(toSend).then(res => {
 		projects.value = res.data
+		starnumFormat()
 	}).catch(error => {
 		console.error('Error:', error)
 	})
@@ -412,34 +439,62 @@ getAllInfo()
 					<LeftNavItem v-for="kind in kinds" :key="kind.id" :kind="kind" @click="chooseLeftNav(kind)" />
 				</div>
 				<div class="fengeline"></div>
-				<div class="languagetitle">Lagnuages</div>
-				<div class="languagegroupbox p-2">
-					<LeftLanguageItem v-for="language in languages" :key="language.id" :language="language"
-						@click="chooseLanguage(language)" />
-					<div class="addmorelanguage" @click="addMoreLanguages"><span class="addmoreicon"
-							v-if="lastlanguageaddtip[0]">&#x2b</span><span class="addlessicon" v-else>&#xf068</span>{{
-								lastlanguageaddtip[1] }}</div>
+				<div v-if="currentkind == 1">
+					<div class="languagetitle">Lagnuages</div>
+					<div class="languagegroupbox p-2">
+						<LeftLanguageItem v-for="language in languages" :key="language.id" :language="language"
+							@click="chooseLanguage(language)" />
+						<div class="addmorelanguage" @click="addMoreLanguages"><span class="addmoreicon"
+								v-if="lastlanguageaddtip[0]">&#x2b</span><span class="addlessicon" v-else>&#xf068</span>{{
+									lastlanguageaddtip[1] }}</div>
+					</div>
+					<div class="fengeline"></div>
+					<div class="resettagbox">
+						<div class="languagetitle">Tags</div>
+						<div class="resettags" @click="resetTag()">Reset</div>
+					</div>
+					<div class="taggroupbox">
+						<LeftTagItem v-for="tag in tags" :key="tag.id" :tag="tag" @click="chooseTag(tag)" />
+						<div class="addmoretag" @click="addMoreTags"><span class="addmoreicon"
+								v-if="lasttagaddtip[0]">&#x2b</span><span class="addlessicon" v-else>&#xf068</span>{{
+									lasttagaddtip[1] }}</div>
+					</div>
 				</div>
-				<div class="fengeline"></div>
-				<div class="resettagbox">
-					<div class="languagetitle">Tags</div>
-					<div class="resettags" @click="resetTag()">Reset</div>
-				</div>
-				<div class="taggroupbox">
-					<LeftTagItem v-for="tag in tags" :key="tag.id" :tag="tag" @click="chooseTag(tag)" />
-					<div class="addmoretag" @click="addMoreTags"><span class="addmoreicon"
-							v-if="lasttagaddtip[0]">&#x2b</span><span class="addlessicon" v-else>&#xf068</span>{{
-								lasttagaddtip[1] }}</div>
-				</div>
-				<div class="languagegroupbox px-2">
-
-				</div>
+				<div class="languagegroupbox px-2"></div>
 			</div>
 		</div>
 		<div class="straightline"></div>
 		<div class="mainprojects px-4 py-3">
-			<ProjectItem v-for="project in projects" :key="project.id" :project="project" :starred="starred" />
-			<button class="btn btn-success" @click="clickbtn()">add</button>
+			<ProjectItem v-for="project in projects" :key="project.id" :project="project" :starred="starred"
+				v-if="currentkind == 1" />
+			<div v-if="currentkind == 2">
+				<div class="userbox" v-for="user in users">
+					<div class="useravatar"><img :src="user.usericon" alt=""
+							style="width: 80px;"></div>
+					<div class="userinfo">
+						<div style="font-weight: 700;">{{ user.nickname }}</div>
+						<div style="color: #333333; margin-top: 4px;">{{ user.bio }}</div>
+						<div style="color: #333333; margin-top: 4px; font-size: 14px; display: flex; align-items: center;"><span
+								class="kindicon" style="font-size: 14px">&#xf0c0</span>粉丝：{{ user.follower }}&nbsp;&nbsp;&nbsp;&nbsp;<span
+								class="kindicon" style="font-size: 14px">&#xf06e</span>关注：{{  user.following }}&nbsp;&nbsp;&nbsp;&nbsp;<span
+								class="kindicon" style="font-size: 14px">&#xf1ea</span>作品：{{ user.projects }}</div>
+					</div>
+				</div>
+			</div>
+			<div v-if="currentkind == 3">
+				<div class="userbox" v-for="circle in circles">
+          <div class="useravatar" style="border-radius: 0.25em;"><img :src="circle.circleicon" alt=""
+              style="width: 80px;"></div>
+          <div class="userinfo">
+            <div style="font-weight: 700;">{{ circle.name }}</div>
+            <div style="color: #333333; margin-top: 4px;">{{ circle.description }}</div>
+            <div style="color: #333333; margin-top: 4px; font-size: 14px; display: flex; align-items: center;"><span
+                class="kindicon" style="font-size: 14px">&#xf0c0</span>成员：{{ circle.members }}&nbsp;&nbsp;&nbsp;&nbsp;<span
+                class="kindicon" style="font-size: 14px">&#xf06e</span>粉丝：{{ circle.fans }}&nbsp;&nbsp;&nbsp;&nbsp;<span
+                class="kindicon" style="font-size: 14px">&#xf1ea</span>作品：{{ circle.projects }}</div>
+          </div>
+        </div>
+			</div>
 		</div>
 		<div class="rightnav d-none d-xl-block">
 			<div class="rightinfobox">
@@ -457,7 +512,7 @@ getAllInfo()
 			</div>
 		</div>
 	</div>
-  <div class="addproject" @click="this.$router.push('/newProject')">+</div>
+	<div class="addproject" @click="this.$router.push('/newProject')">+</div>
 </template>
 
 <style scoped>
@@ -616,5 +671,40 @@ getAllInfo()
 	text-align: center;
 	cursor: pointer;
 	box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.2);
+}
+
+.userbox {
+	border: 1px solid black;
+	border-radius: 4px;
+	padding: 16px;
+	display: flex;
+	justify-content: space-between;
+	margin-bottom: 16px;
+}
+
+.useravatar {
+	border-radius: 50%;
+	overflow: hidden;
+	border: 1px solid black;
+	height: 80px;
+	min-width: 80px;
+	margin-right: 16px;
+}
+
+.userinfo {
+	width: 100%;
+}
+
+.kindicon {
+	font-size: 13px;
+	width: 16px;
+	height: 16px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	margin-right: 6px;
+	font-family: "Font Awesome 6 Free";
+	font-weight: 600;
+	color: #555555;
 }
 </style>

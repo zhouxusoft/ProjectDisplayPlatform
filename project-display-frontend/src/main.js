@@ -11,6 +11,7 @@ import Register from './views/Register.vue'
 import ProjectDetail from './views/ProjectDetail.vue'
 import NewProject from './views/NewProject.vue'
 import Chat from './views/Chat.vue'
+import { globalData } from './views/globalData.js'
 
 // 定义路由
 const router = createRouter(
@@ -32,6 +33,11 @@ const router = createRouter(
         ]
     }
 )
+
+router.beforeEach((_, from, next) => {
+    globalData.previousPage = from.path;
+    next();
+})
 
 const app = createApp(App)
 

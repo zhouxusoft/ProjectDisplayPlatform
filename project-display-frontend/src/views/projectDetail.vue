@@ -4,6 +4,7 @@ import { useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
 import { checkLoginAPI, clearCookieAPI } from '../api/api'
 import ProjectItem from '../components/ProjectItem.vue'
+import { globalData } from './globalData'
 
 const router = useRouter()
 const goLogin = () => {
@@ -11,6 +12,10 @@ const goLogin = () => {
 }
 const goRegister = () => {
   router.push({ path: '/register' })
+}
+
+const goBack = () => {
+  router.push({ path: globalData.previousPage })
 }
 
 const centerDialogVisible = ref(false)
@@ -149,19 +154,11 @@ onMounted(() => {
 
 <template>
   <div v-loading="isLoading">
-    <div v-if="isLogin === 0" class="notlogincontainer">
-      <div class="notloginbox">
-        <img src="/notlogin.png" alt="" class="notloginimg img-fluid">
-        <div class="notlogincontent mb-4">你还未登录哦</div>
-        <div class="notloginbtngroup">
-          <button @click="goLogin()" class="btn btn-outline-success m-1 notloginbtn">去登录</button>
-          <button @click="goRegister()" class="btn btn-outline-primary m-1 notloginbtn">去注册</button>
-        </div>
-      </div>
-    </div>
-    <div v-if="isLogin === 1">
+    <div>
       <div class="container">
         <div class="leftbox d-none d-md-block">
+          <el-button @click="goBack" style="width: 100%;"><span class="kindicon" style="font-size: 14px">&#xf053</span>返回</el-button>
+          <div class="hr"></div>
           <div class="headpicturebox">
             <img class="img-fluid headpicture" src="https://avatars.githubusercontent.com/u/96218937?v=4" alt="">
           </div>
@@ -235,7 +232,6 @@ onMounted(() => {
 .leftbox {
   width: 300px;
   padding: 16px;
-  padding-top: 32px;
   height: 100vh;
 }
 
