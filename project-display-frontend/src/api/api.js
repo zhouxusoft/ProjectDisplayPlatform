@@ -39,3 +39,8 @@ export function languagesAPI() {
 export function tagsAPI() {
   return api.get('/tags', {})
 }
+
+// 获取项目详情数据
+export function projectDetailAPI(data) {
+  return api.post('/projectDetail', data)
+}

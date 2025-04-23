@@ -347,6 +347,94 @@ def tags():
     
     return jsonify({'success': True, 'data': taglist, 'code': 200})
 
+@app.route('/projectDetail', methods=['POST'])
+def projectDetail():
+    data = request.get_json()
+    token = request.cookies.get('access-token')
+    # print(data['page'], PER_PAGE_NUM * 2)
+    sql = "SELECT * FROM `projects` WHERE `page_name` = %s"
+    val = (data['pagename'],)
+    lock.acquire()
+    dbcursor.execute(sql, val)
+    lock.release()
+    result = dbcursor.fetchall()
+    print(result[0])
+    # 获取文章内容
+    sql = "SELECT * FROM `project_readme` WHERE `project_id` = %s"
+    val = (result[0][0],)
+    lock.acquire()
+    dbcursor.execute(sql, val)
+    lock.release()
+    readme = dbcursor.fetchall()
+    # 获取所有的标签
+    sql = "SELECT * FROM `tags`"
+    lock.acquire()
+    dbcursor.execute(sql)
+    lock.release()
+    alltags = dbcursor.fetchall()
+    # 获取所有的项目对应的标签
+    sql = "SELECT * FROM `project_tag`"
+    lock.acquire()
+    dbcursor.execute(sql)
+    lock.release()
+    projecttags = dbcursor.fetchall()
+    # 获取所有的语言
+    sql = "SELECT * FROM `languages`"
+    lock.acquire()
+    dbcursor.execute(sql)
+    lock.release()
+    languages = dbcursor.fetchall()
+    # 为项目，匹配对应的语言标签用户等信息
+    tags = []
+    tagids = []
+    language = {}
+    # 将时间进行格式化
+    updatetime = result[0][7].strftime('%Y-%m-%d %H:%M:%S')
+    loginInfo = checkCookie(token)
+    if loginInfo['success']:
+        my_id = loginInfo['userid']
+    else:
+        my_id = 0
+    userinfo = getUserInfo(result[0][1], my_id)
+    # 匹配标签，一个项目可以有多个标签
+    for x in projecttags:
+        if x[1] == result[0][0]:
+            tagids.append(x[2])
+            for y in alltags:
+                if y[0] == x[2]:
+                    tags.append(y[1])
+                    break
+    # 匹配语言，一个项目只有一个 main_language
+    for m in languages:
+        if m[0] == result[0][4]:
+            language = {
+                'color': m[2],
+                'name': m[1]
+            }
+            break
+    # 格式化项目信息
+    project = {
+        'id': result[0][0],
+        'userid': result[0][1],
+        'usericon': userinfo['usericon'],
+        'name': result[0][2],
+        'main': result[0][3],
+        'cover': result[0][8],
+        'tags': tags,
+        'tagids': tagids,
+        'language': language,
+        'starnum': result[0][6],
+        'updatetime': updatetime,
+        'browsenum': result[0][10],
+    }
+    
+    data = {
+        'project': project,
+        'readme': readme[0][2],
+        'userinfo': userinfo
+    }
+    return jsonify({'success': True, 'data': data, 'code': 200})
+
 # 查询用户历史记录
 @app.route('/history', methods=['POST'])
 def get_history():
@@ -433,6 +521,73 @@ def delete_comment():
     return jsonify({"status": "success", "message": "Comment deleted successfully"}), 200
 
 
+def getUserInfo(user_id, my_id=0):
+    # 获取用户信息
+    sql = "SELECT * FROM `user_info` WHERE `user_id` = %s"
+    val = (user_id,)
+    lock.acquire()
+    dbcursor.execute(sql, val)
+    lock.release()
+    result = dbcursor.fetchall()
+    # 获取用户粉丝数量
+    sql = "SELECT COUNT(*) FROM `user_follow` WHERE `follow_id` = %s"
+    val = (user_id,)
+    lock.acquire()
+    dbcursor.execute(sql, val)
+    lock.release()
+    follower = dbcursor.fetchall()[0][0]
+    # 获取用户关注数量
+    sql = "SELECT COUNT(*) FROM `user_follow` WHERE `user_id` = %s"
+    val = (user_id,)
+    lock.acquire()
+    dbcursor.execute(sql, val)
+    lock.release()
+    following = dbcursor.fetchall()[0][0]
+    # 获取用户作品数量
+    sql = "SELECT COUNT(*) FROM `projects` WHERE `user_id` = %s"
+    val = (user_id,)
+    lock.acquire()
+    dbcursor.execute(sql, val)
+    lock.release()
+    projectnum = dbcursor.fetchall()[0][0]
+    # 获取用户与当前用户的关系
+    if my_id != 0 and my_id != user_id:
+        sql = "SELECT * FROM `user_follow` WHERE `user_id` = %s AND `follow_id` = %s"
+        val = (my_id, user_id)
+        lock.acquire()
+        dbcursor.execute(sql, val)
+        lock.release()
+        result2 = dbcursor.fetchall()
+        if len(result2) > 0:
+            relationship = 1
+            # 互相关注
+            sql = "SELECT * FROM `user_follow` WHERE `user_id` = %s AND `follow_id` = %s"
+            val = (user_id, my_id)
+            lock.acquire()
+            dbcursor.execute(sql, val)
+            lock.release()
+            result2 = dbcursor.fetchall()
+            if len(result2) > 0:
+                relationship = 2
+        else:
+            relationship = 0
+    elif my_id == user_id:
+        relationship = -1
+    else:
+        relationship = 0
+        
+    return {
+        'user_id': result[0][1],
+        'nickname': result[0][3],
+        'usericon': result[0][2],
+        'bio': result[0][4],
+        'position': result[0][5],
+        'follower': follower,
+        'following': following,
+        'projectnum': projectnum,
+        'relationship': relationship # -1: 本人, 0: 未关注, 1: 已关注, 2: 相互关注
+    }
+
 # 判断 access-token 是否有效
 def checkCookie(token):
     # 判断当前 token 是否存在于数据库中
@@ -447,7 +602,7 @@ def checkCookie(token):
         current_time = datetime.now()  # type: ignore
         if isTimeOut(result[0][3], current_time):
             return ({'success': False, 'message': '登陆过期', 'code': 200})
-        return  ({'success': True, 'message': '已登录', 'code': 200})
+        return  ({'success': True, 'message': '已登录', 'userid': result[0][1], 'code': 200})
     else:
         return ({'success': False, 'message': '未登录', 'code': 200})
 

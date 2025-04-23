@@ -18,7 +18,7 @@
 				<span>{{ project.main }}</span>
 			</div>
 			<div class="projecttagbox my-2">
-				<a v-for="tag in project.tags" class="projecttag" href="/">{{ tag }}</a>
+				<a v-for="tag in project.tags" class="projecttag">{{ tag }}</a>
 			</div>
 			<div class="projectbottom">
 				<div class="projectlanguagebox">

@@ -86,6 +86,8 @@ const initTinymce = () => {
       editor.on('NodeChange Change KeyUp SetContent', () => {
         hasChange.value = true
         const content = editor.getContent()
+        console.log(content);
+        
         editorContent.value = content
         emit('update:modelValue', content)
       })

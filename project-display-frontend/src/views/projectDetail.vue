@@ -2,100 +2,59 @@
 import { onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
-import { checkLoginAPI, clearCookieAPI } from '../api/api'
-import ProjectItem from '../components/ProjectItem.vue'
+import { checkLoginAPI, projectDetailAPI } from '../api/api'
 import { globalData } from './globalData'
+import TinyMCE from '../components/TinyMCE/index.vue'
 
 const router = useRouter()
-const goLogin = () => {
-  router.push({ path: '/login' })
-}
-const goRegister = () => {
-  router.push({ path: '/register' })
-}
+
+const haveInfo = ref(true)
+
+const projectInfo = ref({})
+const userInfo = ref({})
+const languageInfo = ref({})
+const tagInfo = ref([])
+const readme = ref('')
 
 const goBack = () => {
   router.push({ path: globalData.previousPage })
 }
 
-const centerDialogVisible = ref(false)
+const getProjectDetail = () => {
+  const toSend = {
+    pagename: router.currentRoute.value.params.id,
+  }
+  projectDetailAPI(toSend).then(res => {
+    if (res.success) {
+      haveInfo.value = true
+      projectInfo.value = res.data.project
+      languageInfo.value = res.data.project.language
+      tagInfo.value = res.data.project.tags
+      userInfo.value = res.data.userinfo
+      readme.value = res.data.readme
+    } else {
+      haveInfo.value = false
+      ElMessage({
+        message: res.message,
+        type: 'error',
+        plain: true,
+        offset: 9,
+      })
+    }
+  }).catch(_ => {
+    haveInfo.value = false
+    // ElMessage({
+    //   message: '请求数据失败',
+    //   type: 'error',
+    //   plain: true,
+    //   offset: 9,
+    // })
+  })
+}
 
 const isLoading = ref(false)
 
-const sortModes = [
-  {
-    id: 1,
-    name: 'Most stars'
-  },
-  {
-    id: 2,
-    name: 'Last updated'
-  },
-  {
-    id: 3,
-    name: 'Create time'
-  }
-]
-
-const projects = ref([
-  {
-    id: 1,
-    usericon: "https://avatars.githubusercontent.com/u/96218937?s=96&v=4",
-    name: "RainManGO/vue3-composition-admin",
-    main: "🎉 基于vue3 的管理端模板(Vue3 TS Vuex4 element-plus vue-i18n-next composition-api) vue3-admin vue3-ts-admin",
-    tags: ["JavaScript", "Flask", "Vue", "BootStrap"],
-    language: { color: "449633", name: "Vue" },
-    starnum: 99586,
-    updatetime: "2022/8/19",
-    cover: '',
-    pagename: '1'
-  },
-  {
-    id: 2,
-    usericon: "https://avatars.githubusercontent.com/u/96218937?s=96&v=4",
-    name: "jeecgboot/jeecgboot-vue3",
-    main: "🔥 JeecgBoot—Vue3版前端源码，采用 Vue3.0+TypeScript+Vite+Ant-Design-Vue等新技术方案，包括二次封装组件、utils、hooks、动态菜单、权限校验、按钮级别权限控制等功能。 是JeecgBoot低代码平台的vue3技术栈的全…",
-    tags: ["JavaScript", "Vue", "BootStrap"],
-    language: { color: "481828", name: "JavaScript" },
-    starnum: 758,
-    updatetime: "2022/8/19",
-    cover: '',
-    pagename: '1'
-  }
-])
-
-const starred = ref([
-  {
-    id: 1,
-    projectid: 1
-  },
-  {
-    id: 2,
-    projectid: 3
-  }
-])
-
 const isLogin = ref(-1)
-const currentSortMode = ref({
-  id: 2,
-  name: 'Last updated'
-})
-
-/**
- * 切换项目列表排序方式
- * @param {JSON} sortMode
- */
-const changeSortMode = (sortMode) => {
-  const sortitembox = document.getElementById("sortitembox")
-  currentSortMode.value = sortMode
-  sortitembox.classList.remove("projectsortitembox")
-  sortitembox.classList.add("clickdisvisable")
-  // 设置延迟才能使属性暂时失效
-  setTimeout(() => {
-    sortitembox.classList.remove("clickdisvisable")
-    sortitembox.classList.add("projectsortitembox")
-  }, 1000)
-}
 
 /**
  * 判断用户当前的登录状态
@@ -122,70 +81,86 @@ const checkLogin = () => {
   })
 }
 
-/**
- * 退出登录
- */
-const logout = () => {
-  // 发送请求, 清除 cookie
-  clearCookieAPI().then(res => {
-    ElMessage({
-      message: '退出成功',
-      type: 'success',
-      plain: true,
-      offset: 9,
-    })
-    // 设置登录状态
-    isLogin.value = 0
-  }).catch(error => {
-    ElMessage({
-      message: '退出失败',
-      type: 'error',
-      plain: true,
-      offset: 9,
-    })
-  })
-}
-
 onMounted(() => {
   checkLogin()
+  getProjectDetail()
 })
 
 </script>
 
 <template>
   <div v-loading="isLoading">
-    <div>
+    <div v-if="!haveInfo" class="notlogincontainer">
+      <div class="notloginbox">
+        <img src="/notlogin.png" alt="" class="notloginimg img-fluid">
+        <div class="notlogincontent mb-4">页面找不到了</div>
+        <div class="notloginbtngroup">
+          <button @click="goBack()" class="btn btn-outline-secondary m-1 notloginbtn">返回</button>
+        </div>
+      </div>
+    </div>
+    <div v-else>
       <div class="container">
         <div class="leftbox d-none d-md-block">
-          <el-button @click="goBack" style="width: 100%;"><span class="kindicon" style="font-size: 14px">&#xf053</span>返回</el-button>
+          <el-button @click="goBack()" style="color: #333; padding-left: 8px; font-size: 15px;" text><span
+              class="kindicon" style="font-size: 14px">&#xf053</span>返 回</el-button>
           <div class="hr"></div>
           <div class="headpicturebox">
-            <img class="img-fluid headpicture" src="https://avatars.githubusercontent.com/u/96218937?v=4" alt="">
+            <img class="img-fluid headpicture" :src="userInfo.usericon" alt="">
           </div>
           <div class="namebox">
-            <div class="name">Godxu</div>
+            <div class="name">{{ userInfo.nickname }}</div>
           </div>
           <div class="boibox">
-            <div>我是一个学习编程的新手，来自江西上饶。</div>
+            <div>{{ userInfo.bio }}</div>
           </div>
-          <div class="btnbox">
-            <button type="button" class="sbtn" @click="centerDialogVisible = true"><span class="kindicon" style="font-size: 14px">&#x2b</span>关注</button>
-            <button type="button" class="sbtn" @click="centerDialogVisible = true"><span class="kindicon" style="font-size: 14px">&#xf0e0</span>私信</button>
+          <div class="btnbox" v-if="userInfo.relationship != -1">
+            <button type="button" class="sbtn" @click=""
+              v-if="userInfo.relationship == 0 || userInfo.relationship == 2"><span class="kindicon"
+                style="font-size: 14px">&#x2b</span>关注</button>
+            <button type="button" class="sbtn" @click="" v-else><span class="kindicon"
+                style="font-size: 14px">&#xf00c</span>已关注</button>
+            <button type="button" class="sbtn" @click=""><span class="kindicon"
+                style="font-size: 14px">&#xf0e0</span>私信</button>
           </div>
           <div class="infobox">
             <span class="kindicon">&#xf500</span>
-            <span>2 followers · 4 following</span>
+            <span>{{ userInfo.follower }} followers · {{ userInfo.following }} following</span>
           </div>
           <div class="locationbox">
             <span class="kindicon" style="font-size: 14px">&#xf3c5</span>
-            <span>江西</span>
+            <span>{{ userInfo.position }}</span>
           </div>
           <div class="hr"></div>
-          <div style="font-size: 15px; color: #666666;">其他作品</div>
-          <img src="../assets/images/imagepj.png" alt="" width="270px">
+          <div style="font-size: 15px; color: #666666; margin-left: 10px;">其他作品</div>
+          <div class="otherproject">暂无其它作品</div>
         </div>
         <div class="rightbox">
-          <img src="../assets/images/wenzhang.png" alt="">
+          <div class="projecttitle">{{ projectInfo.name }}</div>
+          <div class="projectinfobox">
+            <div class="projectinfo">
+              {{ userInfo.nickname }} 编写于 {{ projectInfo.updatetime }}
+              <span class="kindicon" style="font-size: 14px; margin-left: 32px; font-weight: 500;">&#xf06e</span>阅读量 {{
+                projectInfo.browsenum }}
+              <span class="kindicon" style="font-size: 14px; margin-left: 32px; font-weight: 500;">&#xf005</span>点赞 {{
+                projectInfo.starnum }}
+            </div>
+            <div class="projectinfo" style="margin-top: 6px;">
+              <div class="projectlanguagebox" v-if="languageInfo.name != 'None'">
+                语言分类：
+                <div class="projectlanguageicon" :style="{ backgroundColor: '#' + languageInfo.color }"></div>
+                <div class="projectlanguage">{{ languageInfo.name }}</div>
+              </div>
+              <div style="display: flex; align-items: center; margin-left: 32px;">
+                文章标签：
+                <div class="projecttagbox">
+                  <a v-for="tag in tagInfo" class="projecttag">{{ tag }}</a>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="projectinfomain">{{ projectInfo.main }}</div>
+          <TinyMCE ref="tinymce" :html="html" @input="getContent" />
         </div>
       </div>
     </div>
@@ -193,6 +168,103 @@ onMounted(() => {
 </template>
 
 <style scoped>
+.projecttitle {
+  font-size: 28px;
+  font-weight: 700;
+  color: #333333;
+  margin: 10px;
+}
+
+.projectinfobox {
+  background-color: #f8f8f8;
+  border-radius: 2px;
+  padding: 10px;
+}
+
+.projectinfomain {
+  border-radius: 2px;
+  border-left: 8px solid #dddfe4;
+  background: #eef0f4;
+  margin: 16px 0;
+  padding: 10px;
+  color: #555555;
+}
+
+.projectinfo {
+  margin-left: 16px;
+  font-size: 14px;
+  color: #555555;
+  display: flex;
+  align-items: center;
+}
+
+.projectlanguagebox {
+  display: flex;
+  align-items: center;
+  white-space: nowrap;
+}
+
+.projectlanguageicon {
+  border-radius: 8px;
+  border-style: solid;
+  border-width: 1px;
+  border-color: rgba(1, 4, 9, 0.1);
+  width: 10px;
+  height: 10px;
+  margin: 4px 4px 4px 0;
+}
+
+.projecttagbox {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.projecttag {
+  text-decoration: none;
+  color: rgb(3, 73, 180);
+  font-size: 12px;
+  display: inline-block;
+  padding: 0px 10px;
+  font-weight: 500;
+  border-radius: 4px;
+  line-height: 22px;
+  background-color: rgb(223, 247, 255);
+  white-space: nowrap;
+}
+
+.notlogincontainer {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 80vh;
+}
+
+.notloginbox {
+  width: fit-content;
+  margin: auto;
+}
+
+.notloginimg {
+  width: 480px;
+}
+
+.notlogincontent {
+  margin: auto;
+  width: fit-content;
+  font-size: 1.5rem;
+  color: #002d80;
+}
+
+.notloginbtngroup {
+  width: fit-content;
+  margin: auto;
+}
+
+.notloginbtn {
+  width: 120px;
+}
+
 .notlogincontainer {
   display: flex;
   justify-content: center;
@@ -238,10 +310,11 @@ onMounted(() => {
 .rightbox {
   flex: 1;
   min-width: 0px;
-  padding: 16px;
-  padding-top: 32px;
-  height: 100vh;
+  padding: 0 16px 16px;
+  margin-top: 16px;
   width: 1000px;
+  overflow: hidden;
+  border-left: 1px solid #999999;
 }
 
 .headpicturebox {
@@ -250,6 +323,7 @@ onMounted(() => {
   border: 2px solid black;
   border-radius: 50%;
   overflow: hidden;
+  margin-left: 10px;
 }
 
 .headpicture {
@@ -392,6 +466,7 @@ onMounted(() => {
   margin: 10px;
   font-size: 20px;
   font-weight: 700;
+  color: #555555
 }
 
 .boibox {
@@ -458,5 +533,14 @@ onMounted(() => {
   border: none;
   border-top: 1px solid #20252c;
   transform: scaleY(0.5);
+}
+
+.otherproject {
+  margin: 16px;
+  font-size: 15px;
+  color: #666666;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 </style>
