@@ -12,8 +12,6 @@
 <script setup>
 import { ref, onMounted, onBeforeUnmount, watch, nextTick } from 'vue'
 import axios from 'axios'
-import plugins from './plugins' // 请根据实际情况调整路径
-import toolbarDefault from './toolbar' // 请根据实际情况调整路径
 
 // 如果需要引入上传 HTML 片段的接口，请取消下一行的注释并根据项目路径调整
 // import { uploadHtml } from '@/api/upload'
@@ -59,11 +57,13 @@ const initTinymce = () => {
   window.tinymce.init({
     selector: `#${tinymceId}`,
     height: 650,
-    min_height: 400,
+    min_height: 600,
     language: 'zh_CN',
-    plugins: plugins,
-    toolbar: props.toolbar.length > 0 ? props.toolbar.join(' ') : toolbarDefault.join(' '),
-    menubar: props.menubar,
+    menubar: false,
+    plugins:
+        'wordcount visualchars visualblocks template save preview pagebreak nonbreaking media insertdatetime importcss image help fullscreen directionality codesample code charmap link code table lists advlist anchor autolink autoresize',
+    toolbar:
+        "undo redo forecolor backcolor codesample media outdent indent aligncenter alignleft alignright alignjustify lineheight underline quicklink h2 h3 blockquote numlist bullist table link | removeformat bold italic strikethrough hr preview",
     fontsize_formats: '12px 14px 16px 18px 20px 24px 36px',
     body_class: 'panel-body',
     object_resizing: true,
@@ -86,8 +86,6 @@ const initTinymce = () => {
       editor.on('NodeChange Change KeyUp SetContent', () => {
         hasChange.value = true
         const content = editor.getContent()
-        console.log(content);
-        
         editorContent.value = content
         emit('update:modelValue', content)
       })

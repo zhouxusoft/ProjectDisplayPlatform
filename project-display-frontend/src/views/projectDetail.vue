@@ -2,9 +2,10 @@
 import { onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
-import { checkLoginAPI, projectDetailAPI } from '../api/api'
+import { checkLoginAPI, projectDetailAPI, projectCommentsAPI, userCommentAPI } from '../api/api'
 import { globalData } from './globalData'
-import TinyMCE from '../components/TinyMCE/index.vue'
+import 'github-markdown-css/github-markdown.css'
+import CommentSection from '../components/CommentSection.vue'
 
 const router = useRouter()
 
@@ -15,9 +16,89 @@ const userInfo = ref({})
 const languageInfo = ref({})
 const tagInfo = ref([])
 const readme = ref('')
+const selfInfo = ref({})
+
+const comments = ref([])
+
+const commentsCount = ref(0)
+
+const userComment = ref('')
 
 const goBack = () => {
   router.push({ path: globalData.previousPage })
+}
+
+const putComment = async () => {
+  if (userComment.value.length == 0) {
+    return
+  }
+  let position = await getPosition()
+  const toSend = {
+    projectid: projectInfo.value.id,
+    content: userComment.value,
+    position: position,
+  }
+  userCommentAPI(toSend).then(res => {
+    if (res.success) {
+      ElMessage({
+        message: res.message,
+        type: 'success',
+        plain: true,
+        offset: 9,
+      })
+      userComment.value = ''
+      getProjectComments(projectInfo.value.id)
+    } else {
+      ElMessage({
+        message: res.message,
+        type: 'error',
+        plain: true,
+        offset: 9,
+      })
+    }
+  }).catch(_ => {})
+}
+
+const getProjectComments = (projectid) => {
+  const toSend = {
+    projectid: projectid,
+  }
+  projectCommentsAPI(toSend).then(res => {
+    if (res.success) {
+      comments.value = res.data.reverse()
+      commentsCount.value = res.data.length
+    } else {
+      ElMessage({
+        message: res.message,
+        type: 'error',
+        plain: true,
+        offset: 9,
+      })
+    }
+  }).catch(_ => { })
+}
+
+const getPosition = async () => {
+  try {
+    // 第一阶段请求：获取IP地址
+    const ipResponse = await fetch('https://shop.godxu.top/get_ip', { method: 'GET' })
+    if (!ipResponse.ok) throw new Error('IP请求失败')
+    const ipData = await ipResponse.json()
+    
+    // 判断是否获取到有效IP
+    if (!ipData?.ip) return '未知'
+
+    // 第二阶段请求：获取地理位置
+    const geoResponse = await fetch(`http://ip-api.com/json/${ipData.ip}?lang=zh-CN`)
+    if (!geoResponse.ok) throw new Error('地理请求失败')
+    const geoData = await geoResponse.json()
+
+    // 返回最终结果
+    return geoData.status === 'success' ? geoData.regionName.replace('省', '') : '未知'
+
+  } catch (error) {
+    return '未知'
+  }
 }
 
 const getProjectDetail = () => {
@@ -32,6 +113,7 @@ const getProjectDetail = () => {
       tagInfo.value = res.data.project.tags
       userInfo.value = res.data.userinfo
       readme.value = res.data.readme
+      getProjectComments(res.data.project.id)
     } else {
       haveInfo.value = false
       ElMessage({
@@ -65,6 +147,7 @@ const checkLogin = () => {
   checkLoginAPI().then(res => {
     if (res.success) {
       isLogin.value = 1
+      selfInfo.value = res.userinfo
     } else {
       isLogin.value = 0
     }
@@ -160,7 +243,26 @@ onMounted(() => {
             </div>
           </div>
           <div class="projectinfomain">{{ projectInfo.main }}</div>
-          <TinyMCE ref="tinymce" :html="html" @input="getContent" />
+          <div>
+            <div class="projectreadme markdown-body" v-html="readme"></div>
+          </div>
+          <div class="hr"></div>
+          <div class="commenttitle">评论<span style="font-size: 14px; color: #999999; margin-left: 16px;">{{ commentsCount
+              }}</span></div>
+          <div class="commentinputbox" v-if="isLogin == 1">
+            <div class="commentinputicon"><img style="width: 50px;" :src="selfInfo.usericon" alt="" referrerpolicy="no-referrer"></div>
+            <el-input v-model="userComment" maxlength="100" style="width: 100%; font-size: 16px;" placeholder="说点什么吧"
+              show-word-limit type="textarea" :autosize="{ minRows: 3, maxRows: 10 }" />
+            <el-button style="margin-left: 10px; margin-top: auto;" @click="putComment()" plain>提交</el-button>
+          </div>
+          <div class="notlogincommentbox" v-else>
+            评论需要先<el-button @click="router.push('/login')" text type="primary"
+              style="padding: 5px; font-size: 16px;">登录</el-button>
+          </div>
+          <CommentSection v-for="comment in comments" :comment="comment"></CommentSection>
+          <div
+            style="height: 80px; display: flex; align-items: center; justify-content: center; color: #999999; font-size: 14px;">
+            到底了...</div>
         </div>
       </div>
     </div>
@@ -168,11 +270,48 @@ onMounted(() => {
 </template>
 
 <style scoped>
+.notlogincommentbox {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: #666666;
+  margin: 20px 0;
+}
+
+.commentinputicon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  overflow: hidden;
+  margin-right: 10px;
+  border: 1px solid #aaaaaa;
+}
+
+.commenttitle {
+  font-size: 20px;
+  color: #333333;
+  background-color: #f2f4f6;
+  padding: 10px;
+}
+
+.commentinputbox {
+  margin: 10px 0;
+  display: flex;
+}
+
+.projectreadme {
+  margin: 8px;
+}
+
 .projecttitle {
-  font-size: 28px;
+  font-size: 32px;
   font-weight: 700;
   color: #333333;
   margin: 10px;
+  margin-bottom: 20px;
 }
 
 .projectinfobox {
@@ -314,7 +453,7 @@ onMounted(() => {
   margin-top: 16px;
   width: 1000px;
   overflow: hidden;
-  border-left: 1px solid #999999;
+  border-left: 1px solid #cccccc;
 }
 
 .headpicturebox {

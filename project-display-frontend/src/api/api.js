@@ -44,3 +44,13 @@ export function tagsAPI() {
 export function projectDetailAPI(data) {
   return api.post('/projectDetail', data)
 }
+
+// 获取项目的评论数据
+export function projectCommentsAPI(data) {
+  return api.post('/projectComments', data)
+}
+
+// 发表评论
+export function userCommentAPI(data) {
+  return api.post('/userComment', data)
+}

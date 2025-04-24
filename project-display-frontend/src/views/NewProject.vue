@@ -5,6 +5,7 @@ import LeftNavItem from '../components/LeftNavItem.vue'
 import TinyMCE from '../components/TinyMCE/index.vue'
 import { ElMessage } from 'element-plus'
 import { useRouter } from 'vue-router'
+import { globalData } from './globalData'
 
 const router = useRouter()
 
@@ -59,6 +60,10 @@ const kinds = ref([
   }
 ])
 
+const goBack = () => {
+  router.push({ path: globalData.previousPage })
+}
+
 const activeName = ref('first')
 
 const currentkind = ref(1)
@@ -108,6 +113,9 @@ const getContent = (content) => {
   <div class="borderbox">
     <div class="leftnav d-none d-md-block">
       <div class="leftnavborder">
+        <el-button @click="goBack()" style="color: #333; padding-left: 8px; font-size: 15px;" text><span
+          class="kindicon" style="font-size: 14px">&#xf053</span>返 回</el-button>
+        <div class="fengeline"></div>
         <div style="display: flex; justify-content: space-between;">
           <div style="width: 130px;">发布到：</div>
           <el-radio-group v-model="radio1" style="width: 180px;">

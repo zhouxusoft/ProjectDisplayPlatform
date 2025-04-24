@@ -172,7 +172,18 @@ def checkLogin():
     check = checkCookie(token)
     # 向前端返回当前的登录状态
     if check['success']:
-        return jsonify({'success': True, 'data': '当前已登陆', 'code': 200})
+        sql = "SELECT `nickname`, `user_icon` FROM `user_info` WHERE `user_id` = %s"
+        val = (check['userid'],)
+        lock.acquire()
+        dbcursor.execute(sql, val)
+        lock.release()
+        result = dbcursor.fetchall()
+        userinfo = {
+            'userid': check['userid'],
+            'nickname': result[0][0],
+            'usericon': result[0][1]
+        }
+        return jsonify({'success': True, 'data': '当前已登陆', 'userinfo': userinfo, 'code': 200})
     else:
         return jsonify({'success': False, 'data': '当前未登录', 'code': 200})
     
@@ -358,7 +369,6 @@ def projectDetail():
     dbcursor.execute(sql, val)
     lock.release()
     result = dbcursor.fetchall()
-    print(result[0])
     # 获取文章内容
     sql = "SELECT * FROM `project_readme` WHERE `project_id` = %s"
     val = (result[0][0],)
@@ -434,6 +444,57 @@ def projectDetail():
         'userinfo': userinfo
     }
     return jsonify({'success': True, 'data': data, 'code': 200})
+
+@app.route('/projectComments', methods=['POST'])
+def projectComments():
+    data = request.get_json()
+    sql = "SELECT uc.id AS comment_id, uc.user_id, uc.project_id, uc.comment_content, uc.comment_time, uc.position, ui.user_icon, ui.nickname FROM project_display.user_comment uc LEFT JOIN project_display.user_info ui ON uc.user_id = ui.user_id WHERE uc.project_id = %s"
+    val = (data['projectid'],)
+    lock.acquire()
+    dbcursor.execute(sql, val)
+    lock.release()
+    result = dbcursor.fetchall()
+    data = []
+    for i in range(len(result)):
+        project = {
+            'commentid': result[i][0],
+            'userid': result[i][1],
+            'projectid': result[i][2],
+            'content': result[i][3],
+            'time': result[i][4].strftime('%Y-%m-%d %H:%M:%S'),
+            'position': result[i][5],
+            'usericon': result[i][6],
+            'nickname': result[i][7],
+        }
+        data.append(project)
+    
+    return jsonify({'success': True, 'data': data, 'code': 200})
+
+@app.route('/get_ip', methods=['GET'])
+def get_ip():
+    return jsonify({
+        'ip': get_client_ip(),
+    })
+
+@app.route('/userComment', methods=['POST'])
+def userComment():
+    data = request.get_json()
+    # 获取前端的 cookie
+    token = request.cookies.get('access-token')
+    # 判断该 cookie 是否有效
+    check = checkCookie(token)
+    if check['success']:
+        # 获取当前用户的 id
+        my_id = check['userid']
+        sql = "INSERT INTO `user_comment` (`user_id`, `project_id`, `comment_content`, `position`) VALUES (%s, %s, %s, %s)"
+        val = (my_id, data['projectid'], data['content'], data['position'])
+        lock.acquire()
+        dbcursor.execute(sql, val)
+        lock.release()
+        db.commit()
+        return jsonify({'success': True, 'message': '评论成功', 'code': 200})
+    else:
+        return jsonify({'success': False, 'message': '用户未登录', 'code': 401})
 
 # 查询用户历史记录
 @app.route('/history', methods=['POST'])
@@ -520,6 +581,14 @@ def get_comments():
 def delete_comment():
     return jsonify({"status": "success", "message": "Comment deleted successfully"}), 200
 
+def get_client_ip():
+    ip = ""
+    if request.headers.getlist("X-Forwarded-For"):
+        ip_segment = request.headers.getlist("X-Forwarded-For")[0] or ""
+        ip = ip_segment.split(',')[0]
+    else:
+        ip = request.remote_addr or ""  # 处理潜在None值
+    return ip.strip()
 
 def getUserInfo(user_id, my_id=0):
     # 获取用户信息
