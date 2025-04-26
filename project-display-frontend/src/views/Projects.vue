@@ -4,8 +4,10 @@ import ProjectItem from '../components/ProjectItem.vue'
 import LeftNavItem from '../components/LeftNavItem.vue'
 import LeftLanguageItem from '../components/LeftLanguageItem.vue'
 import LeftTagItem from '../components/LeftTagItem.vue'
+import CircleItem from '../components/CircleItem.vue'
+import UserItem from '../components/UserItem.vue'
 import { ElMessage } from 'element-plus'
-import { projectsAPI, kindsAPI, languagesAPI, tagsAPI } from '../api/api'
+import { projectsAPI, kindsAPI, languagesAPI, tagsAPI, circleListAPI, userListAPI } from '../api/api'
 import { useRouter } from 'vue-router'
 
 const router = useRouter()
@@ -364,6 +366,27 @@ const setCurrentUrl = () => {
 }
 setCurrentUrl()
 
+const circleList = ref([])
+
+const getCircleList = () => {
+  circleListAPI().then(res => {
+    circleList.value = res.data
+  }).catch(error => {
+    console.error('Error:', error)
+  })
+}
+
+const userList = ref([])
+
+const getUserList = () => {
+	// 发送获取数据请求
+	userListAPI().then(res => {
+		userList.value = res.data
+	}).catch(error => {
+		console.error('Error:', error)
+	})
+}
+
 /**
  * 向后端发送请求，获取项目列表数据
  */
@@ -430,6 +453,10 @@ const changPage = () => {
 
 const total = ref(0)
 
+const updateUser = () => {
+	getUserList()
+}
+
 /**
  * 加载页面时获取数据
  */
@@ -438,6 +465,8 @@ const getAllInfo = () => {
 	getLanguages()
 	getTags()
 	getProjects()
+	getCircleList()
+	getUserList()
 }
 getAllInfo()
 
@@ -481,35 +510,12 @@ getAllInfo()
 			<ProjectItem v-for="project in projects" :key="project.id" :project="project" :starred="starred"
 				v-if="currentkind == 1" />
 			<div v-if="currentkind == 2">
-				<div class="userbox" v-for="user in users">
-					<div class="useravatar"><img :src="user.usericon" alt="" style="width: 80px;"></div>
-					<div class="userinfo">
-						<div style="font-weight: 700;">{{ user.nickname }}</div>
-						<div style="color: #333333; margin-top: 4px;">{{ user.bio }}</div>
-						<div style="color: #333333; margin-top: 4px; font-size: 14px; display: flex; align-items: center;"><span
-								class="kindicon" style="font-size: 14px">&#xf0c0</span>粉丝：{{ user.follower
-								}}&nbsp;&nbsp;&nbsp;&nbsp;<span class="kindicon" style="font-size: 14px">&#xf06e</span>关注：{{
-								user.following }}&nbsp;&nbsp;&nbsp;&nbsp;<span class="kindicon"
-								style="font-size: 14px">&#xf1ea</span>作品：{{ user.projects }}</div>
-					</div>
-				</div>
+				<UserItem v-for="user in userList" :key="user.id" :user="user" @updateUser="updateUser" />
 			</div>
 			<div v-if="currentkind == 3">
-				<div class="userbox" v-for="circle in circles">
-					<div class="useravatar" style="border-radius: 0.25em;"><img :src="circle.circleicon" alt=""
-							style="width: 80px;"></div>
-					<div class="userinfo">
-						<div style="font-weight: 700;">{{ circle.name }}</div>
-						<div style="color: #333333; margin-top: 4px;">{{ circle.description }}</div>
-						<div style="color: #333333; margin-top: 4px; font-size: 14px; display: flex; align-items: center;"><span
-								class="kindicon" style="font-size: 14px">&#xf0c0</span>成员：{{ circle.members
-								}}&nbsp;&nbsp;&nbsp;&nbsp;<span class="kindicon" style="font-size: 14px">&#xf06e</span>粉丝：{{ circle.fans
-							}}&nbsp;&nbsp;&nbsp;&nbsp;<span class="kindicon" style="font-size: 14px">&#xf1ea</span>作品：{{
-								circle.projects }}</div>
-					</div>
-				</div>
+				<CircleItem v-for="circle in circleList" :key="circle.id" :circle="circle" />
 			</div>
-			<el-pagination plain layout="prev, pager, next" :total="total" :page-size="15"
+			<el-pagination plain layout="prev, pager, next" :total="total" :page-size="15" v-if="currentkind == 1"
 				v-model:current-page="currentpage" hide-on-single-page @current-change="changPage()" style="margin: 0 auto;" />
 		</div>
 		<div class="rightnav d-none d-xl-block">

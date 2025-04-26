@@ -364,6 +364,7 @@ def tags():
     
     return jsonify({'success': True, 'data': taglist, 'code': 200})
 
+# 返回 文章详情 数据
 @app.route('/projectDetail', methods=['POST'])
 def projectDetail():
     data = request.get_json()
@@ -451,6 +452,7 @@ def projectDetail():
     }
     return jsonify({'success': True, 'data': data, 'code': 200})
 
+# 返回 文章评论 数据
 @app.route('/projectComments', methods=['POST'])
 def projectComments():
     data = request.get_json()
@@ -476,12 +478,14 @@ def projectComments():
     
     return jsonify({'success': True, 'data': data, 'code': 200})
 
+# 返回 用户ip 数据
 @app.route('/get_ip', methods=['GET'])
 def get_ip():
     return jsonify({
         'ip': get_client_ip(),
     })
 
+# 进行评论
 @app.route('/userComment', methods=['POST'])
 def userComment():
     data = request.get_json()
@@ -499,6 +503,216 @@ def userComment():
         lock.release()
         db.commit()
         return jsonify({'success': True, 'message': '评论成功', 'code': 200})
+    else:
+        return jsonify({'success': False, 'message': '用户未登录', 'code': 401})
+
+# 获取圈子列表
+@app.route('/circleList', methods=['POST'])
+def circleList():
+    sql = """SELECT
+        c.*,
+        -- 统计成员数
+        IFNULL(member_count.count, 0) AS member_count,
+        -- 统计粉丝数
+        IFNULL(follower_count.count, 0) AS follower_count,
+        -- 统计作品数
+        IFNULL(project_count.count, 0) AS project_count
+        FROM
+        circles c
+        -- 左连接统计成员数 (type=0)
+        LEFT JOIN (
+            SELECT circle_id, COUNT(*) AS count
+            FROM user_circle
+            WHERE type = 0
+            GROUP BY circle_id
+        ) member_count ON member_count.circle_id = c.id
+        -- 左连接统计粉丝数 (type=1)
+        LEFT JOIN (
+            SELECT circle_id, COUNT(*) AS count
+            FROM user_circle
+            WHERE type = 1
+            GROUP BY circle_id
+        ) follower_count ON follower_count.circle_id = c.id
+        -- 左连接统计作品数
+        LEFT JOIN (
+            SELECT circle_id, COUNT(*) AS count
+            FROM projects
+            GROUP BY circle_id
+        ) project_count ON project_count.circle_id = c.id
+        ;
+    """
+    lock.acquire()
+    dbcursor.execute(sql)
+    lock.release()
+    result = dbcursor.fetchall()
+    # print(result)
+    # 获取前端的 cookie
+    token = request.cookies.get('access-token')
+    # 判断该 cookie 是否有效
+    check = checkCookie(token)
+    if check['success']:
+        sql = "SELECT `circle_id` FROM `user_circle` WHERE `user_id` = %s AND `type` = 0"
+        val = (check['userid'],)
+        lock.acquire()
+        dbcursor.execute(sql, val)
+        lock.release()
+        userjoin = dbcursor.fetchall()
+        userjoin = [row[0] for row in userjoin]
+        sql = "SELECT `circle_id` FROM `user_circle` WHERE `user_id` = %s AND `type` = 1"
+        val = (check['userid'],)
+        lock.acquire()
+        dbcursor.execute(sql, val)
+        lock.release()
+        userfollow = dbcursor.fetchall()
+        userfollow = [row[0] for row in userfollow]
+        sql = "SELECT `creater_id` FROM `circles` WHERE `creater_id` = %s"
+        val = (check['userid'],)
+        lock.acquire()
+        dbcursor.execute(sql, val)
+        lock.release()
+        usercreate = dbcursor.fetchall()
+        usercreate = [row[0] for row in usercreate]
+    else:
+        userjoin = []
+        userfollow = []
+        usercreate = []
+    # 整合结果
+    circlelist = []
+    for i in range(len(result)):
+        # 0 无权限 1 创建者 2 成员 3 粉丝 4 路人
+        flag = 0
+        if result[i][0] in usercreate:
+            flag = 1
+        elif result[i][0] in userjoin:
+            flag = 2
+        elif result[i][0] in userfollow:
+            flag = 3
+        elif result[i][4] == 2:
+            flag = 4
+        circle = {
+            'id': result[i][0],
+            'creater_id': result[i][1],
+            'name': result[i][2],
+            'cover': result[i][3],
+            'type': result[i][4],
+            'description': result[i][5],
+            'member_count': result[i][6],
+            'follower_count': result[i][7],
+            'project_count': result[i][8],
+            'flag': flag
+        }
+        if flag != 0:
+            circlelist.append(circle)
+    return jsonify({'success': True, 'data': circlelist, 'code': 200})
+
+# 获取用户列表
+@app.route('/userList', methods=['POST'])
+def userList():
+    # print(data['page'], PER_PAGE_NUM * 2)
+    sql = """
+        SELECT
+        ui.*,
+        u.follower_num,
+        u.following_num,
+        IFNULL(p.project_count, 0) AS projects_num
+        FROM
+        user_info ui
+        -- 关联 users 表获取粉丝数和关注数
+        LEFT JOIN users u ON u.user_id = ui.user_id
+        -- 统计 projects 作品数
+        LEFT JOIN (
+            SELECT user_id, COUNT(*) AS project_count
+            FROM projects
+            GROUP BY user_id
+        ) p ON p.user_id = ui.user_id
+    """
+    lock.acquire()
+    dbcursor.execute(sql)
+    lock.release()
+    result = dbcursor.fetchall()
+    # 获取前端的 cookie
+    token = request.cookies.get('access-token')
+    # 判断该 cookie 是否有效
+    check = checkCookie(token)
+    if check['success']:
+        sql = "SELECT `follow_id` FROM `user_follow` WHERE `user_id` = %s"
+        val = (check['userid'],)
+        lock.acquire()
+        dbcursor.execute(sql, val)
+        lock.release()
+        userfollowing = dbcursor.fetchall()
+        userfollowing = [row[0] for row in userfollowing]
+        sql = "SELECT `user_id` FROM `user_follow` WHERE `follow_id` = %s"
+        val = (check['userid'],)
+        lock.acquire()
+        dbcursor.execute(sql, val)
+        lock.release()
+        userfollower = dbcursor.fetchall()
+        userfollower = [row[0] for row in userfollower]
+    else:
+        userfollowing = []
+        userfollower = []
+    # 整合结果
+    userlist = []
+    for i in range(len(result)):
+        flag = 0
+        # 0 路人 1 我的粉丝 2 我的关注 3 相互关注 4 本人
+        if result[i][1] == check['userid']:
+            flag = 4
+        elif result[i][1] in userfollower and result[i][1] in userfollowing:
+            flag = 3
+        elif result[i][1] in userfollowing:
+            flag = 2
+        elif result[i][1] in userfollower:
+            flag = 1
+        user = {
+            'user_id': result[i][1],
+            'usericon': result[i][2],
+            'nickname': result[i][3],
+            'bio': result[i][4],
+            'position': result[i][5],
+            'follower_num': result[i][6],
+            'following_num': result[i][7],
+            'projects_num': result[i][8],
+            'flag': flag
+        }
+        if flag != 4:
+            userlist.append(user)
+    return jsonify({'success': True, 'data': userlist, 'code': 200})
+
+# 关注用户
+@app.route('/followUser', methods=['POST'])
+def followUser():
+    data = request.get_json()
+    # 获取前端的 cookie
+    token = request.cookies.get('access-token')
+    # 判断该 cookie 是否有效
+    check = checkCookie(token)
+    if check['success']:
+        # 判断当前用户是否已经关注该用户
+        sql = "SELECT * FROM `user_follow` WHERE `user_id` = %s AND `follow_id` = %s"
+        val = (check['userid'], data['userid'])
+        lock.acquire()
+        dbcursor.execute(sql, val)
+        lock.release()
+        result = dbcursor.fetchall()
+        # 如果已经关注，则取关
+        if len(result) > 0:
+            # 1. 取消关注
+            sql = "DELETE FROM `user_follow` WHERE `user_id` = %s AND `follow_id` = %s"
+            val = (check['userid'], data['userid'])
+            lock.acquire()
+            dbcursor.execute(sql, val)
+            lock.release()
+            db.commit()
+            return jsonify({'success': True, 'message': '取关成功', 'code': 200})
+        sql = "INSERT INTO `user_follow` (`user_id`, `follow_id`) VALUES (%s, %s)"
+        val = (check['userid'], data['userid'])
+        lock.acquire()
+        dbcursor.execute(sql, val)
+        lock.release()
+        db.commit()
+        return jsonify({'success': True, 'message': '关注成功', 'code': 200})
     else:
         return jsonify({'success': False, 'message': '用户未登录', 'code': 401})
 

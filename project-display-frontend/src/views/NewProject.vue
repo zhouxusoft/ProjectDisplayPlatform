@@ -5,7 +5,7 @@ import { ElMessage } from 'element-plus'
 import { useRouter } from 'vue-router'
 import { globalData } from './globalData'
 import LeftTagItem from '../components/LeftTagItem.vue'
-import { tagsAPI, languagesAPI } from '../api/api.js'
+import { tagsAPI, languagesAPI, circleListAPI } from '../api/api.js'
 
 const router = useRouter()
 
@@ -27,6 +27,14 @@ const tags = ref([
     isactive: false
   }
 ])
+
+const getCircleList = () => {
+  circleListAPI().then(res => {
+    myCircle.value = res.data.filter(item => item.flag == 1 || item.flag == 2)
+  }).catch(error => {
+    console.error('Error:', error)
+  })
+}
 
 let languages = ref([])
 
@@ -96,6 +104,10 @@ const handleClose = (tag) => {
 const whoComment = ref(1)
 const circleType = ref(1)
 const whoLook = ref(1)
+
+const selectedcircle = ref(false)
+
+const myCircle = ref([])
 
 const contentHtml = ref('')
 const getContent = (content) => {
@@ -195,6 +207,7 @@ function deleteCover() {
 onMounted(() => {
   getTags()
   getLanguages()
+  getCircleList()
 })
 </script>
 
@@ -212,8 +225,14 @@ onMounted(() => {
             <el-radio value="2" size="large">指定圈子</el-radio>
           </el-radio-group>
         </div>
-        <div class="fengeline"></div>
-        <div style="display: flex; justify-content: space-between;">
+        <div v-if="circleType == 2">
+          <div v-for="circle in myCircle" class="selectcircle" :class="{ selectedcircle: selectedcircle == circle.id }" @click="selectedcircle = circle.id">
+            <div class="selectcircleimg"><img :src="circle.cover" referrerpolicy="no-referrer"></div>
+            <div>{{ circle.name }}</div>
+          </div>
+        </div>
+        <div class="fengeline" v-if="circleType == 1"></div>
+        <div style="display: flex; justify-content: space-between;" v-if="circleType == 1">
           <div style="width: 130px;">谁可以看：</div>
           <el-radio-group v-model="whoLook" style="width: 180px;">
             <el-radio value="1" size="large">公开</el-radio>
@@ -340,6 +359,39 @@ onMounted(() => {
 </template>
 
 <style scoped>
+.selectcircle {
+  display: flex;
+  padding: 4px 4px;
+  margin: 8px 0px;
+  border-radius: 6px;
+  color: #555555;
+  cursor: pointer;
+  user-select: none;
+  font-size: 15px;
+  white-space: nowrap;
+  border: 1px solid #999999;
+}
+
+.selectedcircle {
+  background-color: #f4f6f8;
+  border: 1px solid #0349B4;
+  color: #0349B4;
+}
+
+.selectcircleimg {
+  width: 32px;
+  height: 32px;
+  border-radius: 2px;
+  overflow: hidden;
+  margin-right: 8px;
+}
+
+.selectcircleimg img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
 .coverpreview {
   position: relative;
   width: 160px;

@@ -54,3 +54,18 @@ export function projectCommentsAPI(data) {
 export function userCommentAPI(data) {
   return api.post('/userComment', data)
 }
+
+// 获取圈子列表
+export function circleListAPI(data) {
+  return api.post('/circleList', data)
+}
+
+// 获取用户列表
+export function userListAPI(data) {
+  return api.post('/userList', data)
+}
+
+// 关注/取消关注用户
+export function followUserAPI(data) {
+  return api.post('/followUser', data)
+}
