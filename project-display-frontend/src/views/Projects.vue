@@ -178,7 +178,6 @@ const starnumFormat = () => {
 let currentkind = 1
 let currentlanguage = 0
 let activetags = []
-let currentpage = 1
 // 记录所有语言、标签
 let alllanguages = []
 let alltags = []
@@ -192,6 +191,8 @@ let tagaddnum = 1
 // 显示不同的加载样式
 const lastlanguageaddtip = ref([true, 'More languages...'])
 const lasttagaddtip = ref([true, 'More tags...'])
+
+const currentpage = ref(1)
 
 /**
  * 点击选择左侧的展示类型
@@ -354,7 +355,7 @@ const setCurrentUrl = () => {
 	}
 
 	// 添加页码
-	queryParams.set('page', currentpage)
+	queryParams.set('page', currentpage.value)
 
 	// 执行路由跳转
 	router.push({
@@ -368,11 +369,12 @@ setCurrentUrl()
  */
 const getProjects = () => {
 	let toSend = {
-		page: currentpage,
+		page: currentpage.value,
 	}
 	// 发送获取数据请求
 	projectsAPI(toSend).then(res => {
 		projects.value = res.data
+		total.value = res.total
 		starnumFormat()
 	}).catch(error => {
 		console.error('Error:', error)
@@ -416,6 +418,17 @@ const getTags = () => {
 		console.error('Error:', error)
 	})
 }
+
+const changPage = () => {
+	window.scrollTo({
+		top: 0,
+		left: 0,
+		behavior: 'smooth'
+	})
+	getProjects()
+}
+
+const total = ref(0)
 
 /**
  * 加载页面时获取数据
@@ -469,43 +482,60 @@ getAllInfo()
 				v-if="currentkind == 1" />
 			<div v-if="currentkind == 2">
 				<div class="userbox" v-for="user in users">
-					<div class="useravatar"><img :src="user.usericon" alt=""
-							style="width: 80px;"></div>
+					<div class="useravatar"><img :src="user.usericon" alt="" style="width: 80px;"></div>
 					<div class="userinfo">
 						<div style="font-weight: 700;">{{ user.nickname }}</div>
 						<div style="color: #333333; margin-top: 4px;">{{ user.bio }}</div>
 						<div style="color: #333333; margin-top: 4px; font-size: 14px; display: flex; align-items: center;"><span
-								class="kindicon" style="font-size: 14px">&#xf0c0</span>粉丝：{{ user.follower }}&nbsp;&nbsp;&nbsp;&nbsp;<span
-								class="kindicon" style="font-size: 14px">&#xf06e</span>关注：{{  user.following }}&nbsp;&nbsp;&nbsp;&nbsp;<span
-								class="kindicon" style="font-size: 14px">&#xf1ea</span>作品：{{ user.projects }}</div>
+								class="kindicon" style="font-size: 14px">&#xf0c0</span>粉丝：{{ user.follower
+								}}&nbsp;&nbsp;&nbsp;&nbsp;<span class="kindicon" style="font-size: 14px">&#xf06e</span>关注：{{
+								user.following }}&nbsp;&nbsp;&nbsp;&nbsp;<span class="kindicon"
+								style="font-size: 14px">&#xf1ea</span>作品：{{ user.projects }}</div>
 					</div>
 				</div>
 			</div>
 			<div v-if="currentkind == 3">
 				<div class="userbox" v-for="circle in circles">
-          <div class="useravatar" style="border-radius: 0.25em;"><img :src="circle.circleicon" alt=""
-              style="width: 80px;"></div>
-          <div class="userinfo">
-            <div style="font-weight: 700;">{{ circle.name }}</div>
-            <div style="color: #333333; margin-top: 4px;">{{ circle.description }}</div>
-            <div style="color: #333333; margin-top: 4px; font-size: 14px; display: flex; align-items: center;"><span
-                class="kindicon" style="font-size: 14px">&#xf0c0</span>成员：{{ circle.members }}&nbsp;&nbsp;&nbsp;&nbsp;<span
-                class="kindicon" style="font-size: 14px">&#xf06e</span>粉丝：{{ circle.fans }}&nbsp;&nbsp;&nbsp;&nbsp;<span
-                class="kindicon" style="font-size: 14px">&#xf1ea</span>作品：{{ circle.projects }}</div>
-          </div>
-        </div>
+					<div class="useravatar" style="border-radius: 0.25em;"><img :src="circle.circleicon" alt=""
+							style="width: 80px;"></div>
+					<div class="userinfo">
+						<div style="font-weight: 700;">{{ circle.name }}</div>
+						<div style="color: #333333; margin-top: 4px;">{{ circle.description }}</div>
+						<div style="color: #333333; margin-top: 4px; font-size: 14px; display: flex; align-items: center;"><span
+								class="kindicon" style="font-size: 14px">&#xf0c0</span>成员：{{ circle.members
+								}}&nbsp;&nbsp;&nbsp;&nbsp;<span class="kindicon" style="font-size: 14px">&#xf06e</span>粉丝：{{ circle.fans
+							}}&nbsp;&nbsp;&nbsp;&nbsp;<span class="kindicon" style="font-size: 14px">&#xf1ea</span>作品：{{
+								circle.projects }}</div>
+					</div>
+				</div>
 			</div>
+			<el-pagination plain layout="prev, pager, next" :total="total" :page-size="15"
+				v-model:current-page="currentpage" hide-on-single-page @current-change="changPage()" style="margin: 0 auto;" />
 		</div>
 		<div class="rightnav d-none d-xl-block">
+			<div class="circlebox" v-if="currentkind == 1">
+				<div style="display: flex; justify-content: space-between;">
+					<div class="circleavatar" style="border-radius: 0.25em;"><img src="../assets/images/plgy.png" alt=""
+							style="width: 80px;"></div>
+					<div class="userinfo">
+						<div style="font-weight: 700; font-size: 18px;">豫章千万少女的梦</div>
+						<div style="color: #333333; margin-top: 4px;">传奇寝室10207，进来听听我们的故事。</div>
+					</div>
+				</div>
+				<div style="display: flex; justify-content: center; align-items: center; margin-top: 8px;">
+					<div
+						style="color: #333333; margin-top: 4px; font-size: 13px; display: flex; align-items: center; white-space: nowrap;">
+						<span class="kindicon" style="font-size: 13px;">&#xf0c0</span>成员：4&nbsp;&nbsp;&nbsp;&nbsp;<span
+							class="kindicon" style="font-size: 13px">&#xf06e</span>粉丝：107&nbsp;&nbsp;&nbsp;&nbsp;<span
+							class="kindicon" style="font-size: 13px">&#xf1ea</span>作品：20</div>
+				</div>
+			</div>
 			<div class="rightinfobox">
 				Vue.js（通常简称为Vue）是一款流行的JavaScript框架，用于构建交互式的用户界面（UI）。Vue的设计目标是简化Web应用程序的开发，并提供一种灵活且高效的方式来构建单页面应用程序（SPA）和其他前端项目。
 			</div>
 			<div class="rightinfobox">
 				🔥 官方推荐 🔥 RuoYi-Vue 全新 Pro 版本，优化重构所有功能。基于 Spring Boot + MyBatis Plus + Vue & Element 实现的后台管理系统 + 微信小程序，支持
 				RBAC 动态权限、数据权限、SaaS 多租户、Flowable 工作流、三方登录、支付、短信、商城等功能。你的 ⭐️ Star ⭐️，是作者生发的动力！
-			</div>
-			<div class="rightinfobox">
-				Hello World!
 			</div>
 			<div class="rightinfobox">
 				广告位招租
@@ -516,6 +546,55 @@ getAllInfo()
 </template>
 
 <style scoped>
+.userbox {
+	border: 1px solid black;
+	border-radius: 4px;
+	padding: 16px;
+	display: flex;
+	justify-content: space-between;
+	margin-bottom: 16px;
+}
+
+.useravatar {
+	border-radius: 50%;
+	overflow: hidden;
+	border: 1px solid black;
+	height: 80px;
+	min-width: 80px;
+	margin-right: 16px;
+}
+
+.userinfo {
+	width: 100%;
+}
+
+.circlebox {
+	border: 1px solid #F2F3F5;
+	border-radius: 4px;
+	padding: 16px;
+	margin-bottom: 16px;
+	background-color: #F2F3F5;
+	box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.2);
+}
+
+.circleavatar {
+	border-radius: 50%;
+	overflow: hidden;
+	border: 1px solid #666666;
+	height: 80px;
+	min-width: 80px;
+	margin-right: 16px;
+}
+
+.userinfo {
+	width: 100%;
+}
+
+.circleName {
+	font-size: 18px;
+	color: #333333;
+}
+
 .borderbox {
 	display: flex;
 	justify-content: space-between;
@@ -673,28 +752,6 @@ getAllInfo()
 	box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.2);
 }
 
-.userbox {
-	border: 1px solid black;
-	border-radius: 4px;
-	padding: 16px;
-	display: flex;
-	justify-content: space-between;
-	margin-bottom: 16px;
-}
-
-.useravatar {
-	border-radius: 50%;
-	overflow: hidden;
-	border: 1px solid black;
-	height: 80px;
-	min-width: 80px;
-	margin-right: 16px;
-}
-
-.userinfo {
-	width: 100%;
-}
-
 .kindicon {
 	font-size: 13px;
 	width: 16px;
@@ -702,7 +759,7 @@ getAllInfo()
 	display: flex;
 	align-items: center;
 	justify-content: center;
-	margin-right: 6px;
+	margin-right: 4px;
 	font-family: "Font Awesome 6 Free";
 	font-weight: 600;
 	color: #555555;

@@ -10,7 +10,7 @@
 				<div class="projectusericonbox">
 					<img :src="project.usericon" alt="User Icon" class="projectusericon">
 				</div>
-				<div class="projectnamebox" @click="toProjectDetail(project.id)">
+				<div class="projectnamebox" @click="toProjectDetail(project.pagename)">
 					<span class="projectname">{{ project.name }}</span>
 				</div>
 			</div>
@@ -32,11 +32,11 @@
 			</div>
 		</div>
 		<div class="projectstar d-none d-sm-flex">
-			<button class="starfontbtn" v-if="!isStared(project.id)" @click="projectStar(project.id)">
+			<button class="starfontbtn" v-if="!isStared(project.id)" @click="projectStar(1, project.id)">
 				<span class="starfont">&#xf005</span>
 				Star
 			</button>
-			<button class="starfontbtn" v-else @click="projectUnstar(project.id)">
+			<button class="starfontbtn" v-else @click="projectStar(0, project.id)">
 				<span class="starredfont">&#xf005</span>
 				Starred
 			</button>
@@ -45,6 +45,7 @@
 </template>
 
 <script>
+import { ElMessage } from 'element-plus'
 export default {
 	props: {
 		project: {
@@ -62,29 +63,56 @@ export default {
 		}
 	},
 	methods: {
+		debounce(fn, delay, immediate = false) {
+			let timer = null
+			return function (...args) {
+				const callNow = immediate && !timer
+				if (timer) {
+					// 在等待期间再次触发，弹出提示
+					ElMessage({
+						message: '手速太快了，休息一下吧',
+						type: 'error',
+						plain: true,
+						offset: 9,
+					})
+				}
+				clearTimeout(timer)
+				timer = setTimeout(() => {
+					timer = null
+					if (!immediate) fn.apply(this, args)
+				}, delay)
+				if (callNow) fn.apply(this, args)
+			}
+		},
 		isStared(projectid) {
 			return this.starred.some((item) => item.projectid === projectid)
 		},
-		projectStar(projectid) {
-			this.starred.push({ id: this.starred.length + 1, projectid: projectid })
-		},
-		projectUnstar(projectid) {
-			for (let i = 0; i < this.starred.length; i++) {
+		projectStar(type ,projectid) {
+			if (type == 1) {
+				this.starred.push({ id: this.starred.length + 1, projectid: projectid })
+			} else {
+				for (let i = 0; i < this.starred.length; i++) {
 				if (this.starred[i].projectid == projectid) {
 					this.starred.splice(i, 1)
+					break
 				}
+			}
 			}
 		},
 		handleImageError(event) {
-      // 检查当前src是否已经是默认图片，避免无限循环
-      if (!event.target.src.endsWith('/error_img.png')) {
-        this.imgUrl = '/error_img.png'
-      }
-    },
+			// 检查当前src是否已经是默认图片，避免无限循环
+			if (!event.target.src.endsWith('/error_img.png')) {
+				this.imgUrl = '/error_img.png'
+			}
+		},
 		toProjectDetail(projectid) {
 			this.$router.push({ path: `/projectDetail/${projectid}` })
 		}
 	},
+
+	created() {
+		this.projectStar = this.debounce(this.projectStar, 500, true)
+	}
 }
 </script>
 

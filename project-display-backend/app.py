@@ -212,6 +212,11 @@ def clearCookie():
 def projects():
     data = request.get_json()
     # print(data['page'], PER_PAGE_NUM * 2)
+    sql = "SELECT COUNT(*) FROM `projects`"
+    lock.acquire()
+    dbcursor.execute(sql)
+    lock.release()
+    total = dbcursor.fetchall()
     sql = "SELECT * FROM `projects` ORDER BY `starred_num` DESC LIMIT %s OFFSET %s"
     val = (PER_PAGE_NUM, (data['page'] - 1) * PER_PAGE_NUM)
     lock.acquire()
@@ -286,12 +291,13 @@ def projects():
             'tagids': tagids,
             'language': language,
             'starnum': result[i][6],
-            'updatetime': updatetime
+            'updatetime': updatetime,
+            'pagename': result[i][9],
         }
         # print(project)
         projectlist.append(project)
 
-    return jsonify({'success': True, 'data': projectlist, 'code': 200})
+    return jsonify({'success': True, 'data': projectlist, 'total': total[0][0], 'code': 200})
 
 # 返回 kinds 数据
 @app.route('/kinds', methods=['GET'])

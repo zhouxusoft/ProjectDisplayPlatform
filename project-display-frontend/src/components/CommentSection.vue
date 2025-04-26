@@ -1,6 +1,6 @@
 <template>
   <div class="borderbox">
-    <el-divider style="margin:0; margin-left: 60px;" />
+    <div style="padding-right: 60px;"><el-divider style="margin:0 0 0 60px;"/></div>
     <div class="commentbox">
       <div class="usericon">
         <img :src="comment.usericon" alt="" class="usericonimg" referrerpolicy="no-referrer">

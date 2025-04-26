@@ -63,7 +63,7 @@ const initTinymce = () => {
     plugins:
         'wordcount visualchars visualblocks template save preview pagebreak nonbreaking media insertdatetime importcss image help fullscreen directionality codesample code charmap link code table lists advlist anchor autolink autoresize',
     toolbar:
-        "undo redo forecolor backcolor codesample media outdent indent aligncenter alignleft alignright alignjustify lineheight underline quicklink h2 h3 blockquote numlist bullist table link | removeformat bold italic strikethrough hr preview",
+        "undo redo forecolor backcolor codesample image media outdent indent aligncenter alignleft alignright alignjustify lineheight quicklink hr blockquote numlist bullist table link removeformat | underline bold italic strikethrough h2 h3  preview",
     fontsize_formats: '12px 14px 16px 18px 20px 24px 36px',
     body_class: 'panel-body',
     object_resizing: true,
@@ -86,6 +86,7 @@ const initTinymce = () => {
       editor.on('NodeChange Change KeyUp SetContent', () => {
         hasChange.value = true
         const content = editor.getContent()
+        // console.log(content)
         editorContent.value = content
         emit('update:modelValue', content)
       })

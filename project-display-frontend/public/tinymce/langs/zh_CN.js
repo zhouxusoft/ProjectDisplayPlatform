@@ -1,4 +1,5 @@
 tinymce.addI18n('zh_CN',{
+  "Reveal or hide additional toolbar items": "更多",
   "Redo": "恢复",
   "Undo": "撤销",
   "Cut": "剪切",
