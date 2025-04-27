@@ -1,5 +1,5 @@
 <template>
-  <div class="userbox">
+  <div class="userbox" @click="toCircleDetail(circle.id)">
     <div class="useravatar" style="border-radius: 0.25em;"><img :src="circle.cover" alt="" style="width: 80px;"
         referrerpolicy="no-referrer">
     </div>
@@ -67,29 +67,8 @@ export default {
         if (callNow) fn.apply(this, args)
       }
     },
-    isStared(projectid) {
-      return this.starred.some((item) => item.projectid === projectid)
-    },
-    projectStar(type, projectid) {
-      if (type == 1) {
-        this.starred.push({ id: this.starred.length + 1, projectid: projectid })
-      } else {
-        for (let i = 0; i < this.starred.length; i++) {
-          if (this.starred[i].projectid == projectid) {
-            this.starred.splice(i, 1)
-            break
-          }
-        }
-      }
-    },
-    handleImageError(event) {
-      // 检查当前src是否已经是默认图片，避免无限循环
-      if (!event.target.src.endsWith('/error_img.png')) {
-        this.imgUrl = '/error_img.png'
-      }
-    },
-    toProjectDetail(projectid) {
-      this.$router.push({ path: `/projectDetail/${projectid}` })
+    toCircleDetail(circleid) {
+      this.$router.push({ path: `/circle/${circleid}` })
     }
   },
 

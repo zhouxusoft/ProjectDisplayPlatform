@@ -69,3 +69,8 @@ export function userListAPI(data) {
 export function followUserAPI(data) {
   return api.post('/followUser', data)
 }
+
+// 获取圈子详细信息
+export function circleDetailAPI(data) {
+  return api.post('/circleDetail', data)
+}

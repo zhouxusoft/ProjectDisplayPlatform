@@ -293,6 +293,7 @@ def projects():
             'starnum': result[i][6],
             'updatetime': updatetime,
             'pagename': result[i][9],
+            'circle': result[i][11],
         }
         # print(project)
         projectlist.append(project)
@@ -716,6 +717,121 @@ def followUser():
     else:
         return jsonify({'success': False, 'message': '用户未登录', 'code': 401})
 
+# 返回圈子详情 数据
+@app.route('/circleDetail', methods=['POST'])
+def circleDetail():
+    data = request.get_json()
+    sql = """SELECT
+        c.*,
+        IFNULL(member_count.count, 0) AS member_count,
+        IFNULL(follower_count.count, 0) AS follower_count,
+        IFNULL(project_count.count, 0) AS project_count
+        FROM
+        circles c
+        LEFT JOIN (
+            SELECT circle_id, COUNT(*) AS count
+            FROM user_circle
+            WHERE type = 0
+            GROUP BY circle_id
+        ) member_count ON member_count.circle_id = c.id
+        LEFT JOIN (
+            SELECT circle_id, COUNT(*) AS count
+            FROM user_circle
+            WHERE type = 1
+            GROUP BY circle_id
+        ) follower_count ON follower_count.circle_id = c.id
+        LEFT JOIN (
+            SELECT circle_id, COUNT(*) AS count
+            FROM projects
+            GROUP BY circle_id
+        ) project_count ON project_count.circle_id = c.id
+        WHERE c.id = %s
+        ;
+    """
+    val = (data['circleid'],)
+    lock.acquire()
+    dbcursor.execute(sql, val)
+    lock.release()
+    result = dbcursor.fetchone()  # 只查一条
+
+    if not result:
+        # 没查到圈子，返回空或失败提示
+        return jsonify({'success': False, 'message': '圈子不存在', 'code': 404})
+
+    # 获取前端的 cookie
+    token = request.cookies.get('access-token')
+    check = checkCookie(token)
+    if check['success']:
+        user_id = check['userid']
+
+        # 查询用户加入的圈子（成员 type=0）
+        sql = "SELECT `circle_id` FROM `user_circle` WHERE `user_id` = %s AND `type` = 0"
+        val = (user_id,)
+        lock.acquire()
+        dbcursor.execute(sql, val)
+        lock.release()
+        userjoin = [row[0] for row in dbcursor.fetchall()]
+
+        # 查询用户关注的圈子（粉丝 type=1）
+        sql = "SELECT `circle_id` FROM `user_circle` WHERE `user_id` = %s AND `type` = 1"
+        val = (user_id,)
+        lock.acquire()
+        dbcursor.execute(sql, val)
+        lock.release()
+        userfollow = [row[0] for row in dbcursor.fetchall()]
+
+        # 查询用户创建的圈子
+        sql = "SELECT `id` FROM `circles` WHERE `creater_id` = %s"
+        val = (user_id,)
+        lock.acquire()
+        dbcursor.execute(sql, val)
+        lock.release()
+        usercreate = [row[0] for row in dbcursor.fetchall()]
+    else:
+        userjoin = []
+        userfollow = []
+        usercreate = []
+
+    # 计算权限标记
+    flag = 0
+    circle_id = result[0]
+    circle_type = result[4]
+    if circle_id in usercreate:
+        flag = 1
+    elif circle_id in userjoin:
+        flag = 2
+    elif circle_id in userfollow:
+        flag = 3
+    elif circle_type == 2:
+        flag = 4
+
+    circle = {
+        'id': result[0],
+        'creater_id': result[1],
+        'name': result[2],
+        'cover': result[3],
+        'type': result[4],
+        'description': result[5],
+        'member_count': result[6],
+        'follower_count': result[7],
+        'project_count': result[8],
+        'flag': flag
+    }
+
+    # 只有有权限才返回数据，或改成无权限也返回
+    if flag == 0:
+        return jsonify({'success': False, 'message': '无权限查看该圈子', 'code': 403})
+    
+    userlist = []
+    if check['success']:
+        userlist = getCircleUserList(circle_id, check['userid'])
+    else:
+        userlist = getCircleUserList(circle_id, 0)
+        
+    projectlist = getCircleProjectList(circle_id)
+
+    return jsonify({'success': True, 'data': {'circle': circle, 'users': userlist, 'projects': projectlist}, 'code': 200})
+
 # 查询用户历史记录
 @app.route('/history', methods=['POST'])
 def get_history():
@@ -876,6 +992,192 @@ def getUserInfo(user_id, my_id=0):
         'projectnum': projectnum,
         'relationship': relationship # -1: 本人, 0: 未关注, 1: 已关注, 2: 相互关注
     }
+
+def getCircleUserList(circleid, my_id=0):
+    userlist = []
+    # 查询圈子创建者id
+    sql = "SELECT `creater_id` FROM `circles` WHERE `id` = %s"
+    val = (circleid,)
+    lock.acquire()
+    dbcursor.execute(sql, val)
+    lock.release()
+    result = dbcursor.fetchall()
+    if len(result) == 0:
+        return []
+    createrid = result[0][0]
+    # 查询创建者信息
+    createrInfo = {}
+    createrInfo = getUserInfo(createrid, my_id)
+    createrInfo['role'] = 'creater'
+    createrInfo['follower_num'] = createrInfo['follower']
+    createrInfo['following_num'] = createrInfo['following']
+    createrInfo['projects_num'] = createrInfo['projectnum']
+    createrInfo['flag'] = createrInfo['relationship']
+    if createrInfo['flag'] == -1:
+        createrInfo['flag'] = 4
+    userlist.append(createrInfo)
+    
+    # 查询该圈子所有成员（type=0
+    sql = """
+        SELECT
+            ui.*,
+            u.follower_num,
+            u.following_num,
+            IFNULL(p.project_count, 0) AS projects_num,
+            uc.type
+        FROM user_circle uc
+        JOIN user_info ui ON ui.user_id = uc.user_id
+        LEFT JOIN users u ON u.user_id = ui.user_id
+        LEFT JOIN (
+            SELECT user_id, COUNT(*) AS project_count
+            FROM projects
+            GROUP BY user_id
+        ) p ON p.user_id = ui.user_id
+        WHERE uc.circle_id = %s AND (uc.type = 0 OR uc.user_id = %s)
+    """
+    # 这里保证查询圈子成员（type=0）和创建者（uc.user_id=circles.creater_id）
+    # 但创建者一般type=0，若不确定可根据 creater_id 区分
+    lock.acquire()
+    dbcursor.execute(sql, (circleid, createrid))
+    lock.release()
+    users_result = dbcursor.fetchall()
+
+    # 查询当前用户的粉丝和关注，用于判断flag
+    if my_id != 0:
+        user_id = my_id
+        sql = "SELECT follow_id FROM user_follow WHERE user_id = %s"
+        lock.acquire()
+        dbcursor.execute(sql, (user_id,))
+        lock.release()
+        userfollowing = [row[0] for row in dbcursor.fetchall()]
+        sql = "SELECT user_id FROM user_follow WHERE follow_id = %s"
+        lock.acquire()
+        dbcursor.execute(sql, (user_id,))
+        lock.release()
+        userfollower = [row[0] for row in dbcursor.fetchall()]
+    else:
+        userfollowing = []
+        userfollower = []
+
+    for row in users_result:
+        # row 对应字段如下（按你SQL字段顺序）：
+        # ui.* 假设：id(0), user_id(1), usericon(2), nickname(3), bio(4), position(5), ...
+        # u.follower_num(6), u.following_num(7), projects_num(8), uc.type(9)
+
+        # 判断关注标识 flag，0 路人 1 我的粉丝 2 我的关注 3 相互关注 4 本人
+        uf = 0
+        this_user_id = row[1]
+        if my_id != 0:
+            user_id = my_id
+            if this_user_id == user_id:
+                uf = 4
+            elif this_user_id in userfollower and this_user_id in userfollowing:
+                uf = 3
+            elif this_user_id in userfollowing:
+                uf = 2
+            elif this_user_id in userfollower:
+                uf = 1
+
+        role = 'member'
+
+        user = {
+            'user_id': row[1],
+            'usericon': row[2],
+            'nickname': row[3],
+            'bio': row[4],
+            'position': row[5],
+            'follower_num': row[6],
+            'following_num': row[7],
+            'projects_num': row[8],
+            'flag': uf,
+            'role': role
+        }
+
+        userlist.append(user)
+    return userlist
+
+def getCircleProjectList(circleid, my_id=0):
+    sql = "SELECT * FROM `projects` WHERE `circle_id` = %s ORDER BY `starred_num`"
+    val = (circleid, )
+    lock.acquire()
+    dbcursor.execute(sql, val)
+    lock.release()
+    result = dbcursor.fetchall()
+    # print(result)
+    # 获取所有的标签
+    sql = "SELECT * FROM `tags`"
+    lock.acquire()
+    dbcursor.execute(sql)
+    lock.release()
+    alltags = dbcursor.fetchall()
+    # 获取所有的项目对应的标签
+    sql = "SELECT * FROM `project_tag`"
+    lock.acquire()
+    dbcursor.execute(sql)
+    lock.release()
+    projecttags = dbcursor.fetchall()
+    # 获取所有的语言
+    sql = "SELECT * FROM `languages`"
+    lock.acquire()
+    dbcursor.execute(sql)
+    lock.release()
+    languages = dbcursor.fetchall()
+    # 获取所有的用户信息
+    sql = "SELECT * FROM `user_info`"
+    lock.acquire()
+    dbcursor.execute(sql)
+    lock.release()
+    userinfos = dbcursor.fetchall()
+    projectlist = []
+    # 为每个项目，匹配对应的语言标签用户等信息
+    for i in range(0, len(result)):
+        # 初始化信息
+        usericon = ''
+        tags = []
+        tagids = []
+        language = {}
+        # 将时间进行格式化
+        updatetime = result[i][7].strftime('%Y/%m/%d')
+        # 匹配用户信息，包括头像的 url
+        for j in userinfos:
+            if j[1] == result[i][1]:
+                usericon = j[2]
+                break
+        # 匹配标签，一个项目可以有多个标签
+        for x in projecttags:
+            if x[1] == result[i][0]:
+                tagids.append(x[2])
+                for y in alltags:
+                    if y[0] == x[2]:
+                        tags.append(y[1])
+                        break
+        # 匹配语言，一个项目只有一个 main_language
+        for m in languages:
+            if m[0] == result[i][4]:
+                language = {
+                    'color': m[2],
+                    'name': m[1]
+                }
+                break
+        # 格式化项目信息
+        project = {
+            'id': result[i][0],
+            'userid': result[i][1],
+            'usericon': usericon,
+            'name': result[i][2],
+            'main': result[i][3],
+            'cover': result[i][8],
+            'tags': tags,
+            'tagids': tagids,
+            'language': language,
+            'starnum': result[i][6],
+            'updatetime': updatetime,
+            'pagename': result[i][9],
+            'circle': result[i][11],
+        }
+        # print(project)
+        projectlist.append(project)
+    return projectlist
 
 # 判断 access-token 是否有效
 def checkCookie(token):

@@ -45,7 +45,7 @@ onMounted(() => {
 			homelink.classList.add('activelink')
 			projectslink.classList.remove('activelink')
 			aboutlink.classList.remove('activelink')
-		} else if (to.path === '/projects' || to.path.includes('projectDetail')) {
+		} else if (to.path === '/projects' || to.path.includes('projectDetail') || to.path.includes('circle')) {
 			homelink.classList.remove('activelink')
 			projectslink.classList.add('activelink')
 			aboutlink.classList.remove('activelink')

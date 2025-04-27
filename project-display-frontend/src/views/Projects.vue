@@ -122,46 +122,10 @@ const starred = ref([
 		projectid: 3
 	}
 ])
-const users = ref([
-	{
-		id: 1,
-		usericon: "https://avatars.githubusercontent.com/u/96218937?s=96&v=4",
-		nickname: "RainManGO",
-		bio: '代码大师，我可以解答你的任何问题，快关注我吧。',
-		follower: 8,
-		following: 12,
-		projects: 7,
-	},
-	{
-		id: 2,
-		usericon: "https://avatars.githubusercontent.com/u/96218937?s=96&v=4",
-		nickname: "RainManGO",
-		bio: '代码大师，我可以解答你的任何问题，快关注我吧。',
-		follower: 8,
-		following: 12,
-		projects: 7,
-	}
-])
-const circles = ref([
-	{
-		id: 1,
-		circleicon: "https://avatars.githubusercontent.com/u/96218937?s=96&v=4",
-		name: "豫章千万少女的梦",
-		description: '传奇寝室10207，进来听听我们的故事。',
-		members: 8,
-		fans: 120,
-		projects: 17,
-	},
-	{
-		id: 2,
-		circleicon: "https://avatars.githubusercontent.com/u/96218937?s=96&v=4",
-		name: "豫章千万少女的梦",
-		description: '传奇寝室10207，进来听听我们的故事。',
-		members: 8,
-		fans: 120,
-		projects: 17,
-	}
-])
+
+const toCircleDetail = (circleid) => {
+	router.push({ path: `/circle/${circleid}` })
+}
 
 /**
  * 格式化收藏数量
@@ -369,11 +333,11 @@ setCurrentUrl()
 const circleList = ref([])
 
 const getCircleList = () => {
-  circleListAPI().then(res => {
-    circleList.value = res.data
-  }).catch(error => {
-    console.error('Error:', error)
-  })
+	circleListAPI().then(res => {
+		circleList.value = res.data
+	}).catch(error => {
+		console.error('Error:', error)
+	})
 }
 
 const userList = ref([])
@@ -457,6 +421,13 @@ const updateUser = () => {
 	getUserList()
 }
 
+const handleImageError = (event) => {
+	// 检查当前src是否已经是默认图片，避免无限循环
+	if (!event.target.src.endsWith('/error_img.png')) {
+		event.target.src = '/error_img.png'
+	}
+}
+
 /**
  * 加载页面时获取数据
  */
@@ -469,7 +440,6 @@ const getAllInfo = () => {
 	getUserList()
 }
 getAllInfo()
-
 </script>
 
 <template>
@@ -511,29 +481,36 @@ getAllInfo()
 				v-if="currentkind == 1" />
 			<div v-if="currentkind == 2">
 				<UserItem v-for="user in userList" :key="user.id" :user="user" @updateUser="updateUser" />
+				<div style="width: fit-content; margin: 10px auto; color: #666666">没有更多了...</div>
 			</div>
 			<div v-if="currentkind == 3">
 				<CircleItem v-for="circle in circleList" :key="circle.id" :circle="circle" />
+				<div style="width: fit-content; margin: 10px auto; color: #666666">没有更多了...</div>
 			</div>
 			<el-pagination plain layout="prev, pager, next" :total="total" :page-size="15" v-if="currentkind == 1"
 				v-model:current-page="currentpage" hide-on-single-page @current-change="changPage()" style="margin: 0 auto;" />
 		</div>
 		<div class="rightnav d-none d-xl-block">
-			<div class="circlebox" v-if="currentkind == 1">
-				<div style="display: flex; justify-content: space-between;">
-					<div class="circleavatar" style="border-radius: 0.25em;"><img src="../assets/images/plgy.png" alt=""
-							style="width: 80px;"></div>
+			<div class="circlebox" v-if="currentkind == 1 && circleList.length > 0">
+				<div style="display: flex; height: 30px; font-size: 18px; font-weight: 700; color: #303133;">推 荐 圈 子</div>
+				<div class="fengeline2"></div>
+				<div style="display: flex; justify-content: space-between; cursor: pointer"
+					@click="toCircleDetail(circleList[0].id)">
+					<div class="circleavatar" style="border-radius: 0.25em;"><img :src="circleList[0].cover" alt=""
+							style="width: 70px;" referrerpolicy="no-referrer" @error="handleImageError"></div>
 					<div class="userinfo">
-						<div style="font-weight: 700; font-size: 18px;">豫章千万少女的梦</div>
-						<div style="color: #333333; margin-top: 4px;">传奇寝室10207，进来听听我们的故事。</div>
+						<div style="font-weight: 700; font-size: 18px;">{{ circleList[0].name }}</div>
+						<div style="color: #333333; margin-top: 4px;">{{ circleList[0].description }}</div>
 					</div>
 				</div>
 				<div style="display: flex; justify-content: center; align-items: center; margin-top: 8px;">
 					<div
 						style="color: #333333; margin-top: 4px; font-size: 13px; display: flex; align-items: center; white-space: nowrap;">
-						<span class="kindicon" style="font-size: 13px;">&#xf0c0</span>成员：4&nbsp;&nbsp;&nbsp;&nbsp;<span
-							class="kindicon" style="font-size: 13px">&#xf06e</span>粉丝：107&nbsp;&nbsp;&nbsp;&nbsp;<span
-							class="kindicon" style="font-size: 13px">&#xf1ea</span>作品：20</div>
+						<span class="kindicon" style="font-size: 13px;">&#xf0c0</span>成员：{{ circleList[0].member_count
+						}}&nbsp;&nbsp;&nbsp;&nbsp;<span class="kindicon" style="font-size: 13px">&#xf06e</span>粉丝：{{
+							circleList[0].follower_count }}&nbsp;&nbsp;&nbsp;&nbsp;<span class="kindicon"
+							style="font-size: 13px">&#xf1ea</span>作品：{{ circleList[0].project_count }}
+					</div>
 				</div>
 			</div>
 			<div class="rightinfobox">
@@ -570,10 +547,6 @@ getAllInfo()
 	margin-right: 16px;
 }
 
-.userinfo {
-	width: 100%;
-}
-
 .circlebox {
 	border: 1px solid #F2F3F5;
 	border-radius: 4px;
@@ -586,14 +559,14 @@ getAllInfo()
 .circleavatar {
 	border-radius: 50%;
 	overflow: hidden;
-	border: 1px solid #666666;
-	height: 80px;
-	min-width: 80px;
-	margin-right: 16px;
+	height: 70px;
+	min-width: 70px;
+  margin: 4px 10px 0 0;
 }
 
 .userinfo {
 	width: 100%;
+	color: #333333;
 }
 
 .circleName {
@@ -644,6 +617,12 @@ getAllInfo()
 	height: 1px;
 	background-color: rgb(136, 146, 157);
 	margin: 8px 16px;
+}
+
+.fengeline2 {
+	height: 1px;
+	background-color: rgb(136, 146, 157);
+	margin: 6px 0 12px;
 }
 
 .languagetitle {

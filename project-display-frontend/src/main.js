@@ -11,6 +11,7 @@ import Register from './views/Register.vue'
 import ProjectDetail from './views/ProjectDetail.vue'
 import NewProject from './views/NewProject.vue'
 import Chat from './views/Chat.vue'
+import Circle from './views/Circle.vue'
 import { globalData } from './views/globalData.js'
 
 // 定义路由
@@ -30,6 +31,11 @@ const router = createRouter(
             },
             { path: '/newProject', component: NewProject },
             { path: '/chat', component: Chat },
+            {
+                path: '/circle/:id',
+                component: Circle, 
+                props: true
+            },
         ]
     }
 )

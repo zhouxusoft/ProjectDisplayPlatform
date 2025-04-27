@@ -15,7 +15,7 @@ const projects = ref([
     main: "🎉 基于vue3 的管理端模板(Vue3 TS Vuex4 element-plus vue-i18n-next composition-api) vue3-admin vue3-ts-admin",
     tags: ["JavaScript", "Flask", "Vue", "BootStrap"],
     language: { color: "449633", name: "Vue" },
-    starnum: 99586,
+    starnum: 2,
     updatetime: "2022/8/19",
     cover: '123',
   },
@@ -26,7 +26,32 @@ const projects = ref([
     main: "🔥 JeecgBoot—Vue3版前端源码，采用 Vue3.0+TypeScript+Vite+Ant-Design-Vue等新技术方案，包括二次封装组件、utils、hooks、动态菜单、权限校验、按钮级别权限控制等功能。 是JeecgBoot低代码平台的vue3技术栈的全…",
     tags: ["JavaScript", "Vue", "BootStrap"],
     language: { color: "481828", name: "JavaScript" },
-    starnum: 758,
+    starnum: 1,
+    updatetime: "2022/8/19",
+    cover: '123',
+  }
+])
+
+const projects2 = ref([
+  {
+    id: 3,
+    usericon: "https://avatars.githubusercontent.com/u/96218937?s=96&v=4",
+    name: "RainManGO/vue3-composition-admin",
+    main: "🎉 基于vue3 的管理端模板(Vue3 TS Vuex4 element-plus vue-i18n-next composition-api) vue3-admin vue3-ts-admin",
+    tags: ["JavaScript", "Flask", "Vue", "BootStrap"],
+    language: { color: "449633", name: "Vue" },
+    starnum: 2,
+    updatetime: "2022/8/19",
+    cover: '123',
+  },
+  {
+    id: 4,
+    usericon: "https://avatars.githubusercontent.com/u/96218937?s=96&v=4",
+    name: "jeecgboot/jeecgboot-vue3",
+    main: "🔥 JeecgBoot—Vue3版前端源码，采用 Vue3.0+TypeScript+Vite+Ant-Design-Vue等新技术方案，包括二次封装组件、utils、hooks、动态菜单、权限校验、按钮级别权限控制等功能。 是JeecgBoot低代码平台的vue3技术栈的全…",
+    tags: ["JavaScript", "Vue", "BootStrap"],
+    language: { color: "481828", name: "JavaScript" },
+    starnum: 1,
     updatetime: "2022/8/19",
     cover: '123',
   }
@@ -70,6 +95,14 @@ const starred = ref([
   {
     id: 2,
     projectid: 2
+  },
+  {
+    id: 3,
+    projectid: 3
+  },
+  {
+    id: 4,
+    projectid: 4
   }
 ])
 
@@ -127,7 +160,7 @@ getAllInfo()
         <div style="font-size: 15px; color: #333333; font-weight: 700;">· 今天</div>
         <ProjectItem v-for="project in projects" :key="project.id" :project="project" :starred="starred" />
         <div style="font-size: 15px; color: #333333; font-weight: 700;">· 2024-12-11</div>
-        <ProjectItem v-for="project in projects" :key="project.id" :project="project" :starred="starred" />
+        <ProjectItem v-for="project in projects2" :key="project.id" :project="project" :starred="starred" />
       </div>
       <div class="mainprojects" v-if="currentkind == 2">
         <el-tabs v-model="activeName" class="demo-tabs" @tab-click="handleClick">
