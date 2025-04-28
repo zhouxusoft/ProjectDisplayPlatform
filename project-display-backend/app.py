@@ -806,6 +806,34 @@ def userInfo():
     else:
         return jsonify({'success': False, 'message': '用户未登录', 'code': 401})
 
+# 获取用户的点赞记录
+@app.route('/userStarred', methods=['POST'])
+def userStarred():
+    # 获取前端的 cookie
+    token = request.cookies.get('access-token')
+    # 判断该 cookie 是否有效
+    check = checkCookie(token)
+    if check['success']:
+        db, dbcursor = get_db()
+        sql = "SELECT * FROM `projects`"
+        dbcursor.execute(sql)
+        allprojectlist = dbcursor.fetchall()
+        sql = "SELECT * FROM `user_starred` WHERE `user_id` = %s"
+        val = (check['userid'])
+        dbcursor.execute(sql, val)
+        userstarredlist = dbcursor.fetchall()
+        userstarredprojects = []
+        # 整合结果
+        for i in range(0, len(userstarredlist)):
+            for j in range(0, len(allprojectlist)):
+                if userstarredlist[i][2] == allprojectlist[j][0]:
+                    userstarredprojects.append(allprojectlist[j])
+                    break
+        projects = getProjectInfo(userstarredprojects)
+        return jsonify({'success': True, 'data': projects, 'code': 200})
+    else:
+        return jsonify({'success': False, 'message': '用户未登录', 'code': 401})
+
 # 查询用户历史记录
 @app.route('/history', methods=['POST'])
 def get_history():
@@ -1194,6 +1222,75 @@ def getUserProjectList(userid, my_id=0):
             'updatetime': updatetime,
             'pagename': result[i][9],
             'circle': result[i][11],
+        }
+        # print(project)
+        projectlist.append(project)
+    return projectlist
+
+def getProjectInfo(projects):
+    db, dbcursor = get_db()
+    # 获取所有的标签
+    sql = "SELECT * FROM `tags`"
+    dbcursor.execute(sql)
+    alltags = dbcursor.fetchall()
+    # 获取所有的项目对应的标签
+    sql = "SELECT * FROM `project_tag`"
+    dbcursor.execute(sql)
+    projecttags = dbcursor.fetchall()
+    # 获取所有的语言
+    sql = "SELECT * FROM `languages`"
+    dbcursor.execute(sql)
+    languages = dbcursor.fetchall()
+    # 获取所有的用户信息
+    sql = "SELECT * FROM `user_info`"
+    dbcursor.execute(sql)
+    userinfos = dbcursor.fetchall()
+    projectlist = []
+    # 为每个项目，匹配对应的语言标签用户等信息
+    for i in range(0, len(projects)):
+        # 初始化信息
+        usericon = ''
+        tags = []
+        tagids = []
+        language = {}
+        # 将时间进行格式化
+        updatetime = projects[i][7].strftime('%Y/%m/%d')
+        # 匹配用户信息，包括头像的 url
+        for j in userinfos:
+            if j[1] == projects[i][1]:
+                usericon = j[2]
+                break
+        # 匹配标签，一个项目可以有多个标签
+        for x in projecttags:
+            if x[1] == projects[i][0]:
+                tagids.append(x[2])
+                for y in alltags:
+                    if y[0] == x[2]:
+                        tags.append(y[1])
+                        break
+        # 匹配语言，一个项目只有一个 main_language
+        for m in languages:
+            if m[0] == projects[i][4]:
+                language = {
+                    'color': m[2],
+                    'name': m[1]
+                }
+                break
+        # 格式化项目信息
+        project = {
+            'id': projects[i][0],
+            'userid': projects[i][1],
+            'usericon': usericon,
+            'name': projects[i][2],
+            'main': projects[i][3],
+            'cover': projects[i][8],
+            'tags': tags,
+            'tagids': tagids,
+            'language': language,
+            'starnum': projects[i][6],
+            'updatetime': updatetime,
+            'pagename': projects[i][9],
+            'circle': projects[i][11],
         }
         # print(project)
         projectlist.append(project)

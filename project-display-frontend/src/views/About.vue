@@ -1,11 +1,16 @@
 <script setup>
-import { ref } from 'vue'
+import { onMounted, ref } from 'vue'
 import ProjectItem from '../components/ProjectItem.vue'
 import LeftNavItem from '../components/LeftNavItem.vue'
 import { ElMessage } from 'element-plus'
 import { useRouter } from 'vue-router'
+import { userStarredAPI, userListAPI, circleListAPI } from '../api/api'
+import CircleItem from '../components/CircleItem.vue'
+import UserItem from '../components/UserItem.vue'
 
 const router = useRouter()
+
+const isLoading = ref(false)
 
 const projects = ref([
   {
@@ -17,7 +22,7 @@ const projects = ref([
     language: { color: "449633", name: "Vue" },
     starnum: 2,
     updatetime: "2022/8/19",
-    cover: '123',
+    cover: 'https://p.cldisk.com/star3/origin/3bbc9fc48036bd31beb31dac8d923d77.png',
   },
   {
     id: 2,
@@ -28,7 +33,7 @@ const projects = ref([
     language: { color: "481828", name: "JavaScript" },
     starnum: 1,
     updatetime: "2022/8/19",
-    cover: '123',
+    cover: '',
   }
 ])
 
@@ -42,7 +47,7 @@ const projects2 = ref([
     language: { color: "449633", name: "Vue" },
     starnum: 2,
     updatetime: "2022/8/19",
-    cover: '123',
+    cover: 'https://p.cldisk.com/star3/origin/d1f2cf3372c1fc55585292c694de46a9.png',
   },
   {
     id: 4,
@@ -83,7 +88,9 @@ const kinds = ref([
   }
 ])
 
-const activeName = ref('first')
+const userActiveName = ref('first')
+const circleActiveName = ref('first')
+const historyActiveName = ref('first')
 
 const currentkind = ref(1)
 
@@ -133,12 +140,69 @@ const chooseLeftNav = (kind) => {
   currentkind.value = kind.id
 }
 
-/**
- * 加载页面时获取数据
- */
-const getAllInfo = () => {
+const circleList = ref([])
+const circleCreateList = ref([])
+const circleJoinList = ref([])
+const circleStarList = ref([])
+
+const getCircleList = () => {
+  isLoading.value = true
+  circleListAPI().then(res => {
+    isLoading.value = false
+    circleList.value = res.data
+    circleCreateList.value = res.data.filter((item) => item.flag == 1)
+    circleJoinList.value = res.data.filter((item) => item.flag == 2)
+    circleStarList.value = res.data.filter((item) => item.flag == 3)
+  }).catch(error => {
+    console.error('Error:', error)
+  })
 }
-getAllInfo()
+
+const updateUser = (userid) => {
+  for (let i = 0; i < userList.value.length; i++) {
+    if (userList.value[i].user_id == userid) {
+      if (userList.value[i].flag == 1) {
+        userList.value[i].flag = 3
+      } else if (userList.value[i].flag == 2) {
+        userList.value[i].flag = 0
+      } else if (userList.value[i].flag == 3) {
+        userList.value[i].flag = 1
+      } else if (userList.value[i].flag == 0) {
+        userList.value[i].flag = 2
+      }
+    }
+  }
+	// getUserList()
+}
+
+const userList = ref([])
+const userFollowList = ref([])
+const userFanList = ref([])
+const userLinkList = ref([])
+
+const getUserList = () => {
+  // 发送获取数据请求
+  isLoading.value = true
+  userListAPI().then(res => {
+    isLoading.value = false
+    userList.value = res.data
+    userFollowList.value = res.data.filter((item) => item.flag == 2 || item.flag == 3)
+    userFanList.value = res.data.filter((item) => item.flag == 1 || item.flag == 3)
+    userLinkList.value = res.data.filter((item) => item.flag == 3)
+  }).catch(error => {
+    console.error('Error:', error)
+  })
+}
+
+const handleClick = () => {
+  getCircleList()
+  getUserList()
+}
+
+onMounted(() => {
+  getCircleList()
+  getUserList()
+})
 
 </script>
 
@@ -153,7 +217,7 @@ getAllInfo()
       </div>
     </div>
     <div class="straightline"></div>
-    <div class="mainprojects px-4 py-3">
+    <div class="mainprojects px-4 py-3" v-loading="isLoading">
       <div class="mainprojects" v-if="currentkind == 1">
         <div style="font-weight: 700; color: #333333; width: fit-content; margin: 0 auto; font-size: 18px;">我的 Starred
         </div>
@@ -163,56 +227,45 @@ getAllInfo()
         <ProjectItem v-for="project in projects2" :key="project.id" :project="project" :starred="starred" />
       </div>
       <div class="mainprojects" v-if="currentkind == 2">
-        <el-tabs v-model="activeName" class="demo-tabs" @tab-click="handleClick">
+        <el-tabs v-model="userActiveName" class="demo-tabs" @tab-click="handleClick">
           <el-tab-pane label="我关注的" name="first"></el-tab-pane>
           <el-tab-pane label="关注我的" name="second"></el-tab-pane>
           <el-tab-pane label="互相关注" name="third"></el-tab-pane>
         </el-tabs>
-        <div class="userbox">
-          <div class="useravatar"><img src="https://avatars.githubusercontent.com/u/96218937?v=4" alt=""
-              style="width: 80px;"></div>
-          <div class="userinfo">
-            <div style="font-weight: 700;">OuYangPeng</div>
-            <div style="color: #333333; margin-top: 4px;">代码大师，我可以解答你的任何问题，快关注我吧。</div>
-            <div style="color: #333333; margin-top: 4px; font-size: 14px; display: flex; align-items: center;"><span
-                class="kindicon" style="font-size: 14px">&#xf0c0</span>粉丝：27&nbsp;&nbsp;&nbsp;&nbsp;<span
-                class="kindicon" style="font-size: 14px">&#xf06e</span>关注：6&nbsp;&nbsp;&nbsp;&nbsp;<span
-                class="kindicon" style="font-size: 14px">&#xf1ea</span>作品：11</div>
-          </div>
+        <div v-if="userActiveName == 'first'">
+          <UserItem v-for="user in userFollowList" :key="user.id" :user="user" @updateUser="updateUser" />
+          <div style="width: fit-content; margin: 10px auto; color: #666666">没有更多了...</div>
         </div>
-        <div class="userbox">
-          <div class="useravatar"><img src="../assets/images/1639493916102.jpg" alt="" style="width: 80px;"></div>
-          <div class="userinfo">
-            <div style="font-weight: 700;">ZhouFuKang</div>
-            <div style="color: #333333; margin-top: 4px;">一个正在努力学习的新手程序员</div>
-            <div style="color: #333333; margin-top: 4px; font-size: 14px; display: flex; align-items: center;"><span
-                class="kindicon" style="font-size: 14px">&#xf0c0</span>粉丝：11&nbsp;&nbsp;&nbsp;&nbsp;<span
-                class="kindicon" style="font-size: 14px">&#xf06e</span>关注：9&nbsp;&nbsp;&nbsp;&nbsp;<span
-                class="kindicon" style="font-size: 14px">&#xf1ea</span>作品：0</div>
-          </div>
+        <div v-if="userActiveName == 'second'">
+          <UserItem v-for="user in userFanList" :key="user.id" :user="user" @updateUser="updateUser" />
+          <div style="width: fit-content; margin: 10px auto; color: #666666">没有更多了...</div>
+        </div>
+        <div v-if="userActiveName == 'third'">
+          <UserItem v-for="user in userLinkList" :key="user.id" :user="user" @updateUser="updateUser" />
+          <div style="width: fit-content; margin: 10px auto; color: #666666">没有更多了...</div>
         </div>
       </div>
       <div class="mainprojects" v-if="currentkind == 3">
-        <el-tabs v-model="activeName" class="demo-tabs" @tab-click="handleClick">
+        <el-tabs v-model="circleActiveName" class="demo-tabs" @tab-click="handleClick">
           <el-tab-pane label="我管理的" name="first"></el-tab-pane>
           <el-tab-pane label="我加入的" name="second"></el-tab-pane>
           <el-tab-pane label="我关注的" name="third"></el-tab-pane>
         </el-tabs>
-        <div class="userbox">
-          <div class="useravatar" style="border-radius: 0.25em;"><img src="../assets/images/plgy.png" alt=""
-              style="width: 80px;"></div>
-          <div class="userinfo">
-            <div style="font-weight: 700;">豫章千万少女的梦</div>
-            <div style="color: #333333; margin-top: 4px;">传奇寝室10207，进来听听我们的故事。</div>
-            <div style="color: #333333; margin-top: 4px; font-size: 14px; display: flex; align-items: center;"><span
-                class="kindicon" style="font-size: 14px">&#xf0c0</span>成员：4&nbsp;&nbsp;&nbsp;&nbsp;<span
-                class="kindicon" style="font-size: 14px">&#xf06e</span>粉丝：107&nbsp;&nbsp;&nbsp;&nbsp;<span
-                class="kindicon" style="font-size: 14px">&#xf1ea</span>作品：20</div>
-          </div>
+        <div v-if="circleActiveName == 'first'">
+          <CircleItem v-for="circle in circleCreateList" :key="circle.id" :circle="circle" />
+          <div style="width: fit-content; margin: 10px auto; color: #666666">没有更多了...</div>
+        </div>
+        <div v-if="circleActiveName == 'second'">
+          <CircleItem v-for="circle in circleJoinList" :key="circle.id" :circle="circle" />
+          <div style="width: fit-content; margin: 10px auto; color: #666666">没有更多了...</div>
+        </div>
+        <div v-if="circleActiveName == 'third'">
+          <CircleItem v-for="circle in circleStarList" :key="circle.id" :circle="circle" />
+          <div style="width: fit-content; margin: 10px auto; color: #666666">没有更多了...</div>
         </div>
       </div>
       <div class="mainprojects" v-if="currentkind == 4">
-        <el-tabs v-model="activeName" class="demo-tabs" @tab-click="handleClick">
+        <el-tabs v-model="historyActiveName" class="demo-tabs" @tab-click="handleClick">
           <el-tab-pane label="看过的文章" name="first"></el-tab-pane>
           <el-tab-pane label="看过的创作者" name="second"></el-tab-pane>
           <el-tab-pane label="看过的圈子" name="third"></el-tab-pane>

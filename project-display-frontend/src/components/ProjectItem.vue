@@ -2,7 +2,7 @@
 	<div class="projectdata p-3">
 		<div class="project_img_box_border d-none d-lg-block" v-if="project.cover">
 			<div class="project_img_box">
-				<img :src="imgUrl" alt="图片加载失败" class="project_img" style="width: 160px;" @error="handleImageError">
+				<img :src="imgUrl" alt="图片加载失败" class="project_img" style="width: 160px;" @error="handleImageError" referrerpolicy="no-referrer">
 			</div>
 		</div>
 		<div class="projectinfo">

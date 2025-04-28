@@ -53,6 +53,36 @@ const currentSortMode = ref({
   name: 'Last updated'
 })
 
+const messageList = ref([
+  {
+    id: 1,
+    content: '<div>你的文章 <span style="color: #0349B4; text-decoration: underline">RainManGO/vue3-composition-admin</span> 被 <span style="color: #0349B4; text-decoration: underline"> OuYangPeng </span>等3个人点赞</div>',
+  },
+  {
+    id: 2,
+    content: '<div>你的文章 <span style="color: #0349B4; text-decoration: underline">RainManGO/vue3-composition-admin</span> 被 <span style="color: #0349B4; text-decoration: underline"> OuYangPeng </span>等2个人评论</div>',
+  },
+  {
+    id: 3,
+    content: '<div><span style="color: #0349B4; text-decoration: underline">OuYangPeng</span> 关注了你</div>',
+  },
+])
+
+const messageBoxHeight = ref([0])
+
+const setMessageBoxHeight = () => {
+  if (messageList.value.length == 0) {
+    messageBoxHeight.value = 66
+  } else {
+    messageBoxHeight.value = messageList.value.length * 66
+  }
+}
+
+const readMessage = (messageid) => {
+  messageList.value = messageList.value.filter((item) => item.id != messageid)
+  setMessageBoxHeight()
+}
+
 /**
  * 切换项目列表排序方式
  * @param {JSON} sortMode
@@ -159,11 +189,12 @@ const logout = () => {
         })
       })
     })
-    .catch(() => {})
+    .catch(() => { })
 }
 
 onMounted(() => {
   checkLogin()
+  setMessageBoxHeight()
 })
 
 </script>
@@ -205,27 +236,24 @@ onMounted(() => {
           </div>
           <div class="hr"></div>
           <el-button @click="logout()" class="logoutbtn" text style="padding: 4px 8px;"><span class="kindicon"
-            style="font-size: 13px; margin-right: 2px;">&#xf011</span>退出登录</el-button>
+              style="font-size: 13px; margin-right: 2px;">&#xf011</span>退出登录</el-button>
         </div>
         <div class="rightbox">
           <div class="projectboxborder">
             <div class="projectboxtitlebox">
               <div class="projectboxtitle">Messages of Mine</div>
-              <el-badge :value="8" :max="10" class="item">
+              <el-badge :value="messageList.length" :max="10" class="item">
                 <el-button @click="this.$router.push('/chat')"><span class="kindicon"
                     style="font-size: 14px">&#xf0e0</span>My Messages</el-button>
               </el-badge>
             </div>
-            <div class="projectbox mt-1 px-3 py-3 mb-2">
-              <div>你的文章 <span style="color: #0349B4; text-decoration: underline">RainManGO/vue3-composition-admin</span>
-                被<span style="color: #0349B4; text-decoration: underline"> OuYangPeng </span>等3个人点赞</div>
-            </div>
-            <div class="projectbox mt-1 px-3 py-3 mb-2">
-              <div>你的文章 <span style="color: #0349B4; text-decoration: underline">RainManGO/vue3-composition-admin</span>
-                被<span style="color: #0349B4; text-decoration: underline"> OuYangPeng </span>等2个人评论</div>
-            </div>
-            <div class="projectbox mt-1 px-3 py-3 mb-2">
-              <div><span style="color: #0349B4; text-decoration: underline">OuYangPeng</span> 关注了你</div>
+            <div class="messagebox" :style="{ height: messageBoxHeight + 'px' }">
+              <div class="messageitem" v-for="message in messageList">
+                <div v-html="message.content"></div>
+                <button type="button" class="dbtn" @click="readMessage(message.id)"><span class="kindicon"
+                  style="font-size: 12px; margin-right: 2px;">&#xf00c</span>已阅</button>
+              </div>
+              <div v-if="messageList.length == 0" class="messageitem" style="display: flex; justify-content: center;">暂无通知</div>
             </div>
           </div>
           <div class="projectboxborder mt-4">
@@ -271,9 +299,9 @@ onMounted(() => {
     </el-form>
     <el-form label-width="100px">
       <el-form-item label="头像" prop="roleName">
-        <el-image style="width: 100px; height: 100px" :src="userInfo.usericon"
-          :zoom-rate="1.2" :max-scale="7" :min-scale="0.2" :preview-src-list="srcList" show-progress :initial-index="4"
-          fit="cover" referrerpolicy="no-referrer" />
+        <el-image style="width: 100px; height: 100px" :src="userInfo.usericon" :zoom-rate="1.2" :max-scale="7"
+          :min-scale="0.2" :preview-src-list="srcList" show-progress :initial-index="4" fit="cover"
+          referrerpolicy="no-referrer" />
       </el-form-item>
     </el-form>
     <template #footer>
@@ -288,6 +316,21 @@ onMounted(() => {
 </template>
 
 <style scoped>
+.messagebox {
+  padding-top: 2px;
+  transition: all 0.4s ease;
+}
+
+.messageitem {
+  width: 100%;
+  border: 1px solid black;
+  border-radius: 4px;
+  padding: 16px;
+  margin-bottom: 8px;
+  display: flex;
+  justify-content: space-between;
+}
+
 .notlogincontainer {
   display: flex;
   justify-content: center;
@@ -499,6 +542,27 @@ onMounted(() => {
   margin: 16px 10px;
 }
 
+.dbtn {
+  border-radius: 0.25rem;
+  font-size: 13px;
+  border: 1px solid #20252c;
+  width: 60px;
+  position: relative;
+  text-decoration: none;
+  padding: 4px;
+  transition: 0.3s;
+  background-color: #E7ECF0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 24px;
+  color: #333333;
+}
+
+.dbtn:hover {
+  background-color: rgb(206, 213, 220);
+}
+
 .sbtn {
   border-radius: 0.25rem;
   font-size: 15px;
@@ -514,6 +578,10 @@ onMounted(() => {
   align-items: center;
   height: 30px;
   color: #333333;
+}
+
+.sbtn:hover {
+  background-color: rgb(206, 213, 220);
 }
 
 .infobox {

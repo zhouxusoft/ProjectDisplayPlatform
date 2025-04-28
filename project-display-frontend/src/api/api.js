@@ -84,3 +84,8 @@ export function myInfoAPI(data) {
 export function userInfoAPI(data) {
   return api.post('/userInfo', data)
 }
+
+// 获取用户点赞列表
+export function userStarredAPI() {
+  return api.post('/userStarred', data)
+}

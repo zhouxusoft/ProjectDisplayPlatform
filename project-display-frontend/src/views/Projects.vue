@@ -12,6 +12,8 @@ import { useRouter } from 'vue-router'
 
 const router = useRouter()
 
+const isLoading = ref(false)
+
 const projects = ref([
 	// {
 	// 	id: 1,
@@ -210,20 +212,6 @@ const setCurrentTagList = () => {
 }
 
 /**
- * 获取当前的url
- */
-const getCurrentUrl = () => {
-	let currenturl = window.location.href
-	let route = currenturl.split('?')[0]
-	let key = currenturl.split('?')[1]
-	// console.log(currenturl)
-	// console.log(routerurl)
-	// console.log(searchkey)
-	// routerurl + '?' + searchkey == currenturl
-	return { route: route, key: key }
-}
-
-/**
  * 根据用户选择的类型、标签、语言，设置url
  */
 const setCurrentUrl = () => {
@@ -262,6 +250,7 @@ const getCircleList = () => {
 	circleListAPI().then(res => {
 		circleList.value = res.data
 	}).catch(error => {
+		isLoading.value = false
 		console.error('Error:', error)
 	})
 }
@@ -270,9 +259,12 @@ const userList = ref([])
 
 const getUserList = () => {
 	// 发送获取数据请求
+	isLoading.value = true
 	userListAPI().then(res => {
+		isLoading.value = false
 		userList.value = res.data
 	}).catch(error => {
+		isLoading.value = false
 		console.error('Error:', error)
 	})
 }
@@ -285,11 +277,14 @@ const getProjects = () => {
 		page: currentpage.value,
 	}
 	// 发送获取数据请求
+	isLoading.value = true
 	projectsAPI(toSend).then(res => {
+		isLoading.value = false
 		projects.value = res.data
 		total.value = res.total
 		starnumFormat()
 	}).catch(error => {
+		isLoading.value = false
 		console.error('Error:', error)
 	})
 }
@@ -299,7 +294,9 @@ const getProjects = () => {
  */
 const getKinds = () => {
 	// 发送获取数据请求
+	isLoading.value = true
 	kindsAPI().then(res => {
+		isLoading.value = false
 		kinds.value = res.data
 		let parmas = router.currentRoute.value.query
 		console.log(parmas)
@@ -319,6 +316,7 @@ const getKinds = () => {
 			setCurrentUrl()
 		}
 	}).catch(error => {
+		isLoading.value = false
 		console.error('Error:', error)
 	})
 }
@@ -328,10 +326,13 @@ const getKinds = () => {
  */
 const getLanguages = () => {
 	// 发送获取数据请求
+	isLoading.value = true
 	languagesAPI().then(res => {
+		isLoading.value = false
 		alllanguages = res.data
 		languages.value = alllanguages.slice(0, baselanguageaddnum)
 	}).catch(error => {
+		isLoading.value = false
 		console.error('Error:', error)
 	})
 }
@@ -341,10 +342,13 @@ const getLanguages = () => {
  */
 const getTags = () => {
 	// 发送获取数据请求
+	isLoading.value = true
 	tagsAPI().then(res => {
+		isLoading.value = false
 		alltags = res.data
 		setCurrentTagList()
 	}).catch(error => {
+		isLoading.value = false
 		console.error('Error:', error)
 	})
 }
@@ -419,7 +423,7 @@ getAllInfo()
 			</div>
 		</div>
 		<div class="straightline"></div>
-		<div class="mainprojects px-4 py-3">
+		<div class="mainprojects px-4 py-3" v-loading="isLoading">
 			<ProjectItem v-for="project in projects" :key="project.id" :project="project" :starred="starred"
 				v-if="currentkind == 1" />
 			<div v-if="currentkind == 2">

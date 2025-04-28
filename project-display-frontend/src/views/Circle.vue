@@ -65,6 +65,10 @@ const goBack = () => {
   })
 }
 
+const toUserDetail = (userid) => {
+  router.push({ path: `/user/${userid}` })
+}
+
 onMounted(() => {
   getCircleDetail()
 })
@@ -85,7 +89,7 @@ onMounted(() => {
                 <div class="memberavatar"><img :src="user.usericon" alt="" style="width: 40px;"
                     referrerpolicy="no-referrer"></div>
                 <div class="userinfo">
-                  <div style="font-weight: 700; font-size: 15px;">{{ user.nickname }}
+                  <div style="font-weight: 700; font-size: 15px; cursor: pointer;" @click="toUserDetail(user.user_id)">{{ user.nickname }}
                     <el-tag effect="plain" type="info" size="small" style="float: right;" v-if="user.flag == 4">
                       我
                     </el-tag>
@@ -103,14 +107,15 @@ onMounted(() => {
               <div style="color: #333333; margin-top: 4px; font-size: 13px;">{{ user.bio || '这个人很神秘，什么都没有写' }}</div>
             </div>
           </div>
-          <div class="filter" style="padding-top: 0;">成员 <span style="font-size: 14px; color: #666666;">{{ circleInfo.member_count }}</span></div>
+          <div class="filter" style="padding-top: 0;">成员 <span style="font-size: 14px; color: #666666;">{{
+            circleInfo.member_count }}</span></div>
           <div class="taggroupbox" v-if="circleUsers.length > 0">
             <div class="memberbox" v-for="user in circleUsers" :key="user.nickname">
               <div style="display: flex; justify-content: space-between;">
                 <div class="memberavatar"><img :src="user.usericon" alt="" style="width: 40px;"
                     referrerpolicy="no-referrer"></div>
                 <div class="userinfo">
-                  <div style="font-weight: 700; font-size: 15px;">{{ user.nickname }}
+                  <div style="font-weight: 700; font-size: 15px; cursor: pointer;" @click="toUserDetail(user.user_id)">{{ user.nickname }}
                     <el-tag effect="plain" type="info" size="small" style="float: right;" v-if="user.flag == 4">
                       我
                     </el-tag>
