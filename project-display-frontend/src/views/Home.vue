@@ -1,8 +1,8 @@
 <script setup>
 import { onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
-import { ElMessage } from 'element-plus'
-import { checkLoginAPI, clearCookieAPI } from '../api/api'
+import { ElMessage, ElMessageBox } from 'element-plus'
+import { checkLoginAPI, clearCookieAPI, myInfoAPI } from '../api/api'
 import ProjectItem from '../components/ProjectItem.vue'
 
 const router = useRouter()
@@ -32,32 +32,7 @@ const sortModes = [
   }
 ]
 
-const projects = ref([
-  {
-    id: 1,
-    usericon: "https://avatars.githubusercontent.com/u/96218937?s=96&v=4",
-    name: "RainManGO/vue3-composition-admin",
-    main: "🎉 基于vue3 的管理端模板(Vue3 TS Vuex4 element-plus vue-i18n-next composition-api) vue3-admin vue3-ts-admin",
-    tags: ["JavaScript", "Flask", "Vue", "BootStrap"],
-    language: { color: "449633", name: "Vue" },
-    starnum: 99586,
-    updatetime: "2022/8/19",
-    cover: '',
-    pagename: '1'
-  },
-  {
-    id: 2,
-    usericon: "https://avatars.githubusercontent.com/u/96218937?s=96&v=4",
-    name: "jeecgboot/jeecgboot-vue3",
-    main: "🔥 JeecgBoot—Vue3版前端源码，采用 Vue3.0+TypeScript+Vite+Ant-Design-Vue等新技术方案，包括二次封装组件、utils、hooks、动态菜单、权限校验、按钮级别权限控制等功能。 是JeecgBoot低代码平台的vue3技术栈的全…",
-    tags: ["JavaScript", "Vue", "BootStrap"],
-    language: { color: "481828", name: "JavaScript" },
-    starnum: 758,
-    updatetime: "2022/8/19",
-    cover: '',
-    pagename: '1'
-  }
-])
+const projects = ref([])
 
 const starred = ref([
   {
@@ -69,6 +44,8 @@ const starred = ref([
     projectid: 3
   }
 ])
+
+const userInfo = ref({})
 
 const isLogin = ref(-1)
 const currentSortMode = ref({
@@ -93,6 +70,37 @@ const changeSortMode = (sortMode) => {
 }
 
 /**
+ * 获取用户信息
+ */
+const getMyInfo = () => {
+  isLoading.value = true
+  // 发送请求
+  myInfoAPI().then(res => {
+    if (res.success) {
+      // 设置用户信息
+      projects.value = res.data.projects
+      userInfo.value = res.data.userinfo
+    } else {
+      ElMessage({
+        message: '获取用户信息失败',
+        type: 'error',
+        plain: true,
+        offset: 9,
+      })
+    }
+    isLoading.value = false
+  }).catch(error => {
+    ElMessage({
+      message: '请求失败',
+      type: 'error',
+      plain: true,
+      offset: 9,
+    })
+    isLoading.value = false
+  })
+}
+
+/**
  * 判断用户当前的登录状态
  */
 const checkLogin = () => {
@@ -101,6 +109,7 @@ const checkLogin = () => {
   checkLoginAPI().then(res => {
     if (res.success) {
       isLogin.value = 1
+      getMyInfo()
     } else {
       isLogin.value = 0
     }
@@ -121,24 +130,36 @@ const checkLogin = () => {
  * 退出登录
  */
 const logout = () => {
-  // 发送请求, 清除 cookie
-  clearCookieAPI().then(res => {
-    ElMessage({
-      message: '退出成功',
-      type: 'success',
-      plain: true,
-      offset: 9,
+  ElMessageBox.confirm(
+    '确认退出?',
+    '提示',
+    {
+      confirmButtonText: '退出',
+      cancelButtonText: '取消',
+      type: 'warning',
+    }
+  )
+    .then(() => {
+      // 发送请求, 清除 cookie
+      clearCookieAPI().then(res => {
+        ElMessage({
+          message: '退出成功',
+          type: 'success',
+          plain: true,
+          offset: 9,
+        })
+        // 设置登录状态
+        isLogin.value = 0
+      }).catch(error => {
+        ElMessage({
+          message: '退出失败',
+          type: 'error',
+          plain: true,
+          offset: 9,
+        })
+      })
     })
-    // 设置登录状态
-    isLogin.value = 0
-  }).catch(error => {
-    ElMessage({
-      message: '退出失败',
-      type: 'error',
-      plain: true,
-      offset: 9,
-    })
-  })
+    .catch(() => {})
 }
 
 onMounted(() => {
@@ -163,33 +184,36 @@ onMounted(() => {
       <div class="container">
         <div class="leftbox d-none d-md-block">
           <div class="headpicturebox">
-            <img class="img-fluid headpicture" src="https://avatars.githubusercontent.com/u/96218937?v=4" alt="">
+            <img class="img-fluid headpicture" :src="userInfo.usericon" alt="" referrerpolicy="no-referrer">
           </div>
           <div class="namebox">
-            <div class="name">Godxu</div>
+            <div class="name">{{ userInfo.nickname }}</div>
           </div>
           <div class="boibox">
-            <div>我是一个学习编程的新手，来自江西上饶。</div>
+            <div>{{ userInfo.bio || '这个人很神秘，什么都没有写' }}</div>
           </div>
           <div class="btnbox">
             <button type="button" class="sbtn" @click="centerDialogVisible = true">Edit Profile</button>
           </div>
           <div class="infobox">
             <span class="kindicon">&#xf500</span>
-            <span>2 followers · 4 following</span>
+            <span>{{ userInfo.follower }} followers · {{ userInfo.following }} following</span>
           </div>
           <div class="locationbox">
             <span class="kindicon" style="font-size: 14px">&#xf3c5</span>
-            <span>江西</span>
+            <span>{{ userInfo.position }}</span>
           </div>
           <div class="hr"></div>
+          <el-button @click="logout()" class="logoutbtn" text style="padding: 4px 8px;"><span class="kindicon"
+            style="font-size: 13px; margin-right: 2px;">&#xf011</span>退出登录</el-button>
         </div>
         <div class="rightbox">
           <div class="projectboxborder">
             <div class="projectboxtitlebox">
               <div class="projectboxtitle">Messages of Mine</div>
               <el-badge :value="8" :max="10" class="item">
-                <el-button @click="this.$router.push('/chat')"><span class="kindicon" style="font-size: 14px">&#xf0e0</span>My Messages</el-button>
+                <el-button @click="this.$router.push('/chat')"><span class="kindicon"
+                    style="font-size: 14px">&#xf0e0</span>My Messages</el-button>
               </el-badge>
             </div>
             <div class="projectbox mt-1 px-3 py-3 mb-2">
@@ -228,36 +252,28 @@ onMounted(() => {
               <ProjectItem v-for="project in projects" :key="project.id" :project="project" :starred="starred" />
               <div style="width: fit-content; margin: 10px auto; color: #666666">没有更多了...</div>
             </div>
+            <div style="height: 40px;"></div>
           </div>
         </div>
       </div>
-      <button class="btn btn-outline-secondary" @click="logout">退出登录</button>
     </div>
   </div>
   <el-dialog v-model="centerDialogVisible" title="编辑个人资料" width="500" align-center>
     <el-form label-width="100px">
       <el-form-item label="昵称" prop="roleName">
-        <el-input placeholder="Godxu" />
+        <el-input :placeholder="userInfo.nickname" />
       </el-form-item>
     </el-form>
     <el-form label-width="100px">
       <el-form-item label="个性签名" prop="roleName">
-        <el-input placeholder="我是一个学习编程的新手，来自江西上饶。" />
+        <el-input :placeholder="userInfo.bio" />
       </el-form-item>
     </el-form>
     <el-form label-width="100px">
       <el-form-item label="头像" prop="roleName">
-        <el-image
-          style="width: 100px; height: 100px"
-          src="https://avatars.githubusercontent.com/u/96218937?v=4"
-          :zoom-rate="1.2"
-          :max-scale="7"
-          :min-scale="0.2"
-          :preview-src-list="srcList"
-          show-progress
-          :initial-index="4"
-          fit="cover"
-        />
+        <el-image style="width: 100px; height: 100px" :src="userInfo.usericon"
+          :zoom-rate="1.2" :max-scale="7" :min-scale="0.2" :preview-src-list="srcList" show-progress :initial-index="4"
+          fit="cover" referrerpolicy="no-referrer" />
       </el-form-item>
     </el-form>
     <template #footer>

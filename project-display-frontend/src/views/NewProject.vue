@@ -12,7 +12,10 @@ const router = useRouter()
 const html = ref('')
 
 const goBack = () => {
-  router.push({ path: globalData.previousPage })
+  router.push({
+    path: globalData.previousPage,
+    query: globalData.previousPageParams,
+  })
 }
 
 const tags = ref([

@@ -36,82 +36,9 @@ const projects = ref([
 	// 	cover: '123',
 	// }
 ])
-const kinds = ref([
-	{
-		id: 1,
-		name: "Projects",
-		icon: "&#xf828",
-		isactive: true
-	},
-	{
-		id: 2,
-		name: "Users",
-		icon: "&#xf500",
-		isactive: false
-	}
-])
-const languages = ref([
-	{
-		id: 1,
-		color: "449633",
-		name: "Java",
-		isactive: false
-	},
-	{
-		id: 2,
-		color: "995333",
-		name: "HTML",
-		isactive: false
-	},
-	{
-		id: 3,
-		color: "481828",
-		name: "JavaScript",
-		isactive: false
-	},
-	{
-		id: 4,
-		color: "465999",
-		name: "Vue",
-		isactive: false
-	},
-	{
-		id: 5,
-		color: "995333",
-		name: "C++",
-		isactive: false
-	},
-	{
-		id: 6,
-		color: "747252",
-		name: "Golang",
-		isactive: false
-	},
-	{
-		id: 7,
-		color: "da1d2c",
-		name: "PHP",
-		isactive: false
-	},
-	{
-		id: 8,
-		color: "ad4a14",
-		name: "Rust",
-		isactive: false
-	}
-])
-const tags = ref([
-	{
-		id: 1,
-		name: "Java",
-		isactive: false
-	},
-	{
-		id: 2,
-		name: "HTML",
-		isactive: false
-	}
-])
+const kinds = ref([])
+const languages = ref([])
+const tags = ref([])
 const starred = ref([
 	{
 		id: 1,
@@ -141,7 +68,7 @@ const starnumFormat = () => {
 }
 
 // 记录参数；类型、语言、标签、页码
-let currentkind = 1
+let currentkind = 0
 let currentlanguage = 0
 let activetags = []
 // 记录所有语言、标签
@@ -328,7 +255,6 @@ const setCurrentUrl = () => {
 		query: Object.fromEntries(queryParams)
 	})
 }
-setCurrentUrl()
 
 const circleList = ref([])
 
@@ -375,6 +301,23 @@ const getKinds = () => {
 	// 发送获取数据请求
 	kindsAPI().then(res => {
 		kinds.value = res.data
+		let parmas = router.currentRoute.value.query
+		console.log(parmas)
+		if (parmas?.kind) {
+			let ckind = kinds.value.find((item) => item.name == parmas.kind)
+			if (ckind) {
+				currentkind = ckind.id
+				chooseLeftNav(ckind)
+			} else {
+				currentkind = kinds.value[0].id
+				kinds.value[0].isactive = true
+				setCurrentUrl()
+			}
+		} else {
+			currentkind = kinds.value[0].id
+			kinds.value[0].isactive = true
+			setCurrentUrl()
+		}
 	}).catch(error => {
 		console.error('Error:', error)
 	})

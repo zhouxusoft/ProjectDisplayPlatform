@@ -2,138 +2,34 @@
 import { onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
-import { checkLoginAPI, projectDetailAPI, projectCommentsAPI, userCommentAPI } from '../api/api'
+import { checkLoginAPI, userInfoAPI } from '../api/api'
+import ProjectItem from '../components/ProjectItem.vue'
 import { globalData } from './globalData'
 import 'github-markdown-css/github-markdown.css'
-import CommentSection from '../components/CommentSection.vue'
 
 const router = useRouter()
 
 const haveInfo = ref(true)
 
-const projectInfo = ref({})
 const userInfo = ref({})
-const languageInfo = ref({})
-const tagInfo = ref([])
-const readme = ref('')
 const selfInfo = ref({})
+const projects = ref([])
 
-const comments = ref([])
-
-const commentsCount = ref(0)
-
-const userComment = ref('')
+const starred = ref([
+  {
+    id: 1,
+    projectid: 1
+  },
+  {
+    id: 2,
+    projectid: 3
+  }
+])
 
 const goBack = () => {
   router.push({
     path: globalData.previousPage,
     query: globalData.previousPageParams,
-  })
-}
-
-const putComment = async () => {
-  if (userComment.value.length == 0) {
-    return
-  }
-  let position = await getPosition()
-  const toSend = {
-    projectid: projectInfo.value.id,
-    content: userComment.value,
-    position: position,
-  }
-  userCommentAPI(toSend).then(res => {
-    if (res.success) {
-      ElMessage({
-        message: res.message,
-        type: 'success',
-        plain: true,
-        offset: 9,
-      })
-      userComment.value = ''
-      getProjectComments(projectInfo.value.id)
-    } else {
-      ElMessage({
-        message: res.message,
-        type: 'error',
-        plain: true,
-        offset: 9,
-      })
-    }
-  }).catch(_ => {})
-}
-
-const getProjectComments = (projectid) => {
-  const toSend = {
-    projectid: projectid,
-  }
-  projectCommentsAPI(toSend).then(res => {
-    if (res.success) {
-      comments.value = res.data.reverse()
-      commentsCount.value = res.data.length
-    } else {
-      ElMessage({
-        message: res.message,
-        type: 'error',
-        plain: true,
-        offset: 9,
-      })
-    }
-  }).catch(_ => { })
-}
-
-const getPosition = async () => {
-  try {
-    // 第一阶段请求：获取IP地址
-    const ipResponse = await fetch('https://shop.godxu.top/get_ip', { method: 'GET' })
-    if (!ipResponse.ok) throw new Error('IP请求失败')
-    const ipData = await ipResponse.json()
-    
-    // 判断是否获取到有效IP
-    if (!ipData?.ip) return '未知'
-
-    // 第二阶段请求：获取地理位置
-    const geoResponse = await fetch(`http://ip-api.com/json/${ipData.ip}?lang=zh-CN`)
-    if (!geoResponse.ok) throw new Error('地理请求失败')
-    const geoData = await geoResponse.json()
-
-    // 返回最终结果
-    return geoData.status === 'success' ? geoData.regionName.replace('省', '') : '未知'
-
-  } catch (error) {
-    return '未知'
-  }
-}
-
-const getProjectDetail = () => {
-  const toSend = {
-    pagename: router.currentRoute.value.params.id,
-  }
-  projectDetailAPI(toSend).then(res => {
-    if (res.success) {
-      haveInfo.value = true
-      projectInfo.value = res.data.project
-      languageInfo.value = res.data.project.language
-      tagInfo.value = res.data.project.tags
-      userInfo.value = res.data.userinfo
-      readme.value = res.data.readme
-      getProjectComments(res.data.project.id)
-    } else {
-      haveInfo.value = false
-      ElMessage({
-        message: res.message,
-        type: 'error',
-        plain: true,
-        offset: 9,
-      })
-    }
-  }).catch(_ => {
-    haveInfo.value = false
-    // ElMessage({
-    //   message: '请求数据失败',
-    //   type: 'error',
-    //   plain: true,
-    //   offset: 9,
-    // })
   })
 }
 
@@ -167,9 +63,38 @@ const checkLogin = () => {
   })
 }
 
+/**
+ * 获取用户信息
+ */
+const getUserInfo = () => {
+  let toSend = {
+    userid: router.currentRoute.value.params.id,
+  }
+  isLoading.value = true
+  userInfoAPI(toSend).then(res => {
+    if (res.success) {
+      userInfo.value = res.data.userinfo
+      projects.value = res.data.projects
+      haveInfo.value = true
+    } else {
+      haveInfo.value = false
+    }
+    isLoading.value = false
+  }).catch(error => {
+    ElMessage({
+      message: '请求失败',
+      type: 'error',
+      plain: true,
+      offset: 9,
+    })
+    haveInfo.value = false
+    isLoading.value = false
+  })
+}
+
 onMounted(() => {
   checkLogin()
-  getProjectDetail()
+  getUserInfo()
 })
 
 </script>
@@ -218,54 +143,15 @@ onMounted(() => {
             <span>{{ userInfo.position }}</span>
           </div>
           <div class="hr"></div>
-          <div style="font-size: 15px; color: #666666; margin-left: 10px;">其他作品</div>
-          <div class="otherproject">暂无其它作品</div>
         </div>
         <div class="rightbox">
-          <div class="projecttitle">{{ projectInfo.name }}</div>
-          <div class="projectinfobox">
-            <div class="projectinfo">
-              {{ userInfo.nickname }} 编写于 {{ projectInfo.updatetime }}
-              <span class="kindicon" style="font-size: 14px; margin-left: 32px; font-weight: 500;">&#xf06e</span>阅读量 {{
-                projectInfo.browsenum }}
-              <span class="kindicon" style="font-size: 14px; margin-left: 32px; font-weight: 500;">&#xf005</span>点赞 {{
-                projectInfo.starnum }}
-            </div>
-            <div class="projectinfo" style="margin-top: 6px;">
-              <div class="projectlanguagebox" v-if="languageInfo.name != 'None'">
-                语言分类：
-                <div class="projectlanguageicon" :style="{ backgroundColor: '#' + languageInfo.color }"></div>
-                <div class="projectlanguage">{{ languageInfo.name }}</div>
-              </div>
-              <div style="display: flex; align-items: center; margin-left: 32px;">
-                文章标签：
-                <div class="projecttagbox">
-                  <a v-for="tag in tagInfo" class="projecttag">{{ tag }}</a>
-                </div>
-              </div>
-            </div>
+          <div class="projectboxtitlebox">
+            <div class="projectboxtitle">Projects of {{ userInfo.nickname }}</div>
           </div>
-          <div class="projectinfomain">{{ projectInfo.main }}</div>
-          <div>
-            <div class="projectreadme markdown-body" v-html="readme"></div>
+          <div class="projectbox mt-1 px-3 py-3">
+            <ProjectItem v-for="project in projects" :key="project.id" :project="project" :starred="starred" />
+            <div style="width: fit-content; margin: 10px auto; color: #666666">没有更多了...</div>
           </div>
-          <div class="hr"></div>
-          <div class="commenttitle">评论<span style="font-size: 14px; color: #999999; margin-left: 16px;">{{ commentsCount
-              }}</span></div>
-          <div class="commentinputbox" v-if="isLogin == 1">
-            <div class="commentinputicon"><img style="width: 50px;" :src="selfInfo.usericon" alt="" referrerpolicy="no-referrer"></div>
-            <el-input v-model="userComment" maxlength="100" style="width: 100%; font-size: 16px;" placeholder="说点什么吧"
-              show-word-limit type="textarea" :autosize="{ minRows: 3, maxRows: 10 }" />
-            <el-button style="margin-left: 10px; margin-top: auto;" @click="putComment()" plain>提交</el-button>
-          </div>
-          <div class="notlogincommentbox" v-else>
-            评论需要先<el-button @click="router.push('/login')" text type="primary"
-              style="padding: 5px; font-size: 16px;">登录</el-button>
-          </div>
-          <CommentSection v-for="comment in comments" :comment="comment"></CommentSection>
-          <div
-            style="height: 80px; display: flex; align-items: center; justify-content: center; color: #999999; font-size: 14px;">
-            到底了...</div>
         </div>
       </div>
     </div>

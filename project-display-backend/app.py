@@ -1,4 +1,4 @@
-from flask import Flask, request, jsonify, make_response
+from flask import Flask, request, jsonify, make_response, g
 from flask_cors import CORS
 from dotenv import load_dotenv
 from create_db import create_database
@@ -32,16 +32,18 @@ TOKEN_INVALID_TIME = int(TOKEN_INVALID_TIME)
 
 create_database()
 
-# 数据库连接
-db = pymysql.connect(
-    host=MYSQL_DATABASE_HOST,
-    user=MYSQL_DATABASE_USER,
-    password=MYSQL_DATABASE_PASSWORD,
-    db="project_display",
-    charset="utf8mb4",
-    autocommit=True
-)
-dbcursor = db.cursor()
+def get_db():
+    if 'db' not in g:
+        g.db = pymysql.connect(
+            host=MYSQL_DATABASE_HOST,
+            user=MYSQL_DATABASE_USER,
+            password=MYSQL_DATABASE_PASSWORD, # type: ignore
+            db="project_display",
+            charset="utf8mb4",
+            autocommit=True
+        ) # type: ignore
+        g.cursor = g.db.cursor()
+    return g.db, g.cursor
 
 # 创建一个线程锁对象，用于解决多个请求同时访问数据库问题
 lock = threading.Lock()
@@ -51,23 +53,22 @@ app = Flask(__name__)
 # 自定义允许跨域的源
 CORS(app, resources={r"/*": {"origins": ALLOW_ORIGIN, "supports_credentials": True}})
 
-# 在所有请求前判断数据库连接状态
-@app.before_request
-def before_request():
-    if not db.open:
-        db.connect()
+@app.teardown_appcontext
+def close_db(exception):
+    db = g.pop('db', None)
+    if db is not None:
+        db.close()
 
 # 处理前端登录请求
 @app.route('/login', methods=['POST'])
 def login():
+    db, dbcursor = get_db()
     data = request.get_json()
     # print(data)
     # 从用户表中查询用户， 并对密码作出判断
     sql = "SELECT * FROM `users` WHERE username = %s"
     val = (data['username'],)
-    lock.acquire()
     dbcursor.execute(sql, val)
-    lock.release()
     result = dbcursor.fetchall()
     # 判断该用户名是否存在
     if len(result) > 0:
@@ -87,9 +88,7 @@ def login():
             # 生成accesstoken
             sql = "SELECT `nickname` FROM `user_info` WHERE `user_id` = %s"
             val = (result[0][0],)
-            lock.acquire()
             dbcursor.execute(sql, val)
-            lock.release()
             nickname = dbcursor.fetchall()
             if len(nickname) > 0:
                 nickname = nickname[0][0]
@@ -108,16 +107,12 @@ def login():
             # 将该用户原有的token删除
             sql = "DELETE FROM `access_token` WHERE `user_id` = %s"
             val = (result[0][0])
-            lock.acquire()
             dbcursor.execute(sql, val)
-            lock.release()
             db.commit()
             # 将accesstoken存入数据库
             sql = "INSERT INTO `access_token` (`user_id`, `token`) VALUES (%s, %s)"
             val = (result[0][0], accesstoken)
-            lock.acquire()
             dbcursor.execute(sql, val)
-            lock.release()
             db.commit()
             response = make_response(
                 jsonify({'success': True, 'message': '登录成功', 'code': 200}))
@@ -133,13 +128,12 @@ def login():
 # 处理前端注册请求
 @app.route('/register', methods=['POST'])
 def register():
+    db, dbcursor = get_db()
     data = request.get_json()
     # print(data)
     sql = "SELECT * FROM `users` WHERE username = %s"
     val = (data['username'],)
-    lock.acquire()
     dbcursor.execute(sql, val)
-    lock.release()
     result = dbcursor.fetchall()
     # 判断该用户名是否存在
     if len(result) > 0:
@@ -157,15 +151,14 @@ def register():
             data['password'].encode('utf-8'), bcrypt.gensalt())
         sql = "INSERT INTO `users` (`username`, `password`) VALUES (%s, %s)"
         val = (data['username'], hashed_password)
-        lock.acquire()
         dbcursor.execute(sql, val)
-        lock.release()
         db.commit()
         return jsonify({'success': True, 'message': '注册成功', 'code': 200})
 
 # 用于校验前端的登录状态
 @app.route('/checkLogin', methods=['POST'])
 def checkLogin():
+    db, dbcursor = get_db()
     # 获取前端携带的 cookie
     token = request.cookies.get('access-token')
     # 判断该 cookie 是否有效
@@ -174,9 +167,7 @@ def checkLogin():
     if check['success']:
         sql = "SELECT `nickname`, `user_icon` FROM `user_info` WHERE `user_id` = %s"
         val = (check['userid'],)
-        lock.acquire()
         dbcursor.execute(sql, val)
-        lock.release()
         result = dbcursor.fetchall()
         userinfo = {
             'userid': check['userid'],
@@ -190,6 +181,7 @@ def checkLogin():
 # 退出登录时，清楚前端的 cookie
 @app.route('/clearCookie', methods=['POST'])
 def clearCookie():
+    db, dbcursor = get_db()
     # 获取前端的 cookie
     token = request.cookies.get('access-token')
     # 判断该 cookie 是否有效
@@ -198,9 +190,7 @@ def clearCookie():
         # 删除数据库中的 access-token 信息
         sql = "DELETE FROM `access_token` WHERE `token` = %s"
         val = (token)
-        lock.acquire()
         dbcursor.execute(sql, val)
-        lock.release()
         db.commit()
     response = make_response(jsonify({'success': True, 'message': '已登出', 'code': 200}))
     # 将前端的 cookie 设置为空
@@ -210,43 +200,32 @@ def clearCookie():
 # 返回 projects 数据
 @app.route('/projects', methods=['POST'])
 def projects():
+    db, dbcursor = get_db()
     data = request.get_json()
     # print(data['page'], PER_PAGE_NUM * 2)
     sql = "SELECT COUNT(*) FROM `projects`"
-    lock.acquire()
     dbcursor.execute(sql)
-    lock.release()
     total = dbcursor.fetchall()
     sql = "SELECT * FROM `projects` ORDER BY `starred_num` DESC LIMIT %s OFFSET %s"
     val = (PER_PAGE_NUM, (data['page'] - 1) * PER_PAGE_NUM)
-    lock.acquire()
     dbcursor.execute(sql, val)
-    lock.release()
     result = dbcursor.fetchall()
     # print(result)
     # 获取所有的标签
     sql = "SELECT * FROM `tags`"
-    lock.acquire()
     dbcursor.execute(sql)
-    lock.release()
     alltags = dbcursor.fetchall()
     # 获取所有的项目对应的标签
     sql = "SELECT * FROM `project_tag`"
-    lock.acquire()
     dbcursor.execute(sql)
-    lock.release()
     projecttags = dbcursor.fetchall()
     # 获取所有的语言
     sql = "SELECT * FROM `languages`"
-    lock.acquire()
     dbcursor.execute(sql)
-    lock.release()
     languages = dbcursor.fetchall()
     # 获取所有的用户信息
     sql = "SELECT * FROM `user_info`"
-    lock.acquire()
     dbcursor.execute(sql)
-    lock.release()
     userinfos = dbcursor.fetchall()
     projectlist = []
     # 为每个项目，匹配对应的语言标签用户等信息
@@ -303,10 +282,9 @@ def projects():
 # 返回 kinds 数据
 @app.route('/kinds', methods=['GET'])
 def kinds():
+    db, dbcursor = get_db()
     sql = "SELECT * FROM `kinds`"
-    lock.acquire()
     dbcursor.execute(sql)
-    lock.release()
     kinds = dbcursor.fetchall()
     kindlist = []
     # 定义返回的数据
@@ -319,18 +297,15 @@ def kinds():
         }
         kindlist.append(kind)
     # print(kindlist[0]['isactive'])
-    if len(kindlist) > 0:
-        kindlist[0]['isactive'] = True
     
     return jsonify({'success': True, 'data': kindlist, 'code': 200})
 
 # 返回 languages 数据
 @app.route('/languages', methods=['GET'])
 def languages():
+    db, dbcursor = get_db()
     sql = "SELECT * FROM `languages` ORDER BY `language_hot` DESC"
-    lock.acquire()
     dbcursor.execute(sql)
-    lock.release()
     languages = dbcursor.fetchall()
     languagelist = []
     for i in languages:
@@ -348,10 +323,9 @@ def languages():
 # 返回 tags 数据
 @app.route('/tags', methods=['GET'])
 def tags():
+    db, dbcursor = get_db()
     sql = "SELECT * FROM `tags` ORDER BY `tag_hot` DESC"
-    lock.acquire()
     dbcursor.execute(sql)
-    lock.release()
     tags = dbcursor.fetchall()
     taglist = []
     for i in tags:
@@ -368,39 +342,30 @@ def tags():
 # 返回 文章详情 数据
 @app.route('/projectDetail', methods=['POST'])
 def projectDetail():
+    db, dbcursor = get_db()
     data = request.get_json()
     token = request.cookies.get('access-token')
     # print(data['page'], PER_PAGE_NUM * 2)
     sql = "SELECT * FROM `projects` WHERE `page_name` = %s"
     val = (data['pagename'],)
-    lock.acquire()
     dbcursor.execute(sql, val)
-    lock.release()
     result = dbcursor.fetchall()
     # 获取文章内容
     sql = "SELECT * FROM `project_readme` WHERE `project_id` = %s"
     val = (result[0][0],)
-    lock.acquire()
     dbcursor.execute(sql, val)
-    lock.release()
     readme = dbcursor.fetchall()
     # 获取所有的标签
     sql = "SELECT * FROM `tags`"
-    lock.acquire()
     dbcursor.execute(sql)
-    lock.release()
     alltags = dbcursor.fetchall()
     # 获取所有的项目对应的标签
     sql = "SELECT * FROM `project_tag`"
-    lock.acquire()
     dbcursor.execute(sql)
-    lock.release()
     projecttags = dbcursor.fetchall()
     # 获取所有的语言
     sql = "SELECT * FROM `languages`"
-    lock.acquire()
     dbcursor.execute(sql)
-    lock.release()
     languages = dbcursor.fetchall()
     # 为项目，匹配对应的语言标签用户等信息
     tags = []
@@ -456,12 +421,11 @@ def projectDetail():
 # 返回 文章评论 数据
 @app.route('/projectComments', methods=['POST'])
 def projectComments():
+    db, dbcursor = get_db()
     data = request.get_json()
     sql = "SELECT uc.id AS comment_id, uc.user_id, uc.project_id, uc.comment_content, uc.comment_time, uc.position, ui.user_icon, ui.nickname FROM project_display.user_comment uc LEFT JOIN project_display.user_info ui ON uc.user_id = ui.user_id WHERE uc.project_id = %s"
     val = (data['projectid'],)
-    lock.acquire()
     dbcursor.execute(sql, val)
-    lock.release()
     result = dbcursor.fetchall()
     data = []
     for i in range(len(result)):
@@ -476,7 +440,6 @@ def projectComments():
             'nickname': result[i][7],
         }
         data.append(project)
-    
     return jsonify({'success': True, 'data': data, 'code': 200})
 
 # 返回 用户ip 数据
@@ -489,6 +452,7 @@ def get_ip():
 # 进行评论
 @app.route('/userComment', methods=['POST'])
 def userComment():
+    db, dbcursor = get_db()
     data = request.get_json()
     # 获取前端的 cookie
     token = request.cookies.get('access-token')
@@ -499,9 +463,7 @@ def userComment():
         my_id = check['userid']
         sql = "INSERT INTO `user_comment` (`user_id`, `project_id`, `comment_content`, `position`) VALUES (%s, %s, %s, %s)"
         val = (my_id, data['projectid'], data['content'], data['position'])
-        lock.acquire()
         dbcursor.execute(sql, val)
-        lock.release()
         db.commit()
         return jsonify({'success': True, 'message': '评论成功', 'code': 200})
     else:
@@ -510,6 +472,7 @@ def userComment():
 # 获取圈子列表
 @app.route('/circleList', methods=['POST'])
 def circleList():
+    db, dbcursor = get_db()
     sql = """SELECT
         c.*,
         -- 统计成员数
@@ -542,9 +505,7 @@ def circleList():
         ) project_count ON project_count.circle_id = c.id
         ;
     """
-    lock.acquire()
     dbcursor.execute(sql)
-    lock.release()
     result = dbcursor.fetchall()
     # print(result)
     # 获取前端的 cookie
@@ -554,23 +515,17 @@ def circleList():
     if check['success']:
         sql = "SELECT `circle_id` FROM `user_circle` WHERE `user_id` = %s AND `type` = 0"
         val = (check['userid'],)
-        lock.acquire()
         dbcursor.execute(sql, val)
-        lock.release()
         userjoin = dbcursor.fetchall()
         userjoin = [row[0] for row in userjoin]
         sql = "SELECT `circle_id` FROM `user_circle` WHERE `user_id` = %s AND `type` = 1"
         val = (check['userid'],)
-        lock.acquire()
         dbcursor.execute(sql, val)
-        lock.release()
         userfollow = dbcursor.fetchall()
         userfollow = [row[0] for row in userfollow]
         sql = "SELECT `creater_id` FROM `circles` WHERE `creater_id` = %s"
         val = (check['userid'],)
-        lock.acquire()
         dbcursor.execute(sql, val)
-        lock.release()
         usercreate = dbcursor.fetchall()
         usercreate = [row[0] for row in usercreate]
     else:
@@ -609,6 +564,7 @@ def circleList():
 # 获取用户列表
 @app.route('/userList', methods=['POST'])
 def userList():
+    db, dbcursor = get_db()
     # print(data['page'], PER_PAGE_NUM * 2)
     sql = """
         SELECT
@@ -627,9 +583,7 @@ def userList():
             GROUP BY user_id
         ) p ON p.user_id = ui.user_id
     """
-    lock.acquire()
     dbcursor.execute(sql)
-    lock.release()
     result = dbcursor.fetchall()
     # 获取前端的 cookie
     token = request.cookies.get('access-token')
@@ -638,16 +592,12 @@ def userList():
     if check['success']:
         sql = "SELECT `follow_id` FROM `user_follow` WHERE `user_id` = %s"
         val = (check['userid'],)
-        lock.acquire()
         dbcursor.execute(sql, val)
-        lock.release()
         userfollowing = dbcursor.fetchall()
         userfollowing = [row[0] for row in userfollowing]
         sql = "SELECT `user_id` FROM `user_follow` WHERE `follow_id` = %s"
         val = (check['userid'],)
-        lock.acquire()
         dbcursor.execute(sql, val)
-        lock.release()
         userfollower = dbcursor.fetchall()
         userfollower = [row[0] for row in userfollower]
     else:
@@ -684,6 +634,7 @@ def userList():
 # 关注用户
 @app.route('/followUser', methods=['POST'])
 def followUser():
+    db, dbcursor = get_db()
     data = request.get_json()
     # 获取前端的 cookie
     token = request.cookies.get('access-token')
@@ -693,25 +644,19 @@ def followUser():
         # 判断当前用户是否已经关注该用户
         sql = "SELECT * FROM `user_follow` WHERE `user_id` = %s AND `follow_id` = %s"
         val = (check['userid'], data['userid'])
-        lock.acquire()
         dbcursor.execute(sql, val)
-        lock.release()
         result = dbcursor.fetchall()
         # 如果已经关注，则取关
         if len(result) > 0:
             # 1. 取消关注
             sql = "DELETE FROM `user_follow` WHERE `user_id` = %s AND `follow_id` = %s"
             val = (check['userid'], data['userid'])
-            lock.acquire()
             dbcursor.execute(sql, val)
-            lock.release()
             db.commit()
             return jsonify({'success': True, 'message': '取关成功', 'code': 200})
         sql = "INSERT INTO `user_follow` (`user_id`, `follow_id`) VALUES (%s, %s)"
         val = (check['userid'], data['userid'])
-        lock.acquire()
         dbcursor.execute(sql, val)
-        lock.release()
         db.commit()
         return jsonify({'success': True, 'message': '关注成功', 'code': 200})
     else:
@@ -720,6 +665,7 @@ def followUser():
 # 返回圈子详情 数据
 @app.route('/circleDetail', methods=['POST'])
 def circleDetail():
+    db, dbcursor = get_db()
     data = request.get_json()
     sql = """SELECT
         c.*,
@@ -749,9 +695,7 @@ def circleDetail():
         ;
     """
     val = (data['circleid'],)
-    lock.acquire()
     dbcursor.execute(sql, val)
-    lock.release()
     result = dbcursor.fetchone()  # 只查一条
 
     if not result:
@@ -763,29 +707,23 @@ def circleDetail():
     check = checkCookie(token)
     if check['success']:
         user_id = check['userid']
-
+        
         # 查询用户加入的圈子（成员 type=0）
         sql = "SELECT `circle_id` FROM `user_circle` WHERE `user_id` = %s AND `type` = 0"
         val = (user_id,)
-        lock.acquire()
         dbcursor.execute(sql, val)
-        lock.release()
         userjoin = [row[0] for row in dbcursor.fetchall()]
 
         # 查询用户关注的圈子（粉丝 type=1）
         sql = "SELECT `circle_id` FROM `user_circle` WHERE `user_id` = %s AND `type` = 1"
         val = (user_id,)
-        lock.acquire()
         dbcursor.execute(sql, val)
-        lock.release()
         userfollow = [row[0] for row in dbcursor.fetchall()]
 
         # 查询用户创建的圈子
         sql = "SELECT `id` FROM `circles` WHERE `creater_id` = %s"
         val = (user_id,)
-        lock.acquire()
         dbcursor.execute(sql, val)
-        lock.release()
         usercreate = [row[0] for row in dbcursor.fetchall()]
     else:
         userjoin = []
@@ -831,6 +769,42 @@ def circleDetail():
     projectlist = getCircleProjectList(circle_id)
 
     return jsonify({'success': True, 'data': {'circle': circle, 'users': userlist, 'projects': projectlist}, 'code': 200})
+
+# 返回我的个人信息
+@app.route('/myInfo', methods=['POST'])
+def myInfo():
+    db, dbcursor = get_db()
+    # 获取前端的 cookie
+    token = request.cookies.get('access-token')
+    # 判断该 cookie 是否有效
+    check = checkCookie(token)
+    userinfo = {}
+    projects = []
+    if check['success']:
+        projects = getUserProjectList(check['userid'])
+        userinfo = getUserInfo(check['userid'], check['userid'])
+    
+        return jsonify({'success': True, 'data': { 'userinfo': userinfo, 'projects': projects }, 'code': 200})
+    else:
+        return jsonify({'success': False, 'message': '用户未登录', 'code': 401})
+
+# 获取用户的个人信息
+@app.route('/userInfo', methods=['POST'])
+def userInfo():
+    data = request.get_json()
+    # 获取前端的 cookie
+    token = request.cookies.get('access-token')
+    # 判断该 cookie 是否有效
+    check = checkCookie(token)
+    userinfo = {}
+    projects = []
+    if check['success']:
+        projects = getUserProjectList(data['userid'])
+        userinfo = getUserInfo(data['userid'], check['userid'])
+    
+        return jsonify({'success': True, 'data': { 'userinfo': userinfo, 'projects': projects }, 'code': 200})
+    else:
+        return jsonify({'success': False, 'message': '用户未登录', 'code': 401})
 
 # 查询用户历史记录
 @app.route('/history', methods=['POST'])
@@ -927,56 +901,45 @@ def get_client_ip():
     return ip.strip()
 
 def getUserInfo(user_id, my_id=0):
+    db, dbcursor = get_db()
     # 获取用户信息
     sql = "SELECT * FROM `user_info` WHERE `user_id` = %s"
     val = (user_id,)
-    lock.acquire()
     dbcursor.execute(sql, val)
-    lock.release()
     result = dbcursor.fetchall()
     # 获取用户粉丝数量
     sql = "SELECT COUNT(*) FROM `user_follow` WHERE `follow_id` = %s"
     val = (user_id,)
-    lock.acquire()
     dbcursor.execute(sql, val)
-    lock.release()
     follower = dbcursor.fetchall()[0][0]
     # 获取用户关注数量
     sql = "SELECT COUNT(*) FROM `user_follow` WHERE `user_id` = %s"
     val = (user_id,)
-    lock.acquire()
     dbcursor.execute(sql, val)
-    lock.release()
     following = dbcursor.fetchall()[0][0]
     # 获取用户作品数量
     sql = "SELECT COUNT(*) FROM `projects` WHERE `user_id` = %s"
     val = (user_id,)
-    lock.acquire()
     dbcursor.execute(sql, val)
-    lock.release()
     projectnum = dbcursor.fetchall()[0][0]
     # 获取用户与当前用户的关系
-    if my_id != 0 and my_id != user_id:
+    if my_id != 0 and int(my_id) != int(user_id):
         sql = "SELECT * FROM `user_follow` WHERE `user_id` = %s AND `follow_id` = %s"
         val = (my_id, user_id)
-        lock.acquire()
         dbcursor.execute(sql, val)
-        lock.release()
         result2 = dbcursor.fetchall()
         if len(result2) > 0:
             relationship = 1
             # 互相关注
             sql = "SELECT * FROM `user_follow` WHERE `user_id` = %s AND `follow_id` = %s"
             val = (user_id, my_id)
-            lock.acquire()
             dbcursor.execute(sql, val)
-            lock.release()
             result2 = dbcursor.fetchall()
             if len(result2) > 0:
                 relationship = 2
         else:
             relationship = 0
-    elif my_id == user_id:
+    elif int(my_id) == int(user_id):
         relationship = -1
     else:
         relationship = 0
@@ -994,13 +957,12 @@ def getUserInfo(user_id, my_id=0):
     }
 
 def getCircleUserList(circleid, my_id=0):
+    db, dbcursor = get_db()
     userlist = []
     # 查询圈子创建者id
     sql = "SELECT `creater_id` FROM `circles` WHERE `id` = %s"
     val = (circleid,)
-    lock.acquire()
     dbcursor.execute(sql, val)
-    lock.release()
     result = dbcursor.fetchall()
     if len(result) == 0:
         return []
@@ -1036,24 +998,17 @@ def getCircleUserList(circleid, my_id=0):
         WHERE uc.circle_id = %s AND (uc.type = 0 OR uc.user_id = %s)
     """
     # 这里保证查询圈子成员（type=0）和创建者（uc.user_id=circles.creater_id）
-    # 但创建者一般type=0，若不确定可根据 creater_id 区分
-    lock.acquire()
     dbcursor.execute(sql, (circleid, createrid))
-    lock.release()
     users_result = dbcursor.fetchall()
 
     # 查询当前用户的粉丝和关注，用于判断flag
     if my_id != 0:
         user_id = my_id
         sql = "SELECT follow_id FROM user_follow WHERE user_id = %s"
-        lock.acquire()
         dbcursor.execute(sql, (user_id,))
-        lock.release()
         userfollowing = [row[0] for row in dbcursor.fetchall()]
         sql = "SELECT user_id FROM user_follow WHERE follow_id = %s"
-        lock.acquire()
         dbcursor.execute(sql, (user_id,))
-        lock.release()
         userfollower = [row[0] for row in dbcursor.fetchall()]
     else:
         userfollowing = []
@@ -1097,36 +1052,101 @@ def getCircleUserList(circleid, my_id=0):
     return userlist
 
 def getCircleProjectList(circleid, my_id=0):
+    db, dbcursor = get_db()
     sql = "SELECT * FROM `projects` WHERE `circle_id` = %s ORDER BY `starred_num`"
     val = (circleid, )
-    lock.acquire()
     dbcursor.execute(sql, val)
-    lock.release()
     result = dbcursor.fetchall()
     # print(result)
     # 获取所有的标签
     sql = "SELECT * FROM `tags`"
-    lock.acquire()
     dbcursor.execute(sql)
-    lock.release()
     alltags = dbcursor.fetchall()
     # 获取所有的项目对应的标签
     sql = "SELECT * FROM `project_tag`"
-    lock.acquire()
     dbcursor.execute(sql)
-    lock.release()
     projecttags = dbcursor.fetchall()
     # 获取所有的语言
     sql = "SELECT * FROM `languages`"
-    lock.acquire()
     dbcursor.execute(sql)
-    lock.release()
     languages = dbcursor.fetchall()
     # 获取所有的用户信息
     sql = "SELECT * FROM `user_info`"
-    lock.acquire()
     dbcursor.execute(sql)
-    lock.release()
+    userinfos = dbcursor.fetchall()
+    projectlist = []
+    # 为每个项目，匹配对应的语言标签用户等信息
+    for i in range(0, len(result)):
+        # 初始化信息
+        usericon = ''
+        tags = []
+        tagids = []
+        language = {}
+        # 将时间进行格式化
+        updatetime = result[i][7].strftime('%Y/%m/%d')
+        # 匹配用户信息，包括头像的 url
+        for j in userinfos:
+            if j[1] == result[i][1]:
+                usericon = j[2]
+                break
+        # 匹配标签，一个项目可以有多个标签
+        for x in projecttags:
+            if x[1] == result[i][0]:
+                tagids.append(x[2])
+                for y in alltags:
+                    if y[0] == x[2]:
+                        tags.append(y[1])
+                        break
+        # 匹配语言，一个项目只有一个 main_language
+        for m in languages:
+            if m[0] == result[i][4]:
+                language = {
+                    'color': m[2],
+                    'name': m[1]
+                }
+                break
+        # 格式化项目信息
+        project = {
+            'id': result[i][0],
+            'userid': result[i][1],
+            'usericon': usericon,
+            'name': result[i][2],
+            'main': result[i][3],
+            'cover': result[i][8],
+            'tags': tags,
+            'tagids': tagids,
+            'language': language,
+            'starnum': result[i][6],
+            'updatetime': updatetime,
+            'pagename': result[i][9],
+            'circle': result[i][11],
+        }
+        # print(project)
+        projectlist.append(project)
+    return projectlist
+
+def getUserProjectList(userid, my_id=0):
+    db, dbcursor = get_db()
+    sql = "SELECT * FROM `projects` WHERE `user_id` = %s ORDER BY `starred_num`"
+    val = (userid, )
+    dbcursor.execute(sql, val)
+    result = dbcursor.fetchall()
+    # print(result)
+    # 获取所有的标签
+    sql = "SELECT * FROM `tags`"
+    dbcursor.execute(sql)
+    alltags = dbcursor.fetchall()
+    # 获取所有的项目对应的标签
+    sql = "SELECT * FROM `project_tag`"
+    dbcursor.execute(sql)
+    projecttags = dbcursor.fetchall()
+    # 获取所有的语言
+    sql = "SELECT * FROM `languages`"
+    dbcursor.execute(sql)
+    languages = dbcursor.fetchall()
+    # 获取所有的用户信息
+    sql = "SELECT * FROM `user_info`"
+    dbcursor.execute(sql)
     userinfos = dbcursor.fetchall()
     projectlist = []
     # 为每个项目，匹配对应的语言标签用户等信息
@@ -1181,12 +1201,11 @@ def getCircleProjectList(circleid, my_id=0):
 
 # 判断 access-token 是否有效
 def checkCookie(token):
+    db, dbcursor = get_db()
     # 判断当前 token 是否存在于数据库中
     sql = "SELECT * FROM `access_token` WHERE `token` = %s"
     val = (token,)
-    lock.acquire()
     dbcursor.execute(sql, val)
-    lock.release()
     result = dbcursor.fetchall()
     # 若数据库中存在当前 cookie, 判断其时间是否过期
     if len(result) > 0:

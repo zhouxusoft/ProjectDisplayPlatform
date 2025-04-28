@@ -12,6 +12,7 @@ import ProjectDetail from './views/ProjectDetail.vue'
 import NewProject from './views/NewProject.vue'
 import Chat from './views/Chat.vue'
 import Circle from './views/Circle.vue'
+import User from './views/User.vue'
 import { globalData } from './views/globalData.js'
 
 // 定义路由
@@ -36,12 +37,23 @@ const router = createRouter(
                 component: Circle, 
                 props: true
             },
+            {
+                path: '/user/:id',
+                component: User, 
+                props: true
+            },
         ]
     }
 )
 
 router.beforeEach((_, from, next) => {
-    globalData.previousPage = from.path;
+    globalData.previousPage = from.fullPath
+    globalData.previousPageParams = from.query
+    window.scrollTo({
+		top: 0,
+		left: 0,
+		behavior: 'smooth'
+	})
     next();
 })
 

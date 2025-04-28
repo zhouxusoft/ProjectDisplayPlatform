@@ -59,7 +59,10 @@ const getCircleDetail = () => {
 }
 
 const goBack = () => {
-  router.push({ path: globalData.previousPage })
+  router.push({
+    path: globalData.previousPage,
+    query: globalData.previousPageParams,
+  })
 }
 
 onMounted(() => {
@@ -213,7 +216,7 @@ onMounted(() => {
   display: flex;
   align-items: center;
   width: fit-content;
-  margin: 16px 0 0 auto;
+  margin: 12px 0 0 auto;
 }
 
 .useravatar {
@@ -228,7 +231,7 @@ onMounted(() => {
 .circlebox {
   border: 1px solid #F2F3F5;
   border-radius: 4px;
-  padding: 16px;
+  padding: 12px;
   margin-bottom: 16px;
   background-color: #F2F3F5;
   box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.2);

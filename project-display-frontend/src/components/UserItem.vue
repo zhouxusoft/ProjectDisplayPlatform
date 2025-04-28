@@ -1,7 +1,7 @@
 <template>
   <div class="userbox">
     <div class="useravatar"><img :src="user.usericon" alt="" style="width: 80px;" referrerpolicy="no-referrer"></div>
-    <div class="userinfo">
+    <div class="userinfo" @click="toUserDetail(user.user_id)">
       <div style="font-weight: 700;">{{ user.nickname }}</div>
       <div style="color: #333333; margin-top: 4px;">{{ user.bio || '这个人很神秘，什么都没有写' }}</div>
       <div style="color: #333333; margin-top: 4px; font-size: 14px; display: flex; align-items: center;"><span
@@ -108,6 +108,9 @@ export default {
         this.imgUrl = '/error_img.png'
       }
     },
+    toUserDetail(userid) {
+      this.$router.push({ path: `/user/${userid}` })
+    }
   },
 
   created() {

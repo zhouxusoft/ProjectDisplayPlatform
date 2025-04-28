@@ -74,3 +74,13 @@ export function followUserAPI(data) {
 export function circleDetailAPI(data) {
   return api.post('/circleDetail', data)
 }
+
+// 获取我的详细信息
+export function myInfoAPI(data) {
+  return api.post('/myInfo', data)
+}
+
+// 获取用户个人信息
+export function userInfoAPI(data) {
+  return api.post('/userInfo', data)
+}
