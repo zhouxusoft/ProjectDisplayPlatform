@@ -10,7 +10,7 @@
   "dependencies": {
     "axios": "^1.7.7",
     "bootstrap": "^5.3.1",
-    "element-plus": "^2.9.3",
+    "element-plus": "^2.9.9",
     "github-markdown-css": "^5.8.1",
     "node-sass": "^9.0.0",
     "project-display-frontend": "file:",
@@ -22,7 +22,7 @@
     "vuex": "^4.0.2"
   },
   "devDependencies": {
-    "@vitejs/plugin-vue": "^4.2.3",
-    "vite": "^4.4.6"
+    "@vitejs/plugin-vue": "^5.2.3",
+    "vite": "^6.3.4"
   }
 }

@@ -196,10 +196,6 @@ onBeforeUnmount(() => {
   width: 100%;
 }
 
-.tinymce-container >>> .mce-fullscreen {
-  z-index: 10000;
-}
-
 .tinymce-textarea {
   visibility: hidden;
   z-index: -1;

@@ -48,6 +48,21 @@ def create_database():
                         INDEX `user_id`(`user_id` ASC) USING BTREE,\
                         CONSTRAINT `fk_access_token_user_id_users_user_id` FOREIGN KEY (`user_id`) REFERENCES `project_display`.`users` (`user_id`) ON DELETE CASCADE ON UPDATE CASCADE\
                         ) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci ROW_FORMAT = DYNAMIC;")
+    # `languages` 用于存储所有的语言，包含语言的名称、标识颜色以及标签热度
+    dbcursor.execute("CREATE TABLE IF NOT EXISTS `languages` (\
+                        `id` int NOT NULL AUTO_INCREMENT COMMENT '自增id',\
+                        `language_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '语言名称',\
+                        `language_color` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '图标颜色',\
+                        `language_hot` int NOT NULL DEFAULT 0 COMMENT '热度',\
+                        PRIMARY KEY (`id`) USING BTREE\
+                        ) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci ROW_FORMAT = Dynamic;")
+    # `tags` 用于存储所有的标签，包含标签名以及标签热度
+    dbcursor.execute("CREATE TABLE IF NOT EXISTS `tags` (\
+                        `id` int NOT NULL AUTO_INCREMENT COMMENT '自增id',\
+                        `tag_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '标签名称',\
+                        `tag_hot` int NOT NULL DEFAULT 0 COMMENT '标签热度',\
+                        PRIMARY KEY (`id`) USING BTREE\
+                        ) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci ROW_FORMAT = Dynamic;")
     # `projects` 用于存储项目的基本信息，包括项目id、项目名称、项目简介、上传时间等
     dbcursor.execute("CREATE TABLE IF NOT EXISTS `projects` (\
                         `id` int NOT NULL AUTO_INCREMENT COMMENT '自增id',\
@@ -68,21 +83,6 @@ def create_database():
                         INDEX `fk_projects_main_language_id_languages_id`(`main_language_id` ASC) USING BTREE,\
                         CONSTRAINT `fk_projects_main_language_id_languages_id` FOREIGN KEY (`main_language_id`) REFERENCES `project_display`.`languages` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,\
                         CONSTRAINT `fk_projects_user_id_users_user_id` FOREIGN KEY (`user_id`) REFERENCES `project_display`.`users` (`user_id`) ON DELETE CASCADE ON UPDATE CASCADE\
-                        ) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci ROW_FORMAT = Dynamic;")
-    # `tags` 用于存储所有的标签，包含标签名以及标签热度
-    dbcursor.execute("CREATE TABLE IF NOT EXISTS `tags` (\
-                        `id` int NOT NULL AUTO_INCREMENT COMMENT '自增id',\
-                        `tag_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '标签名称',\
-                        `tag_hot` int NOT NULL DEFAULT 0 COMMENT '标签热度',\
-                        PRIMARY KEY (`id`) USING BTREE\
-                        ) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci ROW_FORMAT = Dynamic;")
-    # `languages` 用于存储所有的语言，包含语言的名称、标识颜色以及标签热度
-    dbcursor.execute("CREATE TABLE IF NOT EXISTS `languages` (\
-                        `id` int NOT NULL AUTO_INCREMENT COMMENT '自增id',\
-                        `language_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '语言名称',\
-                        `language_color` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '图标颜色',\
-                        `language_hot` int NOT NULL DEFAULT 0 COMMENT '热度',\
-                        PRIMARY KEY (`id`) USING BTREE\
                         ) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci ROW_FORMAT = Dynamic;")
     # `project_tag` 用于储存项目所包含的对应标签名
     dbcursor.execute("CREATE TABLE IF NOT EXISTS `project_tag` (\

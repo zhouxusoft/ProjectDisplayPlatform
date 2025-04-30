@@ -5,6 +5,10 @@ import vue from '@vitejs/plugin-vue'
 
 // https://vitejs.dev/config/
 export default defineConfig({
+  server: {
+    host: '0.0.0.0', // 绑定到所有接口
+    port: 5173,
+  },
   plugins: [
     vue(),
   ],
