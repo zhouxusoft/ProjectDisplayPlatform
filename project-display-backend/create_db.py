@@ -37,7 +37,7 @@ def create_database():
                         `following_num` int NOT NULL DEFAULT 0 COMMENT '关注数量',\
                         `status` int NOT NULL DEFAULT 1 COMMENT '状态（正常1、封禁0、注销2）',\
                         PRIMARY KEY (`user_id`) USING BTREE\
-                        ) ENGINE = InnoDB AUTO_INCREMENT = 2 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci ROW_FORMAT = DYNAMIC;")
+                        ) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci ROW_FORMAT = DYNAMIC;")
     # `access_token` 用于存储用户的登录口令
     dbcursor.execute("CREATE TABLE IF NOT EXISTS `access_token` (\
                         `id` int NOT NULL AUTO_INCREMENT COMMENT 'Token Id',\
@@ -47,7 +47,7 @@ def create_database():
                         PRIMARY KEY (`id`) USING BTREE,\
                         INDEX `user_id`(`user_id` ASC) USING BTREE,\
                         CONSTRAINT `fk_access_token_user_id_users_user_id` FOREIGN KEY (`user_id`) REFERENCES `project_display`.`users` (`user_id`) ON DELETE CASCADE ON UPDATE CASCADE\
-                        ) ENGINE = InnoDB AUTO_INCREMENT = 7 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci ROW_FORMAT = DYNAMIC;")
+                        ) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci ROW_FORMAT = DYNAMIC;")
     # `projects` 用于存储项目的基本信息，包括项目id、项目名称、项目简介、上传时间等
     dbcursor.execute("CREATE TABLE IF NOT EXISTS `projects` (\
                         `id` int NOT NULL AUTO_INCREMENT COMMENT '自增id',\
@@ -60,6 +60,9 @@ def create_database():
                         `update_time` datetime NULL DEFAULT NULL COMMENT '更新时间',\
                         `cover` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '封面url',\
                         `page_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '文章路由地址',\
+                        `browse_num` int NULL DEFAULT NULL COMMENT '阅读量',\
+                        `circle_id` int NOT NULL DEFAULT 0 COMMENT '所属圈子',\
+                        `able_comment` int NOT NULL DEFAULT 0 COMMENT '0:所有人可评论，1：仅关注可评论，2：无法评论',\
                         PRIMARY KEY (`id`) USING BTREE,\
                         INDEX `fk_projects_user_id_users_user_id`(`user_id` ASC) USING BTREE,\
                         INDEX `fk_projects_main_language_id_languages_id`(`main_language_id` ASC) USING BTREE,\
@@ -68,14 +71,14 @@ def create_database():
                         ) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci ROW_FORMAT = Dynamic;")
     # `tags` 用于存储所有的标签，包含标签名以及标签热度
     dbcursor.execute("CREATE TABLE IF NOT EXISTS `tags` (\
-                        `id` int NOT NULL COMMENT '自增id',\
+                        `id` int NOT NULL AUTO_INCREMENT COMMENT '自增id',\
                         `tag_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '标签名称',\
                         `tag_hot` int NOT NULL DEFAULT 0 COMMENT '标签热度',\
                         PRIMARY KEY (`id`) USING BTREE\
                         ) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci ROW_FORMAT = Dynamic;")
     # `languages` 用于存储所有的语言，包含语言的名称、标识颜色以及标签热度
     dbcursor.execute("CREATE TABLE IF NOT EXISTS `languages` (\
-                        `id` int NOT NULL COMMENT '自增id',\
+                        `id` int NOT NULL AUTO_INCREMENT COMMENT '自增id',\
                         `language_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '语言名称',\
                         `language_color` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '图标颜色',\
                         `language_hot` int NOT NULL DEFAULT 0 COMMENT '热度',\
@@ -83,7 +86,7 @@ def create_database():
                         ) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci ROW_FORMAT = Dynamic;")
     # `project_tag` 用于储存项目所包含的对应标签名
     dbcursor.execute("CREATE TABLE IF NOT EXISTS `project_tag` (\
-                        `id` int NOT NULL COMMENT '自增id',\
+                        `id` int NOT NULL AUTO_INCREMENT COMMENT '自增id',\
                         `project_id` int NULL DEFAULT NULL COMMENT '项目id',\
                         `tag_id` int NULL DEFAULT NULL COMMENT '标签id',\
                         PRIMARY KEY (`id`) USING BTREE,\
@@ -94,7 +97,7 @@ def create_database():
                         ) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci ROW_FORMAT = Dynamic;") 
     # `project_language` 用于存储项目所包含的对应语言
     dbcursor.execute("CREATE TABLE IF NOT EXISTS `project_language` (\
-                        `id` int NOT NULL COMMENT '自增id',\
+                        `id` int NOT NULL AUTO_INCREMENT COMMENT '自增id',\
                         `project_id` int NULL DEFAULT NULL COMMENT '项目id',\
                         `language_id` int NULL DEFAULT NULL COMMENT '语言id',\
                         PRIMARY KEY (`id`) USING BTREE,\
@@ -113,10 +116,10 @@ def create_database():
                         PRIMARY KEY (`id`) USING BTREE,\
                         INDEX `fk_project_url_project_id_projects_id`(`project_id` ASC) USING BTREE,\
                         CONSTRAINT `fk_project_url_project_id_projects_id` FOREIGN KEY (`project_id`) REFERENCES `project_display`.`projects` (`id`) ON DELETE CASCADE ON UPDATE CASCADE\
-                        ) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci ROW_FORMAT = Dynamic;")\
+                        ) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci ROW_FORMAT = Dynamic;")\
     # `readme` readme 是项目的详细介绍
     dbcursor.execute("CREATE TABLE IF NOT EXISTS `project_readme` (\
-                        `id` int NOT NULL COMMENT '自增id',\
+                        `id` int NOT NULL AUTO_INCREMENT COMMENT '自增id',\
                         `project_id` int NULL DEFAULT NULL COMMENT '项目id',\
                         `content` text CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL COMMENT '正文',\
                         PRIMARY KEY (`id`) USING BTREE,\
@@ -125,7 +128,7 @@ def create_database():
                         ) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci ROW_FORMAT = Dynamic;") 
     # `project_picture` 用于存放项目的介绍图片
     dbcursor.execute("CREATE TABLE IF NOT EXISTS `project_picture` (\
-                        `id` int NOT NULL COMMENT '自增id',\
+                        `id` int NOT NULL AUTO_INCREMENT COMMENT '自增id',\
                         `project_id` int NULL DEFAULT NULL COMMENT '项目id',\
                         `picture_url` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '图片路径',\
                         PRIMARY KEY (`id`) USING BTREE,\
@@ -134,7 +137,7 @@ def create_database():
                         ) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci ROW_FORMAT = Dynamic;")
     # `user_starred` 用于存储用户和项目间的 starred 关系
     dbcursor.execute("CREATE TABLE IF NOT EXISTS `user_starred` (\
-                        `id` int NOT NULL COMMENT '自增id',\
+                        `id` int NOT NULL AUTO_INCREMENT COMMENT '自增id',\
                         `user_id` int NULL DEFAULT NULL COMMENT '用户id',\
                         `project_id` int NULL DEFAULT NULL COMMENT '项目id',\
                         `starred_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '点赞时间',\
@@ -146,7 +149,7 @@ def create_database():
                         ) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci ROW_FORMAT = Dynamic;")
     # `user_followed` 用于存储用户间的 follow 关系
     dbcursor.execute("CREATE TABLE IF NOT EXISTS `user_follow` (\
-                       `id` int NOT NULL COMMENT '自增id',\
+                       `id` int NOT NULL AUTO_INCREMENT COMMENT '自增id',\
                         `user_id` int NULL DEFAULT NULL COMMENT '关注人id',\
                         `follow_id` int NULL DEFAULT NULL COMMENT '被关注人id',\
                         `follow_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '关注时间',\
@@ -189,17 +192,18 @@ def create_database():
                         ) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci ROW_FORMAT = Dynamic;""")
     # `user_comment` 用于存储用户对项目的评论
     dbcursor.execute("""CREATE TABLE IF NOT EXISTS `user_comment` (
-                        `id` int NOT NULL AUTO_INCREMENT COMMENT '自增id',\
-                        `user_id` int NOT NULL COMMENT '用户id',\
-                        `project_id` int NOT NULL COMMENT '项目id',\
-                        `comment_content` text CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '评论内容',\
-                        `comment_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '评论时间',\
-                        PRIMARY KEY (`id`) USING BTREE,\
-                        INDEX `fk_user_comment_user_id_users_user_id`(`user_id` ASC) USING BTREE,\
-                        INDEX `fk_user_comment_project_id_projects_id`(`project_id` ASC) USING BTREE,\
-                        CONSTRAINT `fk_user_comment_project_id_projects_id` FOREIGN KEY (`project_id`) REFERENCES `project_display`.`projects` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,\
-                        CONSTRAINT `fk_user_comment_user_id_users_user_id` FOREIGN KEY (`user_id`) REFERENCES `project_display`.`users` (`user_id`) ON DELETE CASCADE ON UPDATE CASCADE\
-                        ) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci ROW_FORMAT = Dynamic;""")
+                        `id` int NOT NULL AUTO_INCREMENT COMMENT '自增id',
+                        `user_id` int NOT NULL COMMENT '用户id',
+                        `project_id` int NOT NULL COMMENT '项目id',
+                        `comment_content` text CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '评论内容',
+                        `comment_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '评论时间',
+                        `position` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '评论时用户的ip所在地',
+                        PRIMARY KEY (`id`) USING BTREE,
+                        INDEX `fk_user_comment_user_id_users_user_id`(`user_id` ASC) USING BTREE,
+                        INDEX `fk_user_comment_project_id_projects_id`(`project_id` ASC) USING BTREE,
+                        CONSTRAINT `fk_user_comment_project_id_projects_id` FOREIGN KEY (`project_id`) REFERENCES `project_display`.`projects` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+                        CONSTRAINT `fk_user_comment_user_id_users_user_id` FOREIGN KEY (`user_id`) REFERENCES `project_display`.`users` (`user_id`) ON DELETE CASCADE ON UPDATE CASCADE
+                        ) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci ROW_FORMAT = DYNAMIC;""")
     # `user_message` 用于存储用户之间的私信
     dbcursor.execute("""CREATE TABLE IF NOT EXISTS `user_message` (
                         `id` int NOT NULL AUTO_INCREMENT COMMENT '自增id',\
@@ -225,6 +229,24 @@ def create_database():
                         PRIMARY KEY (`id`) USING BTREE,\
                         INDEX `fk_system_notification_user_id_users_user_id`(`user_id` ASC) USING BTREE,\
                         CONSTRAINT `fk_system_notification_user_id_users_user_id` FOREIGN KEY (`user_id`) REFERENCES `project_display`.`users` (`user_id`) ON DELETE CASCADE ON UPDATE CASCADE\
+                        ) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci ROW_FORMAT = Dynamic;""")
+    # `circles` 用于存储圈子信息
+    dbcursor.execute("""CREATE TABLE IF NOT EXISTS `circles` (
+                        `id` int NOT NULL AUTO_INCREMENT COMMENT '自增id',
+                        `creater_id` int NULL DEFAULT NULL COMMENT '创建者id',
+                        `name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '名称',
+                        `cover` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '头像',
+                        `type` int NOT NULL DEFAULT 2 COMMENT '0:仅成员可见\r\n1：关注可见\r\n2：所有人可见',
+                        `description` text CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL COMMENT '圈子简介',
+                        PRIMARY KEY (`id`) USING BTREE
+                        ) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci ROW_FORMAT = Dynamic;""")
+    # `user_circle` 用于存储用户和圈子关系信息
+    dbcursor.execute("""CREATE TABLE IF NOT EXISTS `user_circle` (
+                        `id` int NOT NULL AUTO_INCREMENT COMMENT '自增id',
+                        `user_id` int NULL DEFAULT NULL COMMENT '用户id',
+                        `circle_id` int NULL DEFAULT NULL COMMENT '圈子id',
+                        `type` int NULL DEFAULT NULL COMMENT '0:成员，1：关注者',
+                        PRIMARY KEY (`id`) USING BTREE
                         ) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci ROW_FORMAT = Dynamic;""")
 
     # 触发器，使 project 的 starred_num 与 user_starred 的数据保持一致
