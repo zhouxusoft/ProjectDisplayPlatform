@@ -18,14 +18,39 @@ const shouldDisplayBottom = () => {
 let usernameInput
 let passwordInput
 
-const login = () => {
+const getPosition = async () => {
+  try {
+    // 第一阶段请求：获取IP地址
+    const ipResponse = await fetch('https://shop.godxu.top/get_ip', { method: 'GET' })
+    if (!ipResponse.ok) throw new Error('IP请求失败')
+    const ipData = await ipResponse.json()
+    
+    // 判断是否获取到有效IP
+    if (!ipData?.ip) return '未知'
+
+    // 第二阶段请求：获取地理位置
+    const geoResponse = await fetch(`http://ip-api.com/json/${ipData.ip}?lang=zh-CN`)
+    if (!geoResponse.ok) throw new Error('地理请求失败')
+    const geoData = await geoResponse.json()
+
+    // 返回最终结果
+    return geoData.status === 'success' ? geoData.regionName.replace('省', '') : '未知'
+
+  } catch (error) {
+    return '未知'
+  }
+}
+
+const login = async () => {
   let username = usernameInput.value
   let password = passwordInput.value
   // console.log(username, password)
   if (username && password) {
+    let position = await getPosition()
     let data = {
       username: username,
-      password: password
+      password: password,
+      position: position
     }
     // 发送登录请求
     loginAPI(data).then(res => {

@@ -1,13 +1,16 @@
-from flask import Flask, request, jsonify, make_response, g
+from flask import Flask, request, jsonify, make_response, g, send_from_directory
 from flask_cors import CORS
 from dotenv import load_dotenv
 from create_db import create_database
 from modules import *
 from datetime import datetime
+from werkzeug.utils import secure_filename
 import pymysql
 import bcrypt
 import os
 import threading
+import uuid
+import random
 
 load_dotenv()
 # 从配置文件中读取数据
@@ -29,6 +32,18 @@ TOKEN_INVALID_TIME = os.getenv("TOKEN_INVALID_TIME") # access-token 过期时间
 if not TOKEN_INVALID_TIME:
     TOKEN_INVALID_TIME = 15 # 默认 15
 TOKEN_INVALID_TIME = int(TOKEN_INVALID_TIME)
+UPLOAD_FOLDER = os.getenv("UPLOAD_FOLDER") # 上传文件夹
+if not UPLOAD_FOLDER:
+    UPLOAD_FOLDER = "upload/"
+MAX_CONTENT_LENGTH = os.getenv("MAX_CONTENT_LENGTH") # 上传文件大小限制
+if not MAX_CONTENT_LENGTH:
+    MAX_CONTENT_LENGTH = 5 * 1024 * 1024
+MAX_CONTENT_LENGTH = int(MAX_CONTENT_LENGTH)
+HOST = os.getenv("HOST")
+if not HOST:
+    HOST = "http://127.0.0.1:5000"
+
+ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'} # 允许上传的文件类型
 
 create_database()
 
@@ -50,6 +65,12 @@ lock = threading.Lock()
 
 app = Flask(__name__)
 
+app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+app.config['MAX_CONTENT_LENGTH'] = MAX_CONTENT_LENGTH
+
+if not os.path.exists(UPLOAD_FOLDER):
+    os.makedirs(UPLOAD_FOLDER)
+
 # 自定义允许跨域的源
 CORS(app, resources={r"/*": {"origins": ALLOW_ORIGIN, "supports_credentials": True}})
 
@@ -58,6 +79,23 @@ def close_db(exception):
     db = g.pop('db', None)
     if db is not None:
         db.close()
+
+@app.route('/upload_image', methods=['POST'])
+def upload_image():
+    if 'image' not in request.files:
+        return jsonify({'success': False, 'message': '没有找到上传的文件'}), 400
+
+    file = request.files['image']
+    result = saveFile(file)
+
+    if result['success']:
+        return jsonify(result), 200
+    else:
+        return jsonify(result), 400
+
+@app.route('/uploads/<filename>')
+def uploaded_file(filename):
+    return send_from_directory(app.config['UPLOAD_FOLDER'], filename)
 
 # 处理前端登录请求
 @app.route('/login', methods=['POST'])
@@ -86,12 +124,20 @@ def login():
             user_password_bytes, hashed_passowrd)
         if is_password_match:
             # 生成accesstoken
-            sql = "SELECT `nickname` FROM `user_info` WHERE `user_id` = %s"
+            sql = "SELECT * FROM `user_info` WHERE `user_id` = %s"
             val = (result[0][0],)
             dbcursor.execute(sql, val)
             nickname = dbcursor.fetchall()
+            if nickname[0][2] is None or nickname[0][2] == '':
+                rand_num = random.randint(1, 10)
+                icon = f'{rand_num}.png'
+                path = os.path.join(HOST or '', app.config['UPLOAD_FOLDER'], icon)
+                sql = "UPDATE `user_info` SET `user_icon` = %s WHERE `user_id` = %s"
+                val = (path, result[0][0])
+                dbcursor.execute(sql, val)
+                db.commit()
             if len(nickname) > 0:
-                nickname = nickname[0][0]
+                nickname = nickname[0][3]
             else:
                 nickname = 'Unknown'
             access = f'${nickname}${result[0][0]}$'
@@ -106,12 +152,17 @@ def login():
             # print(accesstoken)
             # 将该用户原有的token删除
             sql = "DELETE FROM `access_token` WHERE `user_id` = %s"
-            val = (result[0][0])
+            val = (result[0][0],)
             dbcursor.execute(sql, val)
             db.commit()
             # 将accesstoken存入数据库
             sql = "INSERT INTO `access_token` (`user_id`, `token`) VALUES (%s, %s)"
             val = (result[0][0], accesstoken)
+            dbcursor.execute(sql, val)
+            db.commit()
+            # 更新用户位置
+            sql = "UPDATE `user_info` SET `position` = %s WHERE `user_id` = %s"
+            val = (data['position'], result[0][0])
             dbcursor.execute(sql, val)
             db.commit()
             response = make_response(
@@ -928,6 +979,7 @@ def get_client_ip():
         ip = request.remote_addr or ""  # 处理潜在None值
     return ip.strip()
 
+# 获取用户个人信息
 def getUserInfo(user_id, my_id=0):
     db, dbcursor = get_db()
     # 获取用户信息
@@ -984,6 +1036,7 @@ def getUserInfo(user_id, my_id=0):
         'relationship': relationship # -1: 本人, 0: 未关注, 1: 已关注, 2: 相互关注
     }
 
+# 获取圈子的用户列表
 def getCircleUserList(circleid, my_id=0):
     db, dbcursor = get_db()
     userlist = []
@@ -1079,6 +1132,7 @@ def getCircleUserList(circleid, my_id=0):
         userlist.append(user)
     return userlist
 
+# 获取圈子项目信息列表
 def getCircleProjectList(circleid, my_id=0):
     db, dbcursor = get_db()
     sql = "SELECT * FROM `projects` WHERE `circle_id` = %s ORDER BY `starred_num`"
@@ -1153,6 +1207,7 @@ def getCircleProjectList(circleid, my_id=0):
         projectlist.append(project)
     return projectlist
 
+# 获得用户的项目信息列表
 def getUserProjectList(userid, my_id=0):
     db, dbcursor = get_db()
     sql = "SELECT * FROM `projects` WHERE `user_id` = %s ORDER BY `starred_num`"
@@ -1227,6 +1282,7 @@ def getUserProjectList(userid, my_id=0):
         projectlist.append(project)
     return projectlist
 
+# 根据项目列表返回项目详细信息
 def getProjectInfo(projects):
     db, dbcursor = get_db()
     # 获取所有的标签
@@ -1322,6 +1378,37 @@ def isTimeOut(time1, time2):
         return True
     else:
         return False
+
+# 判断文件类型是否合法
+def allowedFile(filename):
+    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+
+# 生成唯一的文件名
+def generateUniqueFilename(filename):
+    ext = os.path.splitext(filename)[1]
+    if not ext:
+        # 如果没有扩展名，默认用 .jpg 或返回错误
+        ext = '.jpg'  # 或 raise 异常
+    unique_name = f"{uuid.uuid4().hex}{ext}"
+    return unique_name
+
+# 保存上传的文件
+def saveFile(file):
+    if file.filename == '':
+        return {'success': False, 'message': '未选择文件'}
+
+    if not allowedFile(file.filename):
+        return {'success': False, 'message': '文件格式不支持'}
+
+    filename = file.filename
+    unique_filename = generateUniqueFilename(filename)
+    filepath = os.path.join(app.config['UPLOAD_FOLDER'], unique_filename)
+    fullpath = os.path.join(HOST or '', app.config['UPLOAD_FOLDER'], unique_filename)
+    try:
+        file.save(filepath)
+        return {'success': True, 'message': '上传成功', 'filename': unique_filename, 'filepath': fullpath}
+    except Exception as e:
+        return {'success': False, 'message': f'保存文件失败: {e}'}
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', debug=True)

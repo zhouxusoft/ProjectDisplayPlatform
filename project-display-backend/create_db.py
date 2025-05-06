@@ -1,4 +1,5 @@
 from dotenv import load_dotenv
+from info import *
 import pymysql
 import os
 
@@ -54,15 +55,17 @@ def create_database():
                         `language_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '语言名称',\
                         `language_color` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '图标颜色',\
                         `language_hot` int NOT NULL DEFAULT 0 COMMENT '热度',\
-                        PRIMARY KEY (`id`) USING BTREE\
-                        ) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci ROW_FORMAT = Dynamic;")
+                        PRIMARY KEY (`id`) USING BTREE,\
+                        UNIQUE INDEX `language_name`(`language_name` ASC) USING BTREE\
+                        ) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci ROW_FORMAT = DYNAMIC;")
     # `tags` 用于存储所有的标签，包含标签名以及标签热度
     dbcursor.execute("CREATE TABLE IF NOT EXISTS `tags` (\
                         `id` int NOT NULL AUTO_INCREMENT COMMENT '自增id',\
                         `tag_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '标签名称',\
                         `tag_hot` int NOT NULL DEFAULT 0 COMMENT '标签热度',\
-                        PRIMARY KEY (`id`) USING BTREE\
-                        ) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci ROW_FORMAT = Dynamic;")
+                        PRIMARY KEY (`id`) USING BTREE,\
+                        UNIQUE INDEX `tag_name`(`tag_name` ASC) USING BTREE\
+                        ) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci ROW_FORMAT = DYNAMIC;")
     # `projects` 用于存储项目的基本信息，包括项目id、项目名称、项目简介、上传时间等
     dbcursor.execute("CREATE TABLE IF NOT EXISTS `projects` (\
                         `id` int NOT NULL AUTO_INCREMENT COMMENT '自增id',\
@@ -173,11 +176,12 @@ def create_database():
                         ) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci ROW_FORMAT = Dynamic;")
     # `kinds` 用于存储平台侧边的分类
     dbcursor.execute("""CREATE TABLE IF NOT EXISTS `kinds` (
-                        `id` int NOT NULL AUTO_INCREMENT COMMENT '自增id',\
-                        `name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '类型名称',\
-                        `icon` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '类型图标',\
-                        PRIMARY KEY (`id`) USING BTREE\
-                        ) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci ROW_FORMAT = Dynamic;""")
+                        `id` int NOT NULL AUTO_INCREMENT COMMENT '自增id',
+                        `name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '类型名称',
+                        `icon` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '类型图标',
+                        PRIMARY KEY (`id`) USING BTREE,
+                        UNIQUE INDEX `name`(`name` ASC) USING BTREE
+                        ) ENGINE = InnoDB AUTO_INCREMENT = 4 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci ROW_FORMAT = DYNAMIC;""")
     # `user_browse` 用于存储用户浏览项目的记录
     dbcursor.execute("""CREATE TABLE IF NOT EXISTS `user_browse` (
                         `id` int NOT NULL AUTO_INCREMENT COMMENT '自增id',\
@@ -337,4 +341,34 @@ def create_database():
                             INSERT INTO `user_info` (`user_id`, `nickname`) VALUES (NEW.user_id, NEW.username);
                         END;""")
 
-    db.close()
+    # 检查有无基础数据，没有插入基础数据
+    try:
+        # 插入 languages 表
+        sql_languages = """
+        INSERT IGNORE INTO languages (language_name, language_color)
+        VALUES (%s, %s)
+        """
+        data_languages = [(item["language_name"], item["language_color"]) for item in languages]
+        dbcursor.executemany(sql_languages, data_languages)
+
+        # 插入 kinds 表
+        sql_kinds = """
+        INSERT IGNORE INTO kinds (name, icon)
+        VALUES (%s, %s)
+        """
+        data_kinds = [(item["name"], item["icon"]) for item in kinds]
+        dbcursor.executemany(sql_kinds, data_kinds)
+
+        # 插入 tags 表
+        sql_tags = """
+        INSERT IGNORE INTO tags (tag_name)
+        VALUES (%s)
+        """
+        data_tags = [(item["tag_name"],) for item in tags]  # 注意逗号，元组形式
+        dbcursor.executemany(sql_tags, data_tags)
+
+        db.commit()
+    except Exception as e:
+        print(e)
+    finally:
+        db.close()
