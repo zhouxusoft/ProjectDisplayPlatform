@@ -57,11 +57,12 @@ const initTinymce = () => {
   window.tinymce.init({
     selector: `#${tinymceId}`,
     height: 650,
-    min_height: 600,
+    min_height: 560,
     language: 'zh_CN',
     menubar: false,
+    license_key: 'gpl',
     plugins:
-        'wordcount visualchars visualblocks template save preview pagebreak nonbreaking media insertdatetime importcss image help fullscreen directionality codesample code charmap link code table lists advlist anchor autolink autoresize',
+        'wordcount visualchars visualblocks template save preview pagebreak nonbreaking media insertdatetime importcss image help fullscreen directionality codesample code charmap link code table lists anchor autolink autoresize',
     toolbar:
         "undo redo forecolor backcolor codesample image media outdent indent aligncenter alignleft alignright alignjustify lineheight quicklink hr blockquote numlist bullist table link removeformat | underline bold italic strikethrough h2 h3  preview",
     fontsize_formats: '12px 14px 16px 18px 20px 24px 36px',
@@ -71,8 +72,6 @@ const initTinymce = () => {
     powerpaste_word_import: 'clean',
     code_dialog_height: 450,
     code_dialog_width: 1000,
-    advlist_bullet_styles: 'square',
-    advlist_number_styles: 'default',
     default_link_target: '_blank',
     link_title: false,
     statusbar: false,

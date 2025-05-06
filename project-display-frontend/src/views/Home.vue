@@ -276,9 +276,12 @@ onMounted(() => {
                 </button>
               </div>
             </div>
-            <div class="projectbox mt-1 px-3 py-3">
+            <div v-if="projects.length > 0" class="projectbox mt-1 px-3 py-3">
               <ProjectItem v-for="project in projects" :key="project.id" :project="project" :starred="starred" />
               <div style="width: fit-content; margin: 10px auto; color: #666666">没有更多了...</div>
+            </div>
+            <div v-if="projects.length == 0" class="projectbox mt-1 px-3 py-3">
+              <div style="width: fit-content; margin: auto; color: #666666">空空如也...</div>
             </div>
             <div style="height: 40px;"></div>
           </div>
@@ -415,6 +418,7 @@ onMounted(() => {
   display: grid;
   gap: 16px;
   min-width: 0px;
+  min-height: 360px;
 }
 
 .projectsortbox {

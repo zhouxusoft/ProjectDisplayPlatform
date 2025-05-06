@@ -299,7 +299,6 @@ const getKinds = () => {
 		isLoading.value = false
 		kinds.value = res.data
 		let parmas = router.currentRoute.value.query
-		console.log(parmas)
 		if (parmas?.kind) {
 			let ckind = kinds.value.find((item) => item.name == parmas.kind)
 			if (ckind) {

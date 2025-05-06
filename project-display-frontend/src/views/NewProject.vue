@@ -104,9 +104,9 @@ const handleClose = (tag) => {
   activetags.value = activetags.value.filter(t => t.name !== tag.name)
 }
 
-const whoComment = ref(1)
-const circleType = ref(1)
-const whoLook = ref(1)
+const whoComment = ref('1')
+const circleType = ref('1')
+const whoLook = ref('1')
 
 const selectedcircle = ref(false)
 
@@ -120,6 +120,15 @@ const getContent = (content) => {
 const dialogVisible = ref(false)
 const handleCloseDialog = () => {
   dialogVisible.value = false
+}
+const showDialog = () => {
+  dialogVisible.value = true
+}
+
+const handleInputConfirm = () => {
+  if (inputValue.value) {
+    
+  }
 }
 
 /**
@@ -200,12 +209,14 @@ function handleUpload(event) {
   coverPreview.value = URL.createObjectURL(file);
   console.log(coverPreview.value);
 }
-const showMask = ref(false);
+const showMask = ref(false)
 
 function deleteCover() {
   coverPreview.value = null;
   showMask.value = false;
 }
+
+const userComment = ref('')
 
 onMounted(() => {
   getTags()
@@ -233,6 +244,7 @@ onMounted(() => {
             <div class="selectcircleimg"><img :src="circle.cover" referrerpolicy="no-referrer"></div>
             <div>{{ circle.name }}</div>
           </div>
+          <div v-if="myCircle.length == 0" class="selectcircle"><div style="width: fit-content; margin: 16px auto;">没有可发布的圈子</div></div>
         </div>
         <div class="fengeline" v-if="circleType == 1"></div>
         <div style="display: flex; justify-content: space-between;" v-if="circleType == 1">
@@ -276,7 +288,7 @@ onMounted(() => {
             @close="handleClose(tag)" style="margin-right: 8px;" effect="plain">
             {{ tag.name }}
           </el-tag>
-          <el-button plain @click="dialogVisible = true" size="default" style="font-size: 13px;"><span class="kindicon"
+          <el-button plain @click="showDialog" size="default" style="font-size: 13px;"><span class="kindicon"
               style="">&#x2b</span>添加文章标签</el-button>
         </div>
         <div class="aboutlanguagebox">
@@ -362,6 +374,10 @@ onMounted(() => {
 </template>
 
 <style scoped>
+.tinymce1 {
+  min-height: 560px;
+}
+
 .selectcircle {
   display: flex;
   padding: 4px 4px;
