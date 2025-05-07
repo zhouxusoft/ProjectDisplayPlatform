@@ -75,18 +75,19 @@ def create_database():
                         `main_language_id` int NULL DEFAULT NULL COMMENT '主要使用语言',\
                         `create_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '创建时间',\
                         `starred_num` int NOT NULL DEFAULT 0 COMMENT '点赞数量',\
-                        `update_time` datetime NULL DEFAULT NULL COMMENT '更新时间',\
+                        `update_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',\
                         `cover` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '封面url',\
                         `page_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '文章路由地址',\
-                        `browse_num` int NULL DEFAULT NULL COMMENT '阅读量',\
+                        `browse_num` int NOT NULL DEFAULT 0 COMMENT '阅读量',\
                         `circle_id` int NOT NULL DEFAULT 0 COMMENT '所属圈子',\
                         `able_comment` int NOT NULL DEFAULT 0 COMMENT '0:所有人可评论，1：仅关注可评论，2：无法评论',\
+                        `able_look` int NOT NULL DEFAULT 0 COMMENT '0：所有人可见，2：仅关注可见，3：私密',\
                         PRIMARY KEY (`id`) USING BTREE,\
                         INDEX `fk_projects_user_id_users_user_id`(`user_id` ASC) USING BTREE,\
                         INDEX `fk_projects_main_language_id_languages_id`(`main_language_id` ASC) USING BTREE,\
                         CONSTRAINT `fk_projects_main_language_id_languages_id` FOREIGN KEY (`main_language_id`) REFERENCES `project_display`.`languages` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,\
                         CONSTRAINT `fk_projects_user_id_users_user_id` FOREIGN KEY (`user_id`) REFERENCES `project_display`.`users` (`user_id`) ON DELETE CASCADE ON UPDATE CASCADE\
-                        ) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci ROW_FORMAT = Dynamic;")
+                        ) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci ROW_FORMAT = DYNAMIC;")
     # `project_tag` 用于储存项目所包含的对应标签名
     dbcursor.execute("CREATE TABLE IF NOT EXISTS `project_tag` (\
                         `id` int NOT NULL AUTO_INCREMENT COMMENT '自增id',\

@@ -5,7 +5,7 @@ import { ElMessage } from 'element-plus'
 import { useRouter } from 'vue-router'
 import { globalData } from './globalData'
 import LeftTagItem from '../components/LeftTagItem.vue'
-import { tagsAPI, languagesAPI, circleListAPI, uploadImageAPI } from '../api/api.js'
+import { tagsAPI, languagesAPI, circleListAPI, uploadImageAPI, createProjectAPI } from '../api/api.js'
 
 const router = useRouter()
 
@@ -110,6 +110,8 @@ const whoLook = ref('1')
 
 const selectedcircle = ref(false)
 
+let currentCircleId = 0 
+
 const myCircle = ref([])
 
 const contentHtml = ref('')
@@ -189,6 +191,7 @@ function uploadCover() {
 }
 
 const isUploadCover = ref(false)
+const uploadCoverUrl = ref('')
 
 function handleUpload(event) {
   const file = event.target.files[0]
@@ -220,14 +223,13 @@ const uploadCoverAction = (file) => {
   isUploadCover.value = true
   uploadImageAPI(formData)
     .then(res => {
-      console.log(res)
       if (res.success) {
         ElMessage.success(res.message)
+        uploadCoverUrl.value = res.filepath
       }
       isUploadCover.value = false
     })
-    .catch(error => {
-      console.error('Error:', error)
+    .catch(_ => {
       deleteCover()
       isUploadCover.value = false
       ElMessage.error('上传失败')
@@ -238,10 +240,128 @@ const showMask = ref(false)
 
 function deleteCover() {
   coverPreview.value = null;
+  uploadCoverUrl.value = '';
   showMask.value = false;
 }
 
+const languageId = ref('')
+
+const circleTypeChange = () => {
+  if (circleType.value == '1') {
+    currentCircleId = 0
+  } else {
+    currentCircleId = selectedcircle.value
+  }
+}
+
 const userComment = ref('')
+
+const title = ref('')
+const titleSuccess = ref(true)
+const titleFailMsg = ref('')
+
+const titleChange = () => {
+  const { valid, message } = validateTitle(title.value);
+
+  titleSuccess.value = valid;
+  titleFailMsg.value = message;
+}
+
+function validateTitle(titleStr, options = {}) {
+  const {
+    minLength = 5,
+    maxLength = 50,
+    forbiddenPattern = /[\x00-\x1F\x7F]/g // 控制字符
+  } = options
+
+  if (!titleStr || titleStr.trim().length === 0) {
+    return { valid: false, message: '标题不能为空' }
+  }
+  if (titleStr.trim().length < 5) {
+    return { valid: false, message: '标题空白符过多' }
+  }
+  if (titleStr.length < minLength) {
+    return { valid: false, message: `标题长度不能少于${minLength}字符` }
+  }
+  if (titleStr.length > maxLength) {
+    return { valid: false, message: `标题长度不能超过${maxLength}字符` }
+  }
+  if (forbiddenPattern.test(titleStr)) {
+    return { valid: false, message: '标题包含非法字符' }
+  }
+  if (/\s{2,}/.test(titleStr)) {
+    return { valid: false, message: '标题不能包含连续空格' };
+  }
+  return { valid: true, message: '' }
+}
+
+const uploadProject = () => {
+  let titleValidate = validateTitle(title.value).valid
+  if (!titleValidate) {
+    ElMessage.error('标题不合法')
+    return
+  }
+  if (contentHtml.value.length < 20) {
+    ElMessage.error('文章正文过短')
+    return
+  }
+  if (activetags.value.length == 0) {
+    ElMessage.error('请至少选择一个标签')
+    return
+  }
+  if (userComment.value == '') {
+    ElMessage.error('请输入文章摘要')
+    return
+  }
+  circleTypeChange()
+  if (currentCircleId === false) {
+    ElMessage.error('请选择圈子')
+    return
+  }
+  let tagIds = activetags.value.map(item => item.id)
+  let able_comment = 0
+  if (whoComment.value == '1') {
+    able_comment = 0
+  } else if (whoComment.value == '2') {
+    able_comment = 1
+  } else if (whoComment.value == '3') {
+    able_comment = 2
+  }
+  let able_look = 0
+  if (whoLook.value == '1') {
+    able_look = 0
+  } else if (whoLook.value == '2') {
+    able_look = 1
+  } else if (whoLook.value == '3') {
+    able_look = 2
+  }
+
+  let data = {
+    project_name: title.value,
+    project_overview: userComment.value,
+    main_language_id: selectLanguage.value,
+    cover: uploadCoverUrl.value,
+    circle_id: currentCircleId,
+    able_comment: able_comment,
+    able_look: able_look,
+    tags: tagIds,
+    content: contentHtml.value
+  }
+  console.log(data)
+  createProjectAPI(data).then(res => {
+    if (res.code == 200) {
+      ElMessage.success(res.message)
+      router.push({
+        path: `/projectDetail/${res.pagename}`
+      })
+    } else {
+      ElMessage.error(res.message)
+    }
+  }).catch(error => {
+    console.error('Error:', error)
+    ElMessage.error('文章发布失败')
+  })
+}
 
 onMounted(() => {
   getTags()
@@ -259,7 +379,7 @@ onMounted(() => {
         <div class="fengeline"></div>
         <div style="display: flex; justify-content: space-between;">
           <div style="width: 130px;">发布到：</div>
-          <el-radio-group v-model="circleType" style="width: 180px;">
+          <el-radio-group v-model="circleType" style="width: 180px;" @change="circleTypeChange">
             <el-radio value="1" size="large">公共社区</el-radio>
             <el-radio value="2" size="large">指定圈子</el-radio>
           </el-radio-group>
@@ -293,13 +413,14 @@ onMounted(() => {
     </div>
     <div class="straightline"></div>
     <div class="mainprojects px-4 py-3">
-      <div class="titlebox" style="display: flex; align-items: center;">
+      <div class="titlebox" style="display: flex; align-items: center; position: relative; margin-bottom: 6px;">
         <el-tooltip content="在信息汪洋中校准思维的航向" placement="top-start" effect="dark">
           <div style="font-weight: 700; color: #555555; font-size: 22px; min-width: 110px;">文章标题：</div>
         </el-tooltip>
-        <input type="text" autocomplete="off"
-          style="border: none; border-bottom: 1px solid #333333; font-size: 20px; width: 100%; padding: 5px;"
+        <input type="text" autocomplete="off" v-model="title" @input="titleChange" class="titleinput"
+          :style="{ borderColor:  titleSuccess ? '#000000' : '#F56C6C' }"
           placeholder="请输入文章标题（5 - 50 字）">
+        <div class="titletip">{{ titleFailMsg }}</div>
       </div>
       <div class="tinymce1">
         <TinyMCE ref="tinymce" :html="html" @update:modelValue="getContent" />
@@ -321,7 +442,7 @@ onMounted(() => {
             <div style="min-width: 80px;">主要语言</div>
           </el-tooltip>
           <el-select v-model="selectLanguage" placeholder="选择编程语言" style="width: 240px" clearable filterable>
-            <el-option v-for="item in languages" :key="item.id" :label="item.name" :value="item.name">
+            <el-option v-for="item in languages" :key="item.id" :label="item.name" :value="item.id">
               <div style="display: flex; align-items: center;">
                 <div class="languageitemicon" :style="{ backgroundColor: '#' + item.color }"></div>
                 <span style="font-size: 14px; margin-left: 4px;">{{ item.name }}</span>
@@ -358,15 +479,15 @@ onMounted(() => {
           <el-tooltip content="跳动灵魂的核心被凝聚成璀璨的星云碎片" placement="top-start" effect="dark">
             <div style="min-width: 80px;">文章摘要</div>
           </el-tooltip>
-          <el-input v-model="userComment" maxlength="256" style="width: 100%; font-size: 16px;" placeholder="说点什么吧"
+          <el-input v-model="userComment" maxlength="128" style="width: 100%; font-size: 16px;" placeholder="说点什么吧"
             show-word-limit type="textarea" :autosize="{ minRows: 3, maxRows: 10 }" />
-          <el-tooltip content="将正文前256字键入摘要文本框" placement="top-start" effect="dark">
+          <el-tooltip content="将正文前128字键入摘要文本框" placement="top-start" effect="dark">
             <el-button style="margin-left: 10px; margin-top: auto;" @click="putComment()" plain>一键提取</el-button>
           </el-tooltip>
         </div>
       </div>
       <div>
-        <button class="addproject" @click="goBack">发 布</button>
+        <button class="addproject" @click="uploadProject">发 布</button>
       </div>
     </div>
     <div class="rightnav d-none d-xl-block">
@@ -399,6 +520,26 @@ onMounted(() => {
 </template>
 
 <style scoped>
+.titletip {
+  position: absolute;
+  bottom: -20px;
+  right: 0;
+  font-size: 13px;
+  color: #F56C6C;
+} 
+
+.titleinput {
+  border: none;
+  border-bottom: 1px solid #333333;
+  font-size: 20px;
+  width: 100%;
+  padding: 5px;
+}
+
+.titleinput:focus {
+  outline: none;
+}
+
 .tinymce1 {
   min-height: 560px;
 }

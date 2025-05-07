@@ -191,11 +191,13 @@ onMounted(() => {
           <el-button @click="goBack()" style="color: #333; padding-left: 8px; font-size: 15px;" text><span
               class="kindicon" style="font-size: 14px">&#xf053</span>返 回</el-button>
           <div class="hr"></div>
-          <div class="headpicturebox">
+          <div class="headpicturebox" @click="router.push('/user/' + userInfo.user_id)">
             <img class="img-fluid headpicture" :src="userInfo.usericon" alt="">
           </div>
           <div class="namebox">
-            <div class="name">{{ userInfo.nickname }}</div>
+            <div class="name">{{ userInfo.nickname }}
+              <div class="nameisme" v-if="userInfo.relationship == -1" ><el-tag size="small">我</el-tag></div>
+            </div>
           </div>
           <div class="boibox">
             <div>{{ userInfo.bio }}</div>
@@ -218,8 +220,8 @@ onMounted(() => {
             <span>{{ userInfo.position }}</span>
           </div>
           <div class="hr"></div>
-          <div style="font-size: 15px; color: #666666; margin-left: 10px;">其他作品</div>
-          <div class="otherproject">暂无其它作品</div>
+          <!-- <div style="font-size: 15px; color: #666666; margin-left: 10px;">其他作品</div>
+          <div class="otherproject">暂无其它作品</div> -->
         </div>
         <div class="rightbox">
           <div class="projecttitle">{{ projectInfo.name }}</div>
@@ -273,6 +275,17 @@ onMounted(() => {
 </template>
 
 <style scoped>
+.name {
+  position: relative;
+  width: fit-content;
+}
+
+.nameisme {
+  position: absolute;
+  right: -34px;
+  top: 0px;
+}
+
 .notlogincommentbox {
   display: flex;
   justify-content: center;
@@ -466,6 +479,7 @@ onMounted(() => {
   border-radius: 50%;
   overflow: hidden;
   margin-left: 10px;
+  cursor: pointer;
 }
 
 .headpicture {

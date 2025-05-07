@@ -2,7 +2,7 @@
 import { onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
-import { checkLoginAPI, userInfoAPI } from '../api/api'
+import { checkLoginAPI, userInfoAPI, followUserAPI } from '../api/api'
 import ProjectItem from '../components/ProjectItem.vue'
 import { globalData } from './globalData'
 import 'github-markdown-css/github-markdown.css'
@@ -92,6 +92,38 @@ const getUserInfo = () => {
   })
 }
 
+function userFollow(userid) {
+  followUserAPI({ userid: userid })
+    .then((response) => {
+      getUserInfo()
+      if (response.code == 200) {
+        ElMessage({
+          message: response.message,
+          type: 'success',
+          plain: true,
+          offset: 9,
+        })
+      } else {
+        ElMessage({
+          message: '操作失败',
+          type: 'error',
+          plain: true,
+          offset: 9,
+        })
+      }
+    })
+    .catch((error) => {
+      getUserInfo()
+      console.error(error)
+      ElMessage({
+        message: '网络错误，请稍后再试',
+        type: 'error',
+        plain: true,
+        offset: 9,
+      })
+    })
+}
+
 onMounted(() => {
   checkLogin()
   getUserInfo()
@@ -126,10 +158,10 @@ onMounted(() => {
             <div>{{ userInfo.bio }}</div>
           </div>
           <div class="btnbox" v-if="userInfo.relationship != -1">
-            <button type="button" class="sbtn" @click=""
+            <button type="button" class="sbtn" @click="userFollow(userInfo.user_id)"
               v-if="userInfo.relationship == 0 || userInfo.relationship == 2"><span class="kindicon"
                 style="font-size: 14px">&#x2b</span>关注</button>
-            <button type="button" class="sbtn" @click="" v-else><span class="kindicon"
+            <button type="button" class="sbtn" @click="userFollow(userInfo.user_id)" v-else><span class="kindicon"
                 style="font-size: 14px">&#xf00c</span>已关注</button>
             <button type="button" class="sbtn" @click=""><span class="kindicon"
                 style="font-size: 14px">&#xf0e0</span>私信</button>
@@ -148,9 +180,12 @@ onMounted(() => {
           <div class="projectboxtitlebox">
             <div class="projectboxtitle">Projects of {{ userInfo.nickname }}</div>
           </div>
-          <div class="projectbox mt-1 px-3 py-3">
+          <div v-if="projects.length > 0" class="projectbox mt-1 px-3 py-3">
             <ProjectItem v-for="project in projects" :key="project.id" :project="project" :starred="starred" />
             <div style="width: fit-content; margin: 10px auto; color: #666666">没有更多了...</div>
+          </div>
+          <div v-if="projects.length == 0" class="projectbox mt-1 px-3 py-3">
+            <div style="width: fit-content; margin: auto; color: #666666" class="p-3">空空如也...</div>
           </div>
         </div>
       </div>

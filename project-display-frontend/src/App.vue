@@ -65,7 +65,7 @@ onMounted(() => {
 				aria-controls="navbarTogglerDemo03" aria-expanded="false" aria-label="Toggle navigation">
 				<span class="navbar-toggler-icon"></span>
 			</button>
-			<a class="navbar-brand py-2" href="https://godxu.top" target="_blank"><img src="/hublogo.jfif" alt=""
+			<a class="navbar-brand py-2" href="/" target="_blank"><img src="/hublogo.jfif" alt=""
 					class="logoimg"></a>
 			<div class="autobox d-none d-lg-block"></div>
 			<div class="collapse navbar-collapse" id="navbarTogglerDemo03">

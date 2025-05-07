@@ -94,3 +94,8 @@ export function userStarredAPI() {
 export function uploadImageAPI(data) {
   return api.post('/uploadImage', data)
 }
+
+// 发布文章
+export function createProjectAPI(data) {
+  return api.post('/createProject', data)
+}

@@ -80,8 +80,16 @@ def close_db(exception):
     if db is not None:
         db.close()
 
+# 文件上传接口
 @app.route('/uploadImage', methods=['POST'])
 def uploadImage():
+    # 获取前端的 cookie
+    token = request.cookies.get('access-token')
+    # 判断该 cookie 是否有效
+    check = checkCookie(token)
+    if not check['success']:
+        return jsonify({'success': False, 'message': '用户未登录', 'code': 401})
+    
     if 'image' not in request.files:
         return jsonify({'success': False, 'message': '没有找到上传的文件'})
 
@@ -93,6 +101,7 @@ def uploadImage():
     else:
         return jsonify(result)
 
+# 图片资源访问接口
 @app.route('/uploads/<filename>')
 def uploadedFile(filename):
     return send_from_directory(app.config['UPLOAD_FOLDER'], filename)
@@ -885,37 +894,40 @@ def userStarred():
     else:
         return jsonify({'success': False, 'message': '用户未登录', 'code': 401})
 
-# 查询用户历史记录
-@app.route('/history', methods=['POST'])
-def get_history():
-    if True:
-        return jsonify({"status": "success", "message": "Message sent successfully"}), 201
-    else:
-        return jsonify({"status": "error", "message": "Message sending failed"}), 400
-
-# 获取用户的点赞记录
-@app.route('/likes', methods=['POST'])
-def get_likes():
-    if True:
-        return jsonify({"status": "success", "message": "Message sent successfully"}), 201
-    else:
-        return jsonify({"status": "error", "message": "Message sending failed"}), 400
-
-# 获取用户的关注列表
-@app.route('/followed', methods=['POST'])
-def get_followed():
-    if True:
-        return jsonify({"status": "success", "message": "Message sent successfully"}), 201
-    else:
-        return jsonify({"status": "error", "message": "Message sending failed"}), 400
+# 创建文章
+@app.route('/createProject', methods=['POST'])
+def createProject():
+    data = request.get_json()
+    # 获取前端的 cookie
+    token = request.cookies.get('access-token')
+    # 判断该 cookie 是否有效
+    check = checkCookie(token)
+    if not check['success']:
+        return jsonify({'success': False, 'message': '用户未登录', 'code': 401})
     
-# 获取用户的粉丝列表
-@app.route('/following', methods=['POST'])
-def get_following():
-    if True:
-        return jsonify({"status": "success", "message": "Message sent successfully"}), 201
-    else:
-        return jsonify({"status": "error", "message": "Message sending failed"}), 400
+    try:
+        pagename = generateUniquePagename()
+        sql = "INSERT INTO `projects` (`user_id`, `project_name`, `project_overview`, `main_language_id`, `cover`, `page_name` , `circle_id`, `able_comment`, `able_look`) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)"
+        val = (check['userid'], data['project_name'], data['project_overview'], data['main_language_id'], data['cover'], pagename, data['circle_id'], data['able_comment'], data['able_look'])
+        db, dbcursor = get_db()
+        dbcursor.execute(sql, val)
+        db.commit()
+        
+        project_id = dbcursor.lastrowid
+        
+        for tag_id in data['tags']:
+            sql = "INSERT INTO `project_tag` (`project_id`, `tag_id`) VALUES (%s, %s)"
+            val = (project_id, tag_id)
+            dbcursor.execute(sql, val)
+        sql = "INSERT INTO `project_readme` (`project_id`, `content`) VALUES (%s, %s)"
+        val = (project_id, data['content'])
+        dbcursor.execute(sql, val)
+        db.commit()
+    except Exception as e:
+        print(e)
+        return jsonify({'success': False, 'message': '文章发布失败', 'code': 400})
+    
+    return jsonify({'success': True, 'message': '文章发布成功', 'pagename': pagename, 'code': 200})
 
 # 更新用户个人资料
 @app.route('/updateProfile', methods=['POST'])
@@ -1382,6 +1394,22 @@ def isTimeOut(time1, time2):
 # 判断文件类型是否合法
 def allowedFile(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+
+# 生成短的 uuid
+def shortUuid(length=8):
+    return uuid.uuid4().hex[:length].upper()
+
+# 生成不重复的页面名
+def generateUniquePagename():
+    while True:
+        pagename = shortUuid(8)
+        db, dbcursor = get_db()
+        sql = "SELECT * FROM `projects` WHERE `page_name` = %s"
+        val = (pagename,)
+        dbcursor.execute(sql, val)
+        result = dbcursor.fetchall()
+        if len(result) == 0:
+            return pagename
 
 # 生成唯一的文件名
 def generateUniqueFilename(filename):

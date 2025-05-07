@@ -8,7 +8,7 @@ import Projects from './views/Projects.vue'
 import About from './views/About.vue'
 import Login from './views/Login.vue'
 import Register from './views/Register.vue'
-import ProjectDetail from './views/ProjectDetail.vue'
+import ProjectDetail from './views/projectDetail.vue'
 import NewProject from './views/NewProject.vue'
 import Chat from './views/Chat.vue'
 import Circle from './views/Circle.vue'
@@ -46,9 +46,21 @@ const router = createRouter(
     }
 )
 
-router.beforeEach((_, from, next) => {
-    globalData.previousPage = from.fullPath
-    globalData.previousPageParams = from.query
+router.beforeEach((to, from, next) => {
+    if (!from.fullPath.includes('projectDetail') && !from.fullPath.includes('newProject')) {
+        globalData.previousPage = from.fullPath
+        globalData.previousPageParams = from.query
+    }
+    if (to.fullPath == globalData.previousPage) {
+        globalData.previousPage = '/projects'
+        globalData.previousPageParams = {}
+        if (to.fullPath.includes('/user/')) {
+            globalData.previousPageParams = {
+                kind: 'Users'
+            }
+        }
+    }
+    
     window.scrollTo({
 		top: 0,
 		left: 0,
