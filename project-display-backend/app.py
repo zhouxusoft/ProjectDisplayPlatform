@@ -80,21 +80,21 @@ def close_db(exception):
     if db is not None:
         db.close()
 
-@app.route('/upload_image', methods=['POST'])
-def upload_image():
+@app.route('/uploadImage', methods=['POST'])
+def uploadImage():
     if 'image' not in request.files:
-        return jsonify({'success': False, 'message': '没有找到上传的文件'}), 400
+        return jsonify({'success': False, 'message': '没有找到上传的文件'})
 
     file = request.files['image']
     result = saveFile(file)
 
     if result['success']:
-        return jsonify(result), 200
+        return jsonify(result)
     else:
-        return jsonify(result), 400
+        return jsonify(result)
 
 @app.route('/uploads/<filename>')
-def uploaded_file(filename):
+def uploadedFile(filename):
     return send_from_directory(app.config['UPLOAD_FOLDER'], filename)
 
 # 处理前端登录请求

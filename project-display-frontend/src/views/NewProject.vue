@@ -5,7 +5,7 @@ import { ElMessage } from 'element-plus'
 import { useRouter } from 'vue-router'
 import { globalData } from './globalData'
 import LeftTagItem from '../components/LeftTagItem.vue'
-import { tagsAPI, languagesAPI, circleListAPI } from '../api/api.js'
+import { tagsAPI, languagesAPI, circleListAPI, uploadImageAPI } from '../api/api.js'
 
 const router = useRouter()
 
@@ -188,27 +188,52 @@ function uploadCover() {
   }
 }
 
+const isUploadCover = ref(false)
+
 function handleUpload(event) {
-  const file = event.target.files[0];
-  if (!file) return;
+  const file = event.target.files[0]
+  if (!file) return
 
   // 文件类型校验
   if (!file.type.startsWith('image/')) {
-    ElMessage.error('请选择图片文件');
-    return;
+    ElMessage.error('请选择图片文件')
+    return
   }
 
   // 文件大小校验，最大5MB
   const maxSizeMB = 5;
   if (file.size > maxSizeMB * 1024 * 1024) {
-    ElMessage.error(`图片大小不能超过${maxSizeMB}MB`);
-    return;
+    ElMessage.error(`图片大小不能超过${maxSizeMB}MB`)
+    return
   }
 
   // 生成本地预览URL
-  coverPreview.value = URL.createObjectURL(file);
-  console.log(coverPreview.value);
+  coverPreview.value = URL.createObjectURL(file)
+  
+  uploadCoverAction(file)
 }
+
+const uploadCoverAction = (file) => {
+  const formData = new FormData()
+  formData.append('image', file)
+
+  isUploadCover.value = true
+  uploadImageAPI(formData)
+    .then(res => {
+      console.log(res)
+      if (res.success) {
+        ElMessage.success(res.message)
+      }
+      isUploadCover.value = false
+    })
+    .catch(error => {
+      console.error('Error:', error)
+      deleteCover()
+      isUploadCover.value = false
+      ElMessage.error('上传失败')
+    })
+}
+
 const showMask = ref(false)
 
 function deleteCover() {
@@ -272,7 +297,7 @@ onMounted(() => {
         <el-tooltip content="在信息汪洋中校准思维的航向" placement="top-start" effect="dark">
           <div style="font-weight: 700; color: #555555; font-size: 22px; min-width: 110px;">文章标题：</div>
         </el-tooltip>
-        <input type="text"
+        <input type="text" autocomplete="off"
           style="border: none; border-bottom: 1px solid #333333; font-size: 20px; width: 100%; padding: 5px;"
           placeholder="请输入文章标题（5 - 50 字）">
       </div>
@@ -315,7 +340,7 @@ onMounted(() => {
           <!-- <div v-if="coverPreview" class="coverpreview">
             <img :src="coverPreview" alt="封面预览" style="width: 160px;" />
           </div> -->
-          <div v-if="coverPreview" class="coverpreview" @mouseleave="showMask = false" @mouseenter="showMask = true">
+          <div v-if="coverPreview" v-loading="isUploadCover" class="coverpreview" @mouseleave="showMask = false" @mouseenter="showMask = true">
             <img :src="coverPreview" alt="封面预览" />
             <div class="mask" v-show="showMask" @click.stop="deleteCover">
               <svg xmlns="http://www.w3.org/2000/svg" class="trash-icon" fill="none" viewBox="0 0 24 24"

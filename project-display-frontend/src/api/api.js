@@ -89,3 +89,8 @@ export function userInfoAPI(data) {
 export function userStarredAPI() {
   return api.post('/userStarred', data)
 }
+
+// 上传图片
+export function uploadImageAPI(data) {
+  return api.post('/uploadImage', data)
+}
