@@ -32,11 +32,11 @@
 			</div>
 		</div>
 		<div class="projectstar d-none d-sm-flex">
-			<button class="starfontbtn" v-if="!isStared(project.id)" @click="projectStar(1, project.id)">
+			<button class="starfontbtn" v-if="!isStared(project.id)" @click="projectStar(project.id)">
 				<span class="starfont">&#xf005</span>
 				Star
 			</button>
-			<button class="starfontbtn" v-else @click="projectStar(0, project.id)">
+			<button class="starfontbtn" v-else @click="projectStar(project.id)">
 				<span class="starredfont">&#xf005</span>
 				Starred
 			</button>
@@ -46,6 +46,7 @@
 
 <script>
 import { ElMessage } from 'element-plus'
+import { starProjectAPI } from '../api/api'
 export default {
 	props: {
 		project: {
@@ -87,17 +88,14 @@ export default {
 		isStared(projectid) {
 			return this.starred.some((item) => item.projectid === projectid)
 		},
-		projectStar(type ,projectid) {
-			if (type == 1) {
-				this.starred.push({ id: this.starred.length + 1, projectid: projectid })
-			} else {
-				for (let i = 0; i < this.starred.length; i++) {
-				if (this.starred[i].projectid == projectid) {
-					this.starred.splice(i, 1)
-					break
-				}
-			}
-			}
+		projectStar(projectid) {
+			starProjectAPI({project_id: projectid}).then(res => {
+				ElMessage({
+					message: res.message,
+					type: 'success',
+				})
+				this.$emit('starProject')
+			})
 		},
 		handleImageError(event) {
 			// 检查当前src是否已经是默认图片，避免无限循环
@@ -111,7 +109,7 @@ export default {
 	},
 
 	created() {
-		this.projectStar = this.debounce(this.projectStar, 500, true)
+		this.projectStar = this.debounce(this.projectStar, 1000, true)
 	}
 }
 </script>

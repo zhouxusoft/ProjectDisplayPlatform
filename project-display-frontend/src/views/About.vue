@@ -4,38 +4,16 @@ import ProjectItem from '../components/ProjectItem.vue'
 import LeftNavItem from '../components/LeftNavItem.vue'
 import { ElMessage } from 'element-plus'
 import { useRouter } from 'vue-router'
-import { userStarredAPI, userListAPI, circleListAPI } from '../api/api'
+import { checkLoginAPI, userStarredAPI, userListAPI, circleListAPI, starredListAPI, uploadImageAPI, createCircleAPI } from '../api/api'
 import CircleItem from '../components/CircleItem.vue'
 import UserItem from '../components/UserItem.vue'
+import dayjs from 'dayjs'
 
 const router = useRouter()
 
 const isLoading = ref(false)
 
-const projects = ref([
-  {
-    id: 1,
-    usericon: "https://avatars.githubusercontent.com/u/96218937?s=96&v=4",
-    name: "RainManGO/vue3-composition-admin",
-    main: "🎉 基于vue3 的管理端模板(Vue3 TS Vuex4 element-plus vue-i18n-next composition-api) vue3-admin vue3-ts-admin",
-    tags: ["JavaScript", "Flask", "Vue", "BootStrap"],
-    language: { color: "449633", name: "Vue" },
-    starnum: 2,
-    updatetime: "2022/8/19",
-    cover: 'https://p.cldisk.com/star3/origin/3bbc9fc48036bd31beb31dac8d923d77.png',
-  },
-  {
-    id: 2,
-    usericon: "https://avatars.githubusercontent.com/u/96218937?s=96&v=4",
-    name: "jeecgboot/jeecgboot-vue3",
-    main: "🔥 JeecgBoot—Vue3版前端源码，采用 Vue3.0+TypeScript+Vite+Ant-Design-Vue等新技术方案，包括二次封装组件、utils、hooks、动态菜单、权限校验、按钮级别权限控制等功能。 是JeecgBoot低代码平台的vue3技术栈的全…",
-    tags: ["JavaScript", "Vue", "BootStrap"],
-    language: { color: "481828", name: "JavaScript" },
-    starnum: 1,
-    updatetime: "2022/8/19",
-    cover: '',
-  }
-])
+const projects = ref([])
 
 const projects2 = ref([
   {
@@ -80,12 +58,12 @@ const kinds = ref([
     isactive: false,
     name: "Circle"
   },
-  {
-    icon: "&#xf1da",
-    id: 4,
-    isactive: false,
-    name: "History"
-  }
+  // {
+  //   icon: "&#xf1da",
+  //   id: 4,
+  //   isactive: false,
+  //   name: "History"
+  // }
 ])
 
 const userActiveName = ref('first')
@@ -94,24 +72,36 @@ const historyActiveName = ref('first')
 
 const currentkind = ref(1)
 
-const starred = ref([
-  {
-    id: 1,
-    projectid: 1
-  },
-  {
-    id: 2,
-    projectid: 2
-  },
-  {
-    id: 3,
-    projectid: 3
-  },
-  {
-    id: 4,
-    projectid: 4
-  }
-])
+const starred = ref([])
+
+const isLogin = ref(0)
+
+/**
+ * 判断用户当前的登录状态
+ */
+const checkLogin = () => {
+  isLoading.value = true
+  // 发送请求
+  checkLoginAPI().then(res => {
+    if (res.success) {
+      isLogin.value = 1
+    } else {
+      isLogin.value = 0
+      router.push('/login')
+    }
+    isLoading.value = false
+  }).catch(error => {
+    ElMessage({
+      message: '请求失败',
+      type: 'error',
+      plain: true,
+      offset: 9,
+    })
+    isLogin.value = 0
+    isLoading.value = false
+    router.push('/login')
+  })
+}
 
 /**
  * 格式化收藏数量
@@ -172,7 +162,7 @@ const updateUser = (userid) => {
       }
     }
   }
-	// getUserList()
+  // getUserList()
 }
 
 const userList = ref([])
@@ -194,12 +184,217 @@ const getUserList = () => {
   })
 }
 
+const getStarredList = () => {
+  userStarredAPI().then(res => {
+    if (res.success) {
+      projects.value = res.data
+
+      const today = dayjs()
+      const yesterday = today.subtract(1, 'day')
+
+      let todayList = []
+      let yesterdayList = []
+      let earlierList = []
+
+      starred.value.forEach(item => {
+        const dt = dayjs(item.starredtime, 'YYYY-MM-DD HH:mm:ss')
+
+        if (dt.isSame(today, 'day')) {
+          todayList.push(item)
+        } else if (dt.isSame(yesterday, 'day')) {
+          yesterdayList.push(item)
+        } else if (dt.isBefore(yesterday, 'day')) {
+          earlierList.push(item)
+        }
+        console.log(todayList, yesterdayList, earlierList)
+      })
+
+      todayStarList.value = projects.value.filter((item) => todayList.some((star) => star.projectid == item.id))
+      yesterdayStarList.value = projects.value.filter((item) => yesterdayList.some((star) => star.projectid == item.id))
+      earlierStarList.value = projects.value.filter((item) => earlierList.some((star) => star.projectid == item.id))
+    }
+  }).catch(error => {
+    console.error('Error:', error)
+  })
+}
+
+let firstin = true
+
+const starProject = (id) => {
+  getStarList()
+}
+
+const getStarList = () => {
+  starredListAPI().then(res => {
+    if (firstin) {
+      getStarredList()
+      firstin = false
+    }
+    starred.value = res.data
+  })
+}
+
+const todayStarList = ref([])
+const yesterdayStarList = ref([])
+const earlierStarList = ref([])
+
 const handleClick = () => {
   getCircleList()
   getUserList()
 }
 
+const circleDialogVisible = ref(false)
+
+/**
+ * 判断字符串是否包含空白符
+ * @param {*} str 
+ */
+ function hasWhiteSpace(str) {
+  return /\s/g.test(str)
+}
+
+/**
+ * 判断用户名是否合法
+ * @param {string} data 
+ */
+function checkUserName(data) {
+  const length = new RegExp('(^.{1,12}$)')
+  return length.test(data) && !hasWhiteSpace(data)
+}
+
+function checkBio(titleStr, options = {}) {
+  const {
+    forbiddenPattern = /[\x00-\x1F\x7F]/g // 控制字符
+  } = options
+
+  if (forbiddenPattern.test(titleStr)) {
+    return { valid: false, message: '个性签名包含非法字符' }
+  }
+  if (/\s{2,}/.test(titleStr)) {
+    return { valid: false, message: '个性签名不能包含连续空格' };
+  }
+  return { valid: true, message: '' }
+}
+
+const nicknameNew = ref('')
+const bioNew = ref('')
+
+const coverInput = ref(null)
+const isUploadCover = ref(false)
+const uploadCoverUrl = ref('')
+
+function uploadCover() {
+  if (coverInput.value) {
+    coverInput.value.value = null; // 重置，防止选同一张文件时不触发change事件
+    coverInput.value.click();
+  }
+}
+
+function handleUpload(event) {
+  const file = event.target.files[0]
+  if (!file) return
+
+  // 文件类型校验
+  if (!file.type.startsWith('image/')) {
+    ElMessage.error('请选择图片文件')
+    return
+  }
+
+  // 文件大小校验，最大5MB
+  const maxSizeMB = 5;
+  if (file.size > maxSizeMB * 1024 * 1024) {
+    ElMessage.error(`图片大小不能超过${maxSizeMB}MB`)
+    return
+  }
+  
+  uploadCoverAction(file)
+}
+
+const uploadCoverAction = (file) => {
+  const formData = new FormData()
+  formData.append('image', file)
+
+  isUploadCover.value = true
+  uploadImageAPI(formData)
+    .then(res => {
+      if (res.success) {
+        uploadCoverUrl.value = res.filepath
+      }
+      isUploadCover.value = false
+    })
+    .catch(_ => {
+      deleteCover()
+      isUploadCover.value = false
+      ElMessage.error('上传失败')
+    })
+}
+
+const createCircle = () => {
+  if (!nicknameNew.value) {
+    ElMessage({
+      message: '请输入圈子名称',
+      type: 'error',
+      plain: true,
+      offset: 9,
+    })
+    return
+  }
+  if (!bioNew.value) {
+    ElMessage({
+      message: '请输入圈子简介',
+      type: 'error',
+      plain: true,
+      offset: 9,
+    })
+    return
+  }
+  if (!uploadCoverUrl.value) {
+    ElMessage({
+      message: '请上传圈子头像',
+      type: 'error',
+      plain: true,
+    })
+    return
+  }
+  let toSend = {
+    name: nicknameNew.value,
+    description: bioNew.value,
+    cover: uploadCoverUrl.value
+  }
+  createCircleAPI(toSend).then(res => {
+    if (res.success) {
+      ElMessage({
+        message: '创建成功',
+        type: 'success',
+        plain: true,
+        offset: 9,
+      })
+      nicknameNew.value = ''
+      bioNew.value = ''
+      uploadCoverUrl.value = ''
+      circleDialogVisible.value = false
+      getCircleList()
+    } else {
+      ElMessage({
+        message: res.message,
+        type: 'error',
+        plain: true,
+        offset: 9,
+      })
+    }
+  }).catch(_ => {
+    ElMessage({
+      message: '创建失败',
+      type: 'error',
+      plain: true,
+      offset: 9,
+    })
+  })
+}
+
 onMounted(() => {
+  checkLogin()
+  getStarList()
   getCircleList()
   getUserList()
 })
@@ -221,10 +416,15 @@ onMounted(() => {
       <div class="mainprojects" v-if="currentkind == 1">
         <div style="font-weight: 700; color: #333333; width: fit-content; margin: 0 auto; font-size: 18px;">我的 Starred
         </div>
-        <div style="font-size: 15px; color: #333333; font-weight: 700;">· 今天</div>
-        <ProjectItem v-for="project in projects" :key="project.id" :project="project" :starred="starred" />
-        <div style="font-size: 15px; color: #333333; font-weight: 700;">· 2024-12-11</div>
-        <ProjectItem v-for="project in projects2" :key="project.id" :project="project" :starred="starred" />
+        <div style="font-size: 15px; color: #333333; font-weight: 700;" v-if="todayStarList.length > 0">· 今天</div>
+        <ProjectItem v-for="project in todayStarList" :key="project.id" :project="project" :starred="starred"
+          @starProject="starProject" />
+        <div style="font-size: 15px; color: #333333; font-weight: 700;" v-if="yesterdayStarList.length > 0">· 昨天</div>
+        <ProjectItem v-for="project in yesterdayStarList" :key="project.id" :project="project" :starred="starred"
+          @starProject="starProject" />
+        <div style="font-size: 15px; color: #333333; font-weight: 700;" v-if="earlierStarList.length > 0">· 更早</div>
+        <ProjectItem v-for="project in earlierStarList" :key="project.id" :project="project" :starred="starred"
+          @starProject="starProject" />
       </div>
       <div class="mainprojects" v-if="currentkind == 2">
         <el-tabs v-model="userActiveName" class="demo-tabs" @tab-click="handleClick">
@@ -246,6 +446,7 @@ onMounted(() => {
         </div>
       </div>
       <div class="mainprojects" v-if="currentkind == 3">
+        <div class="addproject" @click="circleDialogVisible = true">创建圈子</div>
         <el-tabs v-model="circleActiveName" class="demo-tabs" @tab-click="handleClick">
           <el-tab-pane label="我管理的" name="first"></el-tab-pane>
           <el-tab-pane label="我加入的" name="second"></el-tab-pane>
@@ -276,13 +477,61 @@ onMounted(() => {
         <ProjectItem v-for="project in projects" :key="project.id" :project="project" :starred="starred" />
       </div>
     </div>
-    <div class="rightnav d-none d-xl-block">
-
-    </div>
+    <div class="rightnav d-none d-xl-block"></div>
+    <el-dialog v-model="circleDialogVisible" title="创建圈子" width="500" align-center>
+      <el-form label-width="100px">
+        <el-form-item label="圈子名称" prop="roleName">
+          <el-input placeholder="圈子名称" v-model="nicknameNew" maxlength="20" show-word-limit  />
+        </el-form-item>
+      </el-form>
+      <el-form label-width="100px">
+        <el-form-item label="圈子简介" prop="roleName">
+          <el-input placeholder="圈子简介" v-model="bioNew" type="textarea" maxlength="42" show-word-limit />
+        </el-form-item>
+      </el-form>
+      <el-form label-width="100px" v-loading="isUploadCover">
+        <el-form-item label="圈子头像" prop="roleName">
+          <div style="width: 100px; height: 100px; background-color: #E7ECF0;" v-if="!uploadCoverUrl"></div>
+          <el-image v-else style="width: 100px; height: 100px" :src="uploadCoverUrl" :zoom-rate="1.2" :max-scale="7"
+            :min-scale="0.2" :preview-src-list="srcList" show-progress :initial-index="4" fit="cover"
+            referrerpolicy="no-referrer" />
+          <el-button style="position: absolute; bottom: 0px; left: 110px;" @click="uploadCover">上传头像</el-button>
+          <input type="file" ref="coverInput" style="display: none" accept="image/*" @change="handleUpload" />
+        </el-form-item>
+      </el-form>
+      <template #footer>
+        <div class="dialog-footer">
+          <el-button @click="circleDialogVisible = false">取消</el-button>
+          <el-button type="primary" @click="createCircle">
+            确认
+          </el-button>
+        </div>
+      </template>
+    </el-dialog>
   </div>
 </template>
 
 <style scoped>
+.addproject {
+  width: 100px;
+  height: 36px;
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  border: 1px solid #FC5531;
+  border-radius: 18px;
+  background-color: #FC5531;
+  color: white;
+  font-size: 16px;
+  font-weight: 500;
+  text-align: center;
+  cursor: pointer;
+  box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
 .borderbox {
   display: flex;
   justify-content: space-between;
@@ -422,22 +671,6 @@ onMounted(() => {
   margin: 0 8px 0 4px;
   padding-top: 1px;
   color: red;
-}
-
-.addproject {
-  width: 40px;
-  height: 40px;
-  position: fixed;
-  bottom: 20px;
-  right: 20px;
-  border: 1px solid #FC5531;
-  border-radius: 50%;
-  background-color: #FC5531;
-  color: white;
-  font-size: 24px;
-  text-align: center;
-  cursor: pointer;
-  box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.2);
 }
 
 .userbox {

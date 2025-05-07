@@ -10,6 +10,7 @@
   "dependencies": {
     "axios": "^1.7.7",
     "bootstrap": "^5.3.1",
+    "dayjs": "^1.11.13",
     "element-plus": "^2.9.9",
     "github-markdown-css": "^5.8.1",
     "node-sass": "^9.0.0",

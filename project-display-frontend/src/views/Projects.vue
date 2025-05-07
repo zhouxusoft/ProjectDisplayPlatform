@@ -7,7 +7,7 @@ import LeftTagItem from '../components/LeftTagItem.vue'
 import CircleItem from '../components/CircleItem.vue'
 import UserItem from '../components/UserItem.vue'
 import { ElMessage } from 'element-plus'
-import { projectsAPI, kindsAPI, languagesAPI, tagsAPI, circleListAPI, userListAPI } from '../api/api'
+import { projectsAPI, starredListAPI, kindsAPI, languagesAPI, tagsAPI, circleListAPI, userListAPI } from '../api/api'
 import { useRouter } from 'vue-router'
 
 const router = useRouter()
@@ -41,16 +41,7 @@ const projects = ref([
 const kinds = ref([])
 const languages = ref([])
 const tags = ref([])
-const starred = ref([
-	{
-		id: 1,
-		projectid: 1
-	},
-	{
-		id: 2,
-		projectid: 3
-	}
-])
+const starred = ref([])
 
 const toCircleDetail = (circleid) => {
 	router.push({ path: `/circle/${circleid}` })
@@ -367,11 +358,21 @@ const updateUser = () => {
 	getUserList()
 }
 
+const getStarredList = () => {
+	starredListAPI().then(res => {
+		starred.value = res.data
+	})
+}
+
 const handleImageError = (event) => {
 	// 检查当前src是否已经是默认图片，避免无限循环
 	if (!event.target.src.endsWith('/error_img.png')) {
 		event.target.src = '/error_img.png'
 	}
+}
+
+const starProject = (id) => {
+	getStarredList()
 }
 
 /**
@@ -382,6 +383,7 @@ const getAllInfo = () => {
 	getLanguages()
 	getTags()
 	getProjects()
+	getStarredList()
 	getCircleList()
 	getUserList()
 }
@@ -423,7 +425,7 @@ getAllInfo()
 		</div>
 		<div class="straightline"></div>
 		<div class="mainprojects px-4 py-3" v-loading="isLoading">
-			<ProjectItem v-for="project in projects" :key="project.id" :project="project" :starred="starred"
+			<ProjectItem v-for="project in projects" :key="project.id" :project="project" :starred="starred" @starProject="starProject"
 				v-if="currentkind == 1" />
 			<div v-if="currentkind == 2">
 				<UserItem v-for="user in userList" :key="user.id" :user="user" @updateUser="updateUser" />
@@ -452,7 +454,7 @@ getAllInfo()
 				<div style="display: flex; justify-content: center; align-items: center; margin-top: 8px;">
 					<div
 						style="color: #333333; margin-top: 4px; font-size: 13px; display: flex; align-items: center; white-space: nowrap;">
-						<span class="kindicon" style="font-size: 13px;">&#xf0c0</span>成员：{{ circleList[0].member_count
+						<span class="kindicon" style="font-size: 13px;">&#xf0c0</span>成员：{{ circleList[0].member_count + 1
 						}}&nbsp;&nbsp;&nbsp;&nbsp;<span class="kindicon" style="font-size: 13px">&#xf06e</span>粉丝：{{
 							circleList[0].follower_count }}&nbsp;&nbsp;&nbsp;&nbsp;<span class="kindicon"
 							style="font-size: 13px">&#xf1ea</span>作品：{{ circleList[0].project_count }}

@@ -1,7 +1,7 @@
 <script setup>
 import { onMounted, ref } from 'vue'
 import ProjectItem from '../components/ProjectItem.vue'
-import { ElMessage } from 'element-plus'
+import { ElMessage, ElMessageBox } from 'element-plus'
 import { circleDetailAPI } from '../api/api'
 import { useRouter } from 'vue-router'
 import { globalData } from './globalData'
@@ -67,6 +67,23 @@ const goBack = () => {
 
 const toUserDetail = (userid) => {
   router.push({ path: `/user/${userid}` })
+}
+
+const disbandCircle = () => {
+  ElMessageBox.confirm(
+    '确认解散圈子?',
+    '警告',
+    {
+      confirmButtonText: '确认',
+      confirmButtonClass: 'error',
+      cancelButtonText: '取消',
+      type: 'error',
+    }
+  )
+    .then(() => {
+      
+    })
+    .catch(() => { })
 }
 
 onMounted(() => {
@@ -142,7 +159,8 @@ onMounted(() => {
     <div class="straightline"></div>
     <div class="mainprojects px-4 py-3">
       <ProjectItem v-for="project in circleProjects" :key="project.id" :project="project" :starred="starred" />
-      <div style="width: fit-content; margin: 10px auto; color: #666666">没有更多了...</div>
+      <div style="width: fit-content; margin: 10px auto; color: #666666" v-if="circleProjects.length > 0">没有更多了...</div>
+      <div style="width: fit-content; margin: 10px auto; color: #666666; margin-top: 40vh" v-else>空空如也</div>
     </div>
     <div class="rightnav d-none d-xl-block">
       <div class="circlebox">
@@ -172,7 +190,7 @@ onMounted(() => {
               style="font-size: 14px">&#xf0e0</span>已订阅</el-button>
           <el-button size="small" plain v-if="circleInfo.flag == 1"><span class="kindicon"
               style="font-size: 14px">&#xf0c9</span>管理圈子</el-button>
-          <el-button size="small" plain v-if="circleInfo.flag == 1"><span class="kindicon"
+          <el-button size="small" plain v-if="circleInfo.flag == 1" @click="disbandCircle"><span class="kindicon"
               style="font-size: 14px">&#xf00d</span>解散圈子</el-button>
         </div>
       </div>

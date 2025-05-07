@@ -86,8 +86,13 @@ export function userInfoAPI(data) {
 }
 
 // 获取用户点赞列表
-export function userStarredAPI() {
+export function userStarredAPI(data) {
   return api.post('/userStarred', data)
+}
+
+// 获取用户点赞列表
+export function starredListAPI(data) {
+  return api.post('/starredList', data)
 }
 
 // 上传图片
@@ -98,4 +103,19 @@ export function uploadImageAPI(data) {
 // 发布文章
 export function createProjectAPI(data) {
   return api.post('/createProject', data)
+}
+
+// 点赞文章
+export function starProjectAPI(data) {
+  return api.post('/starProject', data)
+}
+
+// 更新用户信息
+export function updateProfileAPI(data) {
+  return api.post('/updateProfile', data)
+}
+
+// 创建圈子
+export function createCircleAPI(data) {
+  return api.post('/createCircle', data)
 }

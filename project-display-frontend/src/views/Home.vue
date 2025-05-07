@@ -2,7 +2,7 @@
 import { onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { ElMessage, ElMessageBox } from 'element-plus'
-import { checkLoginAPI, clearCookieAPI, myInfoAPI } from '../api/api'
+import { checkLoginAPI, clearCookieAPI, myInfoAPI, uploadImageAPI, updateProfileAPI } from '../api/api'
 import ProjectItem from '../components/ProjectItem.vue'
 
 const router = useRouter()
@@ -110,6 +110,7 @@ const getMyInfo = () => {
       // 设置用户信息
       projects.value = res.data.projects
       userInfo.value = res.data.userinfo
+      coverPreview.value = res.data.userinfo.usericon
     } else {
       ElMessage({
         message: '获取用户信息失败',
@@ -190,6 +191,168 @@ const logout = () => {
       })
     })
     .catch(() => { })
+}
+
+/**
+ * 判断字符串是否包含空白符
+ * @param {*} str 
+ */
+ function hasWhiteSpace(str) {
+  return /\s/g.test(str)
+}
+
+/**
+ * 判断用户名是否合法
+ * @param {string} data 
+ */
+function checkUserName(data) {
+  const length = new RegExp('(^.{1,12}$)')
+  return length.test(data) && !hasWhiteSpace(data)
+}
+
+function checkBio(titleStr, options = {}) {
+  const {
+    forbiddenPattern = /[\x00-\x1F\x7F]/g // 控制字符
+  } = options
+
+  if (forbiddenPattern.test(titleStr)) {
+    return { valid: false, message: '个性签名包含非法字符' }
+  }
+  if (/\s{2,}/.test(titleStr)) {
+    return { valid: false, message: '个性签名不能包含连续空格' };
+  }
+  return { valid: true, message: '' }
+}
+
+const nicknameNew = ref('')
+const bioNew = ref('')
+
+const coverInput = ref(null)
+const coverPreview = ref(null)
+const isUploadCover = ref(false)
+const uploadCoverUrl = ref('')
+
+const updateUserinfo = () => {
+  if (!nicknameNew.value && !bioNew.value && uploadCoverUrl.value == userInfo.value.usericon) {
+    centerDialogVisible.value = false
+    return
+  }
+  let toSend = {}
+  if (nicknameNew.value) {
+    if (checkUserName(nicknameNew.value)) {
+      toSend.nickname = nicknameNew.value
+    } else {
+      ElMessage({
+        message: '昵称不合法',
+        type: 'error',
+        plain: true,
+        offset: 9,
+      })
+      return
+    }
+  } else {
+    toSend.nickname = userInfo.value.nickname
+  }
+  if (bioNew.value) {
+    if (checkBio(bioNew.value).valid) {
+      toSend.bio = bioNew.value
+    } else {
+      let msg = checkBio(bioNew.value).message
+      ElMessage({
+        message: msg,
+        type: 'error',
+        plain: true,
+        offset: 9,
+      })
+      return
+    }
+  } else {
+    toSend.bio = userInfo.value.bio
+  }
+  if (uploadCoverUrl.value) {
+    toSend.usericon = uploadCoverUrl.value
+  } else {
+    toSend.usericon = userInfo.value.usericon
+  }
+  updateProfileAPI(toSend).then(res => {
+    if (res.success) {
+      ElMessage({
+        message: '更新成功',
+        type: 'success',
+        plain: true,
+        offset: 9,
+      })
+      centerDialogVisible.value = false
+      getMyInfo()
+    } else {
+      ElMessage({
+        message: '更新失败',
+        type: 'error',
+        plain: true,
+        offset: 9,
+      })
+    }
+    nicknameNew.value = ''
+    bioNew.value = ''
+  }).catch(_ => {
+    ElMessage({
+      message: '更新失败',
+      type: 'error',
+      plain: true,
+      offset: 9,
+    })
+    nicknameNew.value = ''
+    bioNew.value = ''
+  })
+}
+
+function uploadCover() {
+  if (coverInput.value) {
+    coverInput.value.value = null; // 重置，防止选同一张文件时不触发change事件
+    coverInput.value.click();
+  }
+}
+
+function handleUpload(event) {
+  const file = event.target.files[0]
+  if (!file) return
+
+  // 文件类型校验
+  if (!file.type.startsWith('image/')) {
+    ElMessage.error('请选择图片文件')
+    return
+  }
+
+  // 文件大小校验，最大5MB
+  const maxSizeMB = 5;
+  if (file.size > maxSizeMB * 1024 * 1024) {
+    ElMessage.error(`图片大小不能超过${maxSizeMB}MB`)
+    return
+  }
+
+  // 生成本地预览URL
+  coverPreview.value = URL.createObjectURL(file)
+  
+  uploadCoverAction(file)
+}
+
+const uploadCoverAction = (file) => {
+  const formData = new FormData()
+  formData.append('image', file)
+
+  isUploadCover.value = true
+  uploadImageAPI(formData)
+    .then(res => {
+      if (res.success) {
+        uploadCoverUrl.value = res.filepath
+      }
+      isUploadCover.value = false
+    })
+    .catch(_ => {
+      deleteCover()
+      isUploadCover.value = false
+      ElMessage.error('上传失败')
+    })
 }
 
 onMounted(() => {
@@ -292,27 +455,27 @@ onMounted(() => {
   <el-dialog v-model="centerDialogVisible" title="编辑个人资料" width="500" align-center>
     <el-form label-width="100px">
       <el-form-item label="昵称" prop="roleName">
-        <el-input :placeholder="userInfo.nickname" />
+        <el-input :placeholder="userInfo.nickname" v-model="nicknameNew" />
       </el-form-item>
     </el-form>
     <el-form label-width="100px">
       <el-form-item label="个性签名" prop="roleName">
-        <el-input :placeholder="userInfo.bio" />
+        <el-input :placeholder="userInfo.bio" v-model="bioNew" />
       </el-form-item>
     </el-form>
-    <el-form label-width="100px">
+    <el-form label-width="100px" v-loading="isUploadCover">
       <el-form-item label="头像" prop="roleName">
-        <el-image style="width: 100px; height: 100px" :src="userInfo.usericon" :zoom-rate="1.2" :max-scale="7"
+        <el-image style="width: 100px; height: 100px" :src="coverPreview" :zoom-rate="1.2" :max-scale="7"
           :min-scale="0.2" :preview-src-list="srcList" show-progress :initial-index="4" fit="cover"
           referrerpolicy="no-referrer" />
+        <el-button style="position: absolute; bottom: 0px; left: 110px;" @click="uploadCover">上传头像</el-button>
+        <input type="file" ref="coverInput" style="display: none" accept="image/*" @change="handleUpload" />
       </el-form-item>
     </el-form>
     <template #footer>
       <div class="dialog-footer">
         <el-button @click="centerDialogVisible = false">取消</el-button>
-        <el-button type="primary" @click="centerDialogVisible = false">
-          确认
-        </el-button>
+        <el-button type="primary" @click="updateUserinfo">保存</el-button>
       </div>
     </template>
   </el-dialog>

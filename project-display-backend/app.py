@@ -234,7 +234,7 @@ def checkLogin():
             'nickname': result[0][0],
             'usericon': result[0][1]
         }
-        return jsonify({'success': True, 'data': '当前已登陆', 'userinfo': userinfo, 'code': 200})
+        return jsonify({'success': True, 'data': '当前已登录', 'userinfo': userinfo, 'code': 200})
     else:
         return jsonify({'success': False, 'data': '当前未登录', 'code': 200})
     
@@ -583,7 +583,7 @@ def circleList():
         dbcursor.execute(sql, val)
         userfollow = dbcursor.fetchall()
         userfollow = [row[0] for row in userfollow]
-        sql = "SELECT `creater_id` FROM `circles` WHERE `creater_id` = %s"
+        sql = "SELECT `id` FROM `circles` WHERE `creater_id` = %s"
         val = (check['userid'],)
         dbcursor.execute(sql, val)
         usercreate = dbcursor.fetchall()
@@ -866,7 +866,7 @@ def userInfo():
     else:
         return jsonify({'success': False, 'message': '用户未登录', 'code': 401})
 
-# 获取用户的点赞记录
+# 获取用户的点赞详细记录
 @app.route('/userStarred', methods=['POST'])
 def userStarred():
     # 获取前端的 cookie
@@ -929,13 +929,112 @@ def createProject():
     
     return jsonify({'success': True, 'message': '文章发布成功', 'pagename': pagename, 'code': 200})
 
+# 获取用户的点赞记录
+@app.route('/starredList', methods=['POST'])
+def starredList():
+    # 获取前端的 cookie
+    token = request.cookies.get('access-token')
+    # 判断该 cookie 是否有效
+    check = checkCookie(token)
+    if check['success']:
+        db, dbcursor = get_db()
+        sql = "SELECT * FROM `user_starred` WHERE `user_id` = %s"
+        val = (check['userid'])
+        dbcursor.execute(sql, val)
+        result = dbcursor.fetchall()
+        starlist = []
+        for i in range(0, len(result)):
+            item = {
+                'id': result[i][0],
+                'projectid': result[i][2],
+                'starredtime': result[i][3].strftime('%Y-%m-%d %H:%M:%S')
+            }
+            starlist.append(item)
+        return jsonify({'success': True, 'data': starlist, 'code': 200})
+    else:
+        return jsonify({'success': True, 'data': [], 'code': 200})
+
+# 用户点赞
+@app.route('/starProject', methods=['POST'])
+def starProject():
+    data = request.get_json()
+    # 获取前端的 cookie
+    token = request.cookies.get('access-token')
+    # 判断该 cookie 是否有效
+    check = checkCookie(token)
+    if not check['success']:
+        return jsonify({'success': False, 'message': '用户未登录', 'code': 401})
+    
+    db, dbcursor = get_db()
+    # 判断是否已经点赞
+    sql = "SELECT * FROM `user_starred` WHERE `user_id` = %s AND `project_id` = %s"
+    val = (check['userid'], data['project_id'])
+    dbcursor.execute(sql, val)
+    result = dbcursor.fetchall()
+    if len(result) > 0:
+        sql = "DELETE FROM `user_starred` WHERE `user_id` = %s AND `project_id` = %s"
+        val = (check['userid'], data['project_id'])
+        dbcursor.execute(sql, val)
+        db.commit()
+        return jsonify({'success': True, 'message': '取消点赞', 'code': 200})
+    else:
+        sql = "INSERT INTO `user_starred` (`user_id`, `project_id`) VALUES (%s, %s)"
+        val = (check['userid'], data['project_id'])
+        db, dbcursor = get_db()
+        dbcursor.execute(sql, val)
+        db.commit()
+        return jsonify({'success': True, 'message': '点赞成功', 'code': 200})
+    
 # 更新用户个人资料
 @app.route('/updateProfile', methods=['POST'])
-def update_profile():
-    if True:
-        return jsonify({"status": "success", "message": "Message sent successfully"}), 201
-    else:
-        return jsonify({"status": "error", "message": "Message sending failed"}), 400
+def updateProfile():
+    data = request.get_json()
+    # 获取前端的 cookie
+    token = request.cookies.get('access-token')
+    # 判断该 cookie 是否有效
+    check = checkCookie(token)
+    if not check['success']:
+        return jsonify({'success': False, 'message': '用户未登录', 'code': 401})
+    
+    try:
+        db, dbcursor = get_db()
+        sql = "UPDATE `user_info` SET `nickname` = %s, `user_icon` = %s, `bio` = %s WHERE `user_id` = %s"
+        val = (data['nickname'], data['usericon'], data['bio'], check['userid'])
+        dbcursor.execute(sql, val)
+        db.commit()
+        return jsonify({'success': True, 'message': '更新成功', 'code': 200})
+    except Exception as e:
+        print(e)
+        return jsonify({'success': False, 'message': '更新失败', 'code': 400})
+
+# 创建圈子
+@app.route('/createCircle', methods=['POST'])
+def createCircle():
+    data = request.get_json()
+    # 获取前端的 cookie
+    token = request.cookies.get('access-token')
+    # 判断该 cookie 是否有效
+    check = checkCookie(token)
+    if not check['success']:
+        return jsonify({'success': False, 'message': '用户未登录', 'code': 401})
+    
+    try:
+        db, dbcursor = get_db()
+        sql = "SELECT * FROM `circles` WHERE `name` = %s"
+        val = (data['name'],)
+        dbcursor.execute(sql, val)
+        result = dbcursor.fetchall()
+        if len(result) > 0:
+            return jsonify({'success': False, 'message': '圈子名称重复', 'code': 400})
+        
+        sql = "INSERT INTO `circles` (`creater_id`, `name`, `cover`, `description`) VALUES (%s, %s, %s, %s)"
+        val = (check['userid'], data['name'], data['cover'], data['description'])
+        dbcursor.execute(sql, val)
+        db.commit()
+        return jsonify({'success': True, 'message': '创建成功', 'code': 200})
+    except Exception as e:
+        print(e)
+        return jsonify({'success': False, 'message': '创建失败', 'code': 400})
 
 # 获取用户的私信列表
 @app.route('/messages', methods=['POST'])
@@ -1376,7 +1475,7 @@ def checkCookie(token):
     if len(result) > 0:
         current_time = datetime.now()  # type: ignore
         if isTimeOut(result[0][3], current_time):
-            return ({'success': False, 'message': '登陆过期', 'code': 200})
+            return ({'success': False, 'message': '登录过期', 'code': 200})
         return  ({'success': True, 'message': '已登录', 'userid': result[0][1], 'code': 200})
     else:
         return ({'success': False, 'message': '未登录', 'code': 200})
