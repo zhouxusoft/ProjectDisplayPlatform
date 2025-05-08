@@ -173,7 +173,7 @@ const showAibox = ref(false)
 const aiAnswer = ref('')
 const showAnswer = ref('')
 
-function gradualPrint(interval = 30) {
+function gradualPrint(interval = 25) {
   showAnswer.value = ''
   for (let i = 0; i < aiAnswer.value.length; i++) {
     setTimeout(() => {
@@ -427,7 +427,7 @@ onBeforeUnmount(() => {
   bottom: 60px;
   right: 12px;
   width: 268px;
-  min-height: 100px;
+  min-height: 120px;
   height: fit-content;
   border: 1px solid #DDDDDD;
   border-radius: 12px 12px 0 12px;
