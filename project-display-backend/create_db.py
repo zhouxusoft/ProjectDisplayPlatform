@@ -211,18 +211,19 @@ def create_database():
                         ) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci ROW_FORMAT = DYNAMIC;""")
     # `user_message` 用于存储用户之间的私信
     dbcursor.execute("""CREATE TABLE IF NOT EXISTS `user_message` (
-                        `id` int NOT NULL AUTO_INCREMENT COMMENT '自增id',\
-                        `sender_id` int NOT NULL COMMENT '发送人id',\
-                        `receiver_id` int NOT NULL COMMENT '接收人id',\
-                        `message_type` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '消息类型',\
-                        `message_content` text CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '消息内容',\
-                        `send_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '发送时间',\
-                        PRIMARY KEY (`id`) USING BTREE,\
-                        INDEX `fk_user_message_sender_id_users_user_id`(`sender_id` ASC) USING BTREE,\
-                        INDEX `fk_user_message_receiver_id_users_user_id`(`receiver_id` ASC) USING BTREE,\
-                        CONSTRAINT `fk_user_message_receiver_id_users_user_id` FOREIGN KEY (`receiver_id`) REFERENCES `project_display`.`users` (`user_id`) ON DELETE CASCADE ON UPDATE CASCADE,\
-                        CONSTRAINT `fk_user_message_sender_id_users_user_id` FOREIGN KEY (`sender_id`) REFERENCES `project_display`.`users` (`user_id`) ON DELETE CASCADE ON UPDATE CASCADE\
-                        ) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci ROW_FORMAT = Dynamic;""")
+                        `id` int NOT NULL AUTO_INCREMENT COMMENT '自增id',
+                        `sender_id` int NOT NULL COMMENT '发送人id',
+                        `receiver_id` int NOT NULL COMMENT '接收人id',
+                        `message_type` int NOT NULL COMMENT '消息类型：1文字，2图片',
+                        `message_content` text CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '消息内容',
+                        `send_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '发送时间',
+                        `is_read` int NOT NULL DEFAULT 0 COMMENT '已读状态：1已读，0未读',
+                        PRIMARY KEY (`id`) USING BTREE,
+                        INDEX `fk_user_message_sender_id_users_user_id`(`sender_id` ASC) USING BTREE,
+                        INDEX `fk_user_message_receiver_id_users_user_id`(`receiver_id` ASC) USING BTREE,
+                        CONSTRAINT `fk_user_message_receiver_id_users_user_id` FOREIGN KEY (`receiver_id`) REFERENCES `project_display`.`users` (`user_id`) ON DELETE CASCADE ON UPDATE CASCADE,
+                        CONSTRAINT `fk_user_message_sender_id_users_user_id` FOREIGN KEY (`sender_id`) REFERENCES `project_display`.`users` (`user_id`) ON DELETE CASCADE ON UPDATE CASCADE
+                        ) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci ROW_FORMAT = DYNAMIC;""")
     # `system_notification` 用于存储系统通知
     dbcursor.execute("""CREATE TABLE IF NOT EXISTS `system_notification` (
                        `id` int NOT NULL AUTO_INCREMENT COMMENT '自增id',\

@@ -76,6 +76,11 @@ export default {
       followUserAPI({userid: userid})
         .then((response) => {
           if (response.code == 200) {
+            if (response.message == '关注成功') {
+              this.$emit('updateUser', {userid: userid, flag: 1})
+            } else if (response.message == '取关成功') {
+              this.$emit('updateUser', {userid: userid, flag: 0})
+            }
             this.$emit('updateUser', userid)
             ElMessage({
               message: response.message,

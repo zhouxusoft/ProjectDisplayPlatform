@@ -119,3 +119,18 @@ export function updateProfileAPI(data) {
 export function createCircleAPI(data) {
   return api.post('/createCircle', data)
 }
+
+// 获取私信聊天记录
+export function messageUserAPI(data) {
+  return api.post('/messageUser', data)
+}
+
+// 阅读私信
+export function readMessageAPI(data) {
+  return api.post('/readMessage', data)
+}
+
+// 发送私信
+export function sendMessageAPI(data) {
+  return api.post('/sendMessage', data)
+}

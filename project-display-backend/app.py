@@ -1036,13 +1036,100 @@ def createCircle():
         print(e)
         return jsonify({'success': False, 'message': '创建失败', 'code': 400})
 
-# 获取用户的私信列表
-@app.route('/messages', methods=['POST'])
-def get_messages():
-    if True:
-        return jsonify({"status": "success", "message": "Message sent successfully"}), 201
-    else:
-        return jsonify({"status": "error", "message": "Message sending failed"}), 400
+# 获取私信用户列表
+@app.route('/messageUser', methods=['POST'])
+def messageUser():
+    token = request.cookies.get('access-token')
+    check = checkCookie(token)
+    if not check['success']:
+        return jsonify({'success': False, 'message': '用户未登录', 'code': 401})
+    
+    try:
+        db, dbcursor = get_db()
+        sql = "SELECT * FROM `user_message` WHERE `sender_id` = %s OR `receiver_id` = %s"
+        val = (check['userid'], check['userid'])
+        dbcursor.execute(sql, val)
+        result = dbcursor.fetchall()
+        
+        messageList = []
+        for i in result:
+            messageItem = {
+                'id': i[0],
+                'sender_id': i[1],
+                'receiver_id': i[2],
+                'type': i[3],
+                'content': i[4],
+                'send_time': i[5].strftime('%Y-%m-%d %H:%M:%S'),
+                'read': i[6]
+            }
+            messageList.append(messageItem)
+        
+        chatUserIdList = []
+        tempresult = result[::-1]
+        for i in tempresult:
+            if i[1] == check['userid']:
+                chatUserIdList.append(i[2])
+            else:
+                chatUserIdList.append(i[1])
+        chatUserIdList = list(dict.fromkeys(chatUserIdList))
+        chatUserList = []
+        for i in chatUserIdList:
+            chatUser = getChatUserInfo(i, check['userid'])
+            chatUserList.append(chatUser)
+        if len(result) > 0:
+            return jsonify({'success': True, 'data': messageList, 'chartUserList': chatUserList, 'code': 200})
+        else:
+            return jsonify({'success': True, 'data': [], 'chartUserList': [], 'code': 200})
+    except Exception as e:
+        print(e)
+        return jsonify({'success': False, 'message': '获取私信记录失败', 'code': 400})
+
+# 阅读用户私信
+@app.route('/readMessage', methods=['POST'])
+def readMessage():
+    data = request.get_json()
+    # 获取前端的 cookie
+    token = request.cookies.get('access-token')
+    # 判断该 cookie 是否有效
+    check = checkCookie(token)
+    if not check['success']:
+        return jsonify({'success': False, 'message': '用户未登录', 'code': 401})
+    
+    try:
+        db, dbcursor = get_db()
+        sql = "UPDATE `user_message` SET `is_read` = 1 WHERE `sender_id` = %s AND `receiver_id` = %s"
+        val = (data['userid'], check['userid'])
+        dbcursor.execute(sql, val)
+        sql = "UPDATE `user_message` SET `is_read` = 1 WHERE `sender_id` = %s AND `receiver_id` = %s"
+        val = (check['userid'], data['userid'])
+        dbcursor.execute(sql, val)
+        db.commit()
+        return jsonify({'success': True, 'message': '更新成功', 'code': 200})
+    except Exception as e:
+        print(e)
+        return jsonify({'success': False, 'message': '更新失败', 'code': 400})
+
+# 发送私信
+@app.route('/sendMessage', methods=['POST'])
+def sendMessage():
+    data = request.get_json()
+    # 获取前端的 cookie
+    token = request.cookies.get('access-token')
+    # 判断该 cookie 是否有效
+    check = checkCookie(token)
+    if not check['success']:
+        return jsonify({'success': False, 'message': '用户未登录', 'code': 401})
+    
+    try:
+        db, dbcursor = get_db()
+        sql = "INSERT INTO `user_message` (`sender_id`, `receiver_id`, `message_type`, `message_content`) VALUES (%s, %s, %s, %s)"
+        val = (check['userid'], data['userid'], data['type'], data['content'])
+        dbcursor.execute(sql, val)
+        db.commit()
+        return jsonify({'success': True, 'message': '发送成功', 'code': 200})
+    except Exception as e:
+        print(e)
+        return jsonify({'success': False, 'message': '发送失败', 'code': 400})
 
 # 创建私信
 @app.route('/createMessage', methods=['POST'])
@@ -1145,6 +1232,68 @@ def getUserInfo(user_id, my_id=0):
         'following': following,
         'projectnum': projectnum,
         'relationship': relationship # -1: 本人, 0: 未关注, 1: 已关注, 2: 相互关注
+    }
+
+# 获取聊天用户的个人信息
+def getChatUserInfo(user_id, my_id=0):
+    db, dbcursor = get_db()
+    # 获取用户信息
+    sql = "SELECT * FROM `user_info` WHERE `user_id` = %s"
+    val = (user_id,)
+    dbcursor.execute(sql, val)
+    result = dbcursor.fetchall()
+    # 获取用户粉丝数量
+    sql = "SELECT COUNT(*) FROM `user_follow` WHERE `follow_id` = %s"
+    val = (user_id,)
+    dbcursor.execute(sql, val)
+    follower = dbcursor.fetchall()[0][0]
+    # 获取用户关注数量
+    sql = "SELECT COUNT(*) FROM `user_follow` WHERE `user_id` = %s"
+    val = (user_id,)
+    dbcursor.execute(sql, val)
+    following = dbcursor.fetchall()[0][0]
+    # 获取用户作品数量
+    sql = "SELECT COUNT(*) FROM `projects` WHERE `user_id` = %s"
+    val = (user_id,)
+    dbcursor.execute(sql, val)
+    projectnum = dbcursor.fetchall()[0][0]
+    flag = 0
+    # 获取用户与当前用户的关系
+    if my_id != 0 and int(my_id) != int(user_id):
+        sql = "SELECT `follow_id` FROM `user_follow` WHERE `user_id` = %s"
+        val = (my_id,)
+        dbcursor.execute(sql, val)
+        userfollowing = dbcursor.fetchall()
+        userfollowing = [row[0] for row in userfollowing]
+        sql = "SELECT `user_id` FROM `user_follow` WHERE `follow_id` = %s"
+        val = (my_id,)
+        dbcursor.execute(sql, val)
+        userfollower = dbcursor.fetchall()
+        userfollower = [row[0] for row in userfollower]
+        # 0 路人 1 我的粉丝 2 我的关注 3 相互关注
+        if user_id in userfollower and user_id in userfollowing:
+            flag = 3
+        elif user_id in userfollowing:
+            flag = 2
+        elif user_id in userfollower:
+            flag = 1
+    
+    sql = "SELECT COUNT(*) FROM `user_message` WHERE `sender_id` = %s AND `receiver_id` = %s AND `is_read` = 0"
+    val = (user_id, my_id)
+    dbcursor.execute(sql, val)
+    unreadnum = dbcursor.fetchall()[0][0]
+
+    return {
+        'user_id': result[0][1],
+        'nickname': result[0][3],
+        'usericon': result[0][2],
+        'bio': result[0][4],
+        'position': result[0][5],
+        'follower': follower,
+        'following': following,
+        'projectnum': projectnum,
+        'relationship': flag, # 0 路人 1 我的粉丝 2 我的关注 3 相互关注
+        'unreadnum': unreadnum
     }
 
 # 获取圈子的用户列表

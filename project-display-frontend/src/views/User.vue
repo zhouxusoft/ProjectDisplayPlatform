@@ -152,7 +152,9 @@ onMounted(() => {
             <img class="img-fluid headpicture" :src="userInfo.usericon" alt="">
           </div>
           <div class="namebox">
-            <div class="name">{{ userInfo.nickname }}</div>
+            <div class="name">{{ userInfo.nickname }}
+              <div class="nameisme" v-if="userInfo.relationship == -1" ><el-tag size="small">我</el-tag></div>
+            </div>
           </div>
           <div class="boibox">
             <div>{{ userInfo.bio }}</div>
@@ -194,6 +196,17 @@ onMounted(() => {
 </template>
 
 <style scoped>
+.name {
+  position: relative;
+  width: fit-content;
+}
+
+.nameisme {
+  position: absolute;
+  right: -34px;
+  top: 0px;
+}
+
 .notlogincommentbox {
   display: flex;
   justify-content: center;

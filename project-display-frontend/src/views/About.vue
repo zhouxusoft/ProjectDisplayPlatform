@@ -148,9 +148,16 @@ const getCircleList = () => {
   })
 }
 
-const updateUser = (userid) => {
+const updateUser = (info) => {
+  let userid = info.userid
+  let flag = info.flag
   for (let i = 0; i < userList.value.length; i++) {
     if (userList.value[i].user_id == userid) {
+      if (flag == 1) {
+        userList.value[i].follower_num += 1
+      } else if (flag == 0) {
+        userList.value[i].follower_num -= 1
+      }
       if (userList.value[i].flag == 1) {
         userList.value[i].flag = 3
       } else if (userList.value[i].flag == 2) {
@@ -160,6 +167,7 @@ const updateUser = (userid) => {
       } else if (userList.value[i].flag == 0) {
         userList.value[i].flag = 2
       }
+      break
     }
   }
   // getUserList()

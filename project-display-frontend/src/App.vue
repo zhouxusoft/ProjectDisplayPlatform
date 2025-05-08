@@ -81,7 +81,7 @@ onMounted(() => {
 						<a class="nav-link" href="/about">Stars</a>
 					</li>
 				</ul>
-				<div class="p-2" v-show="currentroute == '/projects'">
+				<div class="p-2" v-show="currentroute == '/projectsxxx'">
 					<div class="searchinputbox d-flex me-1" :class="{ focused: isinputfocus }">
 						<div class="form-control form-control-sm searchlogo"></div>
 						<input class="form-control form-control-sm searchinput p-0" placeholder="Search"
