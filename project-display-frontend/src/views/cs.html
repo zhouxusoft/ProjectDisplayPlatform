@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>选中文本弹出按钮示例</title>
+<style>
+  #floating-btn {
+    position: absolute;
+    display: none;
+    padding: 6px 12px;
+    background-color: #1088ff;
+    color: white;
+    border-radius: 4px;
+    cursor: pointer;
+    user-select: none;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+    font-size: 14px;
+    z-index: 1000;
+    transition: opacity 0.2s;
+  }
+</style>
+</head>
+<body>
+
+<p id="text">
+  这里是一段示例文本。你可以尝试用鼠标拖动选中这段文字，看看旁边是否弹出按钮。
+</p>
+
+<button id="floating-btn">复制</button>
+
+<script>
+  const btn = document.getElementById('floating-btn');
+
+  document.addEventListener('selectionchange', () => {
+    const selection = window.getSelection();
+    if (selection.rangeCount === 0) {
+      btn.style.display = 'none';
+      return;
+    }
+
+    const range = selection.getRangeAt(0);
+    const selectedText = selection.toString().trim();
+
+    if (selectedText.length === 0) {
+      btn.style.display = 'none';
+      return;
+    }
+
+    // 获取选区边界矩形
+    const rect = range.getBoundingClientRect();
+
+    if (!rect) {
+      btn.style.display = 'none';
+      return;
+    }
+
+    // 根据获取到的rect决定按钮位置，稍微往上偏移10px，居中于选区
+    const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+    const scrollLeft = window.pageXOffset || document.documentElement.scrollLeft;
+
+    btn.style.top = (rect.top + scrollTop - btn.offsetHeight - 10) + 'px';
+    btn.style.left = (rect.left + scrollLeft + rect.width / 2 - btn.offsetWidth / 2) + 'px';
+    btn.style.display = 'inline-block';
+    btn.style.opacity = '1';
+  });
+
+  // 点击按钮时的逻辑（这里示例复制选中内容）
+  btn.addEventListener('click', () => {
+    const selection = window.getSelection();
+    const text = selection.toString();
+    if (text) {
+      navigator.clipboard.writeText(text).then(() => {
+        btn.textContent = '已复制';
+        setTimeout(() => btn.textContent = '复制', 1500);
+      }).catch(() => {
+        btn.textContent = '复制失败';
+        setTimeout(() => btn.textContent = '复制', 1500);
+      });
+    }
+    // 同时可以取消选区
+    selection.removeAllRanges();
+    btn.style.display = 'none';
+  });
+
+  // 点击空白处或选区取消时隐藏按钮（可选）
+  document.addEventListener('click', (e) => {
+    if (!btn.contains(e.target)) {
+      btn.style.display = 'none';
+    }
+  });
+</script>
+
+</body>
+</html>

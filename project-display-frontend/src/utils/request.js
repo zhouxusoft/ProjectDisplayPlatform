@@ -5,7 +5,7 @@ import { ElMessage } from 'element-plus'
 // 创建axios实例
 const instance = axios.create({
   baseURL: import.meta.env.VITE_API_URL,  // 设置默认的API地址
-  timeout: 20000,  // 设置请求超时时间
+  timeout: 30000,  // 设置请求超时时间
 })
 
 // 请求拦截器

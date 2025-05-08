@@ -134,3 +134,13 @@ export function readMessageAPI(data) {
 export function sendMessageAPI(data) {
   return api.post('/sendMessage', data)
 }
+
+// 总结全文
+export function summarizeTextAPI(data) {
+  return api.post('/summarizeText', data)
+}
+
+// AI 提问
+export function explainTextAPI(data) {
+  return api.post('/explainText', data)
+}

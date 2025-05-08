@@ -5,6 +5,7 @@ from create_db import create_database
 from modules import *
 from datetime import datetime
 from werkzeug.utils import secure_filename
+from ai import summary, explain
 import pymysql
 import bcrypt
 import os
@@ -1131,42 +1132,44 @@ def sendMessage():
         print(e)
         return jsonify({'success': False, 'message': '发送失败', 'code': 400})
 
-# 创建私信
-@app.route('/createMessage', methods=['POST'])
-def create_message():
-    if True:
-        return jsonify({"status": "success", "message": "Message sent successfully"}), 201
-    else:
-        return jsonify({"status": "error", "message": "Message sending failed"}), 400
-
-# 发送私信
-@app.route('/sendMessage', methods=['POST'])
-def send_message():
-    if True:
-        return jsonify({"status": "success", "message": "Message sent successfully"}), 201
-    else:
-        return jsonify({"status": "error", "message": "Message sending failed"}), 400
+# 名词解释
+@app.route('/explainText', methods=['POST'])
+def explainText():
+    data = request.get_json()
+    # 获取前端的 cookie
+    token = request.cookies.get('access-token')
+    # 判断该 cookie 是否有效
+    check = checkCookie(token)
+    if not check['success']:
+        return jsonify({'success': False, 'message': '用户未登录', 'code': 401})
     
-# 更新私信
-@app.route('/getMessage', methods=['POST'])
-def get_message():
-    if True:
-        return jsonify({"status": "success", "message": "Message sent successfully"}), 201
-    else:
-        return jsonify({"status": "error", "message": "Message sending failed"}), 400
+    try:
+        answer = explain(data['text'])
+        return jsonify({'success': True, 'message': answer.content, 'code': 200})
+    except Exception as e:
+        print(e)
+        return jsonify({'success': False, 'message': '解释失败', 'code': 400})
+    
+# 总结文本
+@app.route('/summarizeText', methods=['POST'])
+def summarizeText():
+    data = request.get_json()
+    # 获取前端的 cookie
+    token = request.cookies.get('access-token')
+    # 判断该 cookie 是否有效
+    check = checkCookie(token)
+    if not check['success']:
+        return jsonify({'success': False, 'message': '用户未登录', 'code': 401})
+    
+    try:
+        answer = summary(data['text'])
+        return jsonify({'success': True, 'message': answer.content, 'code': 200})
+    except Exception as e:
+        print(e)
+        return jsonify({'success': False, 'message': '总结失败', 'code': 400})
 
-# 查询特定文章的评论
-@app.route('/comments', methods=['POST'])
-def get_comments():
-    if True:
-        return jsonify({"status": "success", "message": "Message sent successfully"}), 201
-    else:
-        return jsonify({"status": "error", "message": "Message sending failed"}), 400
 
-# 删除用户的某条评论
-@app.route('/deleteComment', methods=['POST'])
-def delete_comment():
-    return jsonify({"status": "success", "message": "Comment deleted successfully"}), 200
+
 
 def get_client_ip():
     ip = ""
