@@ -62,7 +62,7 @@ const starnumFormat = () => {
 
 // 记录参数；类型、语言、标签、页码
 let currentkind = 0
-let currentlanguage = 0
+let currentlanguage = -1
 let activetags = []
 // 记录所有语言、标签
 let alllanguages = []
@@ -99,7 +99,7 @@ const chooseLeftNav = (kind) => {
 			tags.value[i].isactive = false
 		}
 		activetags = []
-		currentlanguage = 0
+		currentlanguage = -1
 	}
 	currentkind = kind.id
 	setCurrentUrl()
@@ -118,9 +118,13 @@ const chooseLanguage = (language) => {
 		currentlanguage = language.id
 	} else if (language.isactive && currentkind == 1) {
 		language.isactive = false
-		currentlanguage = 0
+		currentlanguage = -1
+	}
+	if (currentlanguage != -1) {
+		resetTag()
 	}
 	setCurrentUrl()
+	getProjects()
 }
 
 /**
@@ -137,7 +141,14 @@ const chooseTag = (tag) => {
 			}
 		}
 	}
+	if (activetags.length > 0) {
+		currentlanguage = -1
+		for (let i = 0; i < languages.value.length; i++) {
+			languages.value[i].isactive = false
+		}
+	}
 	setCurrentUrl()
+	getProjects()
 	// console.log(activetags)
 }
 
@@ -150,6 +161,7 @@ const resetTag = () => {
 	}
 	activetags = []
 	setCurrentUrl()
+	getProjects()
 }
 
 /**
@@ -213,7 +225,7 @@ const setCurrentUrl = () => {
 	if (activeKind) queryParams.set('kind', activeKind.name)
 
 	// 处理 language 参数
-	if (currentlanguage !== 0) {
+	if (currentlanguage !== -1) {
 		const activeLang = languages.value.find(l => l.id === currentlanguage)
 		if (activeLang) queryParams.set('language', activeLang.name)
 	}
@@ -266,6 +278,8 @@ const getUserList = () => {
 const getProjects = () => {
 	let toSend = {
 		page: currentpage.value,
+		language: currentlanguage,
+		tags: activetags
 	}
 	// 发送获取数据请求
 	isLoading.value = true
@@ -425,8 +439,10 @@ getAllInfo()
 		</div>
 		<div class="straightline"></div>
 		<div class="mainprojects px-4 py-3" v-loading="isLoading">
-			<ProjectItem v-for="project in projects" :key="project.id" :project="project" :starred="starred" @starProject="starProject"
-				v-if="currentkind == 1" />
+			<div v-if="currentkind == 1" class="mainprojects">
+				<ProjectItem v-for="project in projects" :key="project.id" :project="project" :starred="starred" @starProject="starProject"/>
+				<div v-if="projects.length == 0" style="display: flex; justify-content: center; align-items: center; margin-top: 40vh;">空空如也</div>
+			</div>
 			<div v-if="currentkind == 2">
 				<UserItem v-for="user in userList" :key="user.id" :user="user" @updateUser="updateUser" />
 				<div style="width: fit-content; margin: 10px auto; color: #666666">没有更多了...</div>

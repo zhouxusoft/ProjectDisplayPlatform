@@ -3,4 +3,6 @@ export const globalData = {
   previousPage: '',
   // 前一个页面的路由参数
   previousPageParams: {},
+  // 私信用户的id
+  messageUserId: '',
 }

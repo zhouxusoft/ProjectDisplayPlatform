@@ -6,6 +6,7 @@ from modules import *
 from datetime import datetime
 from werkzeug.utils import secure_filename
 from ai import summary, explain
+from collections import Counter
 import pymysql
 import bcrypt
 import os
@@ -64,7 +65,17 @@ def get_db():
 # 创建一个线程锁对象，用于解决多个请求同时访问数据库问题
 lock = threading.Lock()
 
-app = Flask(__name__)
+# app = Flask(__name__)
+app = Flask(__name__, static_folder='../project-display-frontend/dist', static_url_path='')
+
+@app.errorhandler(404)
+def page_not_found(e):
+    # 发生404错误时，重定向到根路径
+    return send_from_directory(app.static_folder, 'index.html') # type: ignore
+
+@app.route('/')
+def index():
+    return send_from_directory(app.static_folder, 'index.html') # type: ignore
 
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 app.config['MAX_CONTENT_LENGTH'] = MAX_CONTENT_LENGTH
@@ -264,13 +275,51 @@ def projects():
     db, dbcursor = get_db()
     data = request.get_json()
     # print(data['page'], PER_PAGE_NUM * 2)
-    sql = "SELECT COUNT(*) FROM `projects`"
-    dbcursor.execute(sql)
-    total = dbcursor.fetchall()
-    sql = "SELECT * FROM `projects` ORDER BY `starred_num` DESC LIMIT %s OFFSET %s"
-    val = (PER_PAGE_NUM, (data['page'] - 1) * PER_PAGE_NUM)
-    dbcursor.execute(sql, val)
-    result = dbcursor.fetchall()
+    if data['language'] == -1 and len(data['tags']) == 0:
+        sql = "SELECT COUNT(*) FROM `projects`"
+        dbcursor.execute(sql)
+        total = dbcursor.fetchall()
+        sql = "SELECT * FROM `projects` ORDER BY `starred_num` DESC LIMIT %s OFFSET %s"
+        val = (PER_PAGE_NUM, (data['page'] - 1) * PER_PAGE_NUM)
+        dbcursor.execute(sql, val)
+        result = dbcursor.fetchall()
+    if data['language'] != -1 and len(data['tags']) == 0:
+        sql = "SELECT COUNT(*) FROM `projects` WHERE `main_language_id` = %s"
+        val = (data['language'],)
+        dbcursor.execute(sql, val)
+        total = dbcursor.fetchall()
+        sql = "SELECT * FROM `projects` WHERE `main_language_id` = %s ORDER BY `starred_num` DESC LIMIT %s OFFSET %s"
+        val = (data['language'], PER_PAGE_NUM, (data['page'] - 1) * PER_PAGE_NUM)
+        dbcursor.execute(sql, val)
+        result = dbcursor.fetchall()
+    if data['language'] == -1 and len(data['tags']) != 0:
+        tags = data['tags']
+        tag_placeholders = ','.join(['%s'] * len(tags))
+
+        count_sql = f"""
+        SELECT COUNT(DISTINCT p.id)
+        FROM projects p
+        JOIN project_tag pt ON p.id = pt.project_id
+        WHERE pt.tag_id IN ({tag_placeholders})
+        """
+
+        query_sql = f"""
+        SELECT DISTINCT p.*
+        FROM projects p
+        JOIN project_tag pt ON p.id = pt.project_id
+        WHERE pt.tag_id IN ({tag_placeholders})
+        ORDER BY p.starred_num DESC
+        LIMIT %s OFFSET %s
+        """
+
+        count_params = tags
+        query_params = tags + [PER_PAGE_NUM, (data['page'] - 1) * PER_PAGE_NUM]
+
+        dbcursor.execute(count_sql, count_params)
+        total = dbcursor.fetchall()
+
+        dbcursor.execute(query_sql, query_params)
+        result = dbcursor.fetchall()
     # print(result)
     # 获取所有的标签
     sql = "SELECT * FROM `tags`"
@@ -526,6 +575,16 @@ def userComment():
         val = (my_id, data['projectid'], data['content'], data['position'])
         dbcursor.execute(sql, val)
         db.commit()
+        
+        sql = "SELECT `user_id` FROM `projects` WHERE `id` = %s"
+        val = (data['projectid'])
+        dbcursor.execute(sql, val)
+        result = dbcursor.fetchall()[0][0]
+        sql = "INSERT INTO `system_notification` (`user_id`, `notification_type`, `notification_content`) VALUES (%s, %s, %s)"
+        val = (result, 2, data['projectid'])
+        dbcursor.execute(sql, val)
+        db.commit()
+        
         return jsonify({'success': True, 'message': '评论成功', 'code': 200})
     else:
         return jsonify({'success': False, 'message': '用户未登录', 'code': 401})
@@ -719,6 +778,12 @@ def followUser():
         val = (check['userid'], data['userid'])
         dbcursor.execute(sql, val)
         db.commit()
+        
+        sql = "INSERT INTO `system_notification` (`user_id`, `notification_type`, `notification_content`) VALUES (%s, %s, %s)"
+        val = (data['userid'], 3, check['userid'])
+        dbcursor.execute(sql, val)
+        db.commit()
+        
         return jsonify({'success': True, 'message': '关注成功', 'code': 200})
     else:
         return jsonify({'success': False, 'message': '用户未登录', 'code': 401})
@@ -985,6 +1050,16 @@ def starProject():
         db, dbcursor = get_db()
         dbcursor.execute(sql, val)
         db.commit()
+        
+        sql = "SELECT `user_id` FROM `projects` WHERE `id` = %s"
+        val = (data['project_id'])
+        dbcursor.execute(sql, val)
+        result = dbcursor.fetchall()[0][0]
+        sql = "INSERT INTO `system_notification` (`user_id`, `notification_type`, `notification_content`) VALUES (%s, %s, %s)"
+        val = (result, 1, data['project_id'])
+        dbcursor.execute(sql, val)
+        db.commit()
+        
         return jsonify({'success': True, 'message': '点赞成功', 'code': 200})
     
 # 更新用户个人资料
@@ -1229,6 +1304,200 @@ def inviteUserList():
         print(e)
         return jsonify({'success': False, 'message': '获取失败', 'code': 400})
 
+# 订阅圈子
+@app.route('/orderCircle', methods=['POST'])
+def orderCircle():
+    data = request.get_json()
+    # 获取前端的 cookie
+    token = request.cookies.get('access-token')
+    # 判断该 cookie 是否有效
+    check = checkCookie(token)
+    if not check['success']:
+        return jsonify({'success': False, 'message': '用户未登录', 'code': 401})
+    
+    try:
+        # 判断用户是否已经订阅过该圈子
+        db, dbcursor = get_db()
+        sql = "SELECT `circle_id` FROM `user_circle` WHERE `user_id` = %s AND `circle_id` = %s"
+        val = (check['userid'], data['circleid'])
+        dbcursor.execute(sql, val)
+        circleid = dbcursor.fetchone()
+        if circleid != None:
+            # 取消订阅
+            sql = "DELETE FROM `user_circle` WHERE `user_id` = %s AND `circle_id` = %s AND `type` = 1"
+            val = (check['userid'], data['circleid'])
+            dbcursor.execute(sql, val)
+            db.commit()
+            return jsonify({'success': True, 'message': '取消订阅', 'code': 200})
+        db, dbcursor = get_db()
+        sql = "INSERT INTO `user_circle` (`user_id`, `circle_id`, `type`) VALUES (%s, %s, %s)"
+        val = (check['userid'], data['circleid'], 1)
+        dbcursor.execute(sql, val)
+        db.commit()
+        return jsonify({'success': True, 'message': '订阅成功', 'code': 200})
+    except Exception as e:
+        print(e)
+        return jsonify({'success': False, 'message': '订阅失败', 'code': 400})
+
+# 获取未读私信数量
+@app.route('/unreadMessageNum', methods=['POST'])
+def unreadMessageNum():
+    token = request.cookies.get('access-token')
+    check = checkCookie(token)
+    if not check['success']:
+        return jsonify({'success': False, 'message': '用户未登录', 'code': 401})
+    
+    try:
+        db, dbcursor = get_db()
+        sql = "SELECT COUNT(*) FROM `user_message` WHERE `receiver_id` = %s AND `is_read` = 0"
+        val = (check['userid'],)
+        dbcursor.execute(sql, val)
+        num = dbcursor.fetchall()[0][0]
+        return jsonify({'success': True, 'data': num, 'code': 200})
+    except Exception as e:
+        print(e)
+        return jsonify({'success': False, 'message': '获取失败', 'code': 400})
+
+# 获取用户系统通知
+@app.route('/systemMessage', methods=['POST'])
+def systemMessage():
+    token = request.cookies.get('access-token')
+    check = checkCookie(token)
+    if not check['success']:
+        return jsonify({'success': False, 'message': '用户未登录', 'code': 401})
+    
+    # 1：点赞
+    # 2：评论
+    # 3：关注
+    # 4：被移除
+    # 5：被邀请
+    db, dbcursor = get_db()
+    sql = "SELECT * FROM `system_notification` WHERE `user_id` = %s AND `is_read` = 0 AND `notification_type` = 1"
+    val = (check['userid'],)
+    dbcursor.execute(sql, val)
+    starresult = dbcursor.fetchall()
+    starmessage = listToCountDict([int(result[3]) for result in starresult])
+    for item in starmessage:
+        sql = "SELECT `project_name`, `page_name` FROM `projects` WHERE `id` = %s"
+        val = (item['id'],)
+        dbcursor.execute(sql, val)
+        result = dbcursor.fetchall()
+        item['project_name'] = result[0][0]
+        item['page_name'] = result[0][1]
+    
+    sql = "SELECT * FROM `system_notification` WHERE `user_id` = %s AND `is_read` = 0 AND `notification_type` = 2"
+    val = (check['userid'],)
+    dbcursor.execute(sql, val)
+    commentresult = dbcursor.fetchall()
+    commentmessage = listToCountDict([int(result[3]) for result in commentresult])
+    for item in commentmessage:
+        sql = "SELECT `project_name`, `page_name` FROM `projects` WHERE `id` = %s"
+        val = (item['id'],)
+        dbcursor.execute(sql, val)
+        result = dbcursor.fetchall()
+        item['project_name'] = result[0][0]
+        item['page_name'] = result[0][1]
+
+    sql = "SELECT * FROM `system_notification` WHERE `user_id` = %s AND `is_read` = 0 AND `notification_type` = 3"
+    val = (check['userid'],)
+    dbcursor.execute(sql, val)
+    followresult = dbcursor.fetchall()
+    followmessage = len(followresult)
+    
+    sql = "SELECT * FROM `system_notification` WHERE `user_id` = %s AND `is_read` = 0 AND `notification_type` = 4"
+    val = (check['userid'],)
+    dbcursor.execute(sql, val)
+    inviteresult = dbcursor.fetchall()
+    invitemessage = []
+    for item in inviteresult:
+        invitemessageitem = {}
+        user = int(item[3].split(',')[0])
+        circle = int(item[3].split(',')[1])
+        sql = "SELECT `name` FROM `circles` WHERE `id` = %s"
+        val = (circle,)
+        dbcursor.execute(sql, val)
+        result = dbcursor.fetchall()
+        invitemessageitem['circle_name'] = result[0][0]
+        res = getUserInfo(user)
+        invitemessageitem['nickname'] = res['nickname']
+        invitemessageitem['circle_id'] = circle
+        invitemessageitem['user_id'] = user
+        invitemessageitem['id'] = item[0]
+        invitemessage.append(invitemessageitem)
+        
+    sql = "SELECT * FROM `system_notification` WHERE `user_id` = %s AND `is_read` = 0 AND `notification_type` = 5"
+    val = (check['userid'],)
+    dbcursor.execute(sql, val)
+    removeresult = dbcursor.fetchall()
+    removemessage = []
+    for item in removeresult:
+        removemessageitem = {}
+        circle = int(item[3])
+        sql = "SELECT `name` FROM `circles` WHERE `id` = %s"
+        val = (circle,)
+        dbcursor.execute(sql, val)
+        result = dbcursor.fetchall()
+        removemessageitem['circle_name'] = result[0][0]
+        removemessageitem['circle_id'] = circle
+        removemessageitem['id'] = item[0]
+        removemessage.append(removemessageitem)
+    
+    allmessage = {
+        'star': starmessage,
+        'comment': commentmessage,
+        'follow': followmessage,
+        'invite': invitemessage,
+        'remove': removemessage
+    }
+    
+    return jsonify({'success': True, 'data': allmessage, 'code': 200})
+
+# 用户已读通知
+@app.route('/readSystemMessage', methods=['POST'])
+def readSystemMessage():
+    data = request.get_json()
+    token = request.cookies.get('access-token')
+    check = checkCookie(token)
+    if not check['success']:
+        return jsonify({'success': False, 'message': '用户未登录', 'code': 401})
+    
+    db, dbcursor = get_db()
+    if data['type'] == 1:
+        sql = "UPDATE `system_notification` SET `is_read` = 1 WHERE `user_id` = %s AND `notification_type` = 1 AND `notification_content` = %s"
+        val = (check['userid'], data['content'])
+        dbcursor.execute(sql, val)
+        db.commit()
+        return jsonify({'success': True, 'code': 200})
+    
+    if data['type'] == 2:
+        sql = "UPDATE `system_notification` SET `is_read` = 1 WHERE `user_id` = %s AND `notification_type` = 2 AND `notification_content` = %s"
+        val = (check['userid'], data['content'])
+        dbcursor.execute(sql, val)
+        db.commit()
+        return jsonify({'success': True, 'code': 200})
+    
+    if data['type'] == 3:
+        sql = "UPDATE `system_notification` SET `is_read` = 1 WHERE `user_id` = %s AND `notification_type` = 3"
+        val = (check['userid'])
+        dbcursor.execute(sql, val)
+        db.commit()
+        return jsonify({'success': True, 'code': 200})
+    
+    if data['type'] == 4:
+        sql = "UPDATE `system_notification` SET `is_read` = 1 WHERE `id`"
+        val = (data['noticeid'])
+        dbcursor.execute(sql, val)
+        db.commit()
+        return jsonify({'success': True, 'code': 200})
+    
+    if data['type'] == 5:
+        sql = "UPDATE `system_notification` SET `is_read` = 1 WHERE `id`"
+        val = (data['noticeid'])
+        dbcursor.execute(sql, val)
+        db.commit()
+        return jsonify({'success': True, 'code': 200})
+    
+    return jsonify({'success': False, 'message': '参数错误', 'code': 400})
 
 def get_client_ip():
     ip = ""
@@ -1729,6 +1998,12 @@ def generateUniqueFilename(filename):
         ext = '.jpg'  # 或 raise 异常
     unique_name = f"{uuid.uuid4().hex}{ext}"
     return unique_name
+
+# 算出数组每一项的重复次数
+def listToCountDict(lst):
+    counter = Counter(lst)
+    result = [{'id': k, 'num': v} for k, v in counter.items()]
+    return result
 
 # 保存上传的文件
 def saveFile(file):

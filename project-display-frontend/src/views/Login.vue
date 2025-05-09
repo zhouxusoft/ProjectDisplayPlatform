@@ -102,18 +102,20 @@ onMounted(() => {
     }
   }
 
-  const msg = document.getElementsByClassName("msg")[0]
-  const from = document.getElementsByClassName("from")[0]
-  // 获取每日一言
-  const xhr = new XMLHttpRequest()
-  xhr.open('POST', 'https://v1.hitokoto.cn/', false)
-  xhr.send()
-  const resData = JSON.parse(xhr.responseText)
-  let datamsg = resData.hitokoto
-  let datafrom = '—— 「 ' + resData.from + ' 」'
-  // 修改每日一言内容
-  msg.textContent = datamsg
-  from.textContent = datafrom
+  try {
+    const msg = document.getElementsByClassName("msg")[0]
+    const from = document.getElementsByClassName("from")[0]
+    // 获取每日一言
+    const xhr = new XMLHttpRequest()
+    xhr.open('POST', 'https://v1.hitokoto.cn/', false)
+    xhr.send()
+    const resData = JSON.parse(xhr.responseText)
+    let datamsg = resData.hitokoto
+    let datafrom = '—— 「 ' + resData.from + ' 」'
+    // 修改每日一言内容
+    msg.textContent = datamsg
+    from.textContent = datafrom
+  } catch (_) {}
 
   window.addEventListener('resize', () => {
     pageheight.value = window.innerHeight

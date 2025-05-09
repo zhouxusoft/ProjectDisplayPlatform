@@ -2,7 +2,7 @@
 import { onMounted, ref, nextTick, onBeforeUnmount, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
-import { checkLoginAPI, projectDetailAPI, projectCommentsAPI, userCommentAPI, summarizeTextAPI, explainTextAPI } from '../api/api'
+import { checkLoginAPI, projectDetailAPI, projectCommentsAPI, userCommentAPI, summarizeTextAPI, explainTextAPI, followUserAPI, userInfoAPI } from '../api/api'
 import { globalData } from './globalData'
 import 'github-markdown-css/github-markdown.css'
 import CommentSection from '../components/CommentSection.vue'
@@ -285,6 +285,68 @@ function explainText() {
   })
 }
 
+/**
+ * 获取用户信息
+ */
+ const getUserInfo = () => {
+  let toSend = {
+    userid: userInfo.value.user_id,
+  }
+  isLoading.value = true
+  userInfoAPI(toSend).then(res => {
+    if (res.success) {
+      userInfo.value = res.data.userinfo
+    }
+    isLoading.value = false
+  }).catch(error => {
+    ElMessage({
+      message: '请求失败',
+      type: 'error',
+      plain: true,
+      offset: 9,
+    })
+    haveInfo.value = false
+    isLoading.value = false
+  })
+}
+
+function userFollow(userid) {
+  followUserAPI({ userid: userid })
+    .then((response) => {
+      getUserInfo()
+      if (response.code == 200) {
+        ElMessage({
+          message: response.message,
+          type: 'success',
+          plain: true,
+          offset: 9,
+        })
+      } else {
+        ElMessage({
+          message: '操作失败',
+          type: 'error',
+          plain: true,
+          offset: 9,
+        })
+      }
+    })
+    .catch((error) => {
+      getUserInfo()
+      console.error(error)
+      ElMessage({
+        message: '网络错误，请稍后再试',
+        type: 'error',
+        plain: true,
+        offset: 9,
+      })
+    })
+}
+
+const sendUserMessage = () => {
+  globalData.messageUserId = userInfo.value.user_id
+  router.push('/chat')
+}
+
 onMounted(() => {
   checkLogin()
   getProjectDetail()
@@ -326,12 +388,16 @@ onBeforeUnmount(() => {
               <div>{{ userInfo.bio }}</div>
             </div>
             <div class="btnbox" v-if="userInfo.relationship != -1">
-              <button type="button" class="sbtn" @click=""
-                v-if="userInfo.relationship == 0 || userInfo.relationship == 2"><span class="kindicon"
+              <button type="button" class="sbtn" @click="userFollow(userInfo.user_id)"
+                v-if="userInfo.relationship == 0"><span class="kindicon"
                   style="font-size: 14px">&#x2b</span>关注</button>
-              <button type="button" class="sbtn" @click="" v-else><span class="kindicon"
+              <button type="button" class="sbtn" @click="userFollow(userInfo.user_id)"
+                v-if="userInfo.relationship == 2"><span class="kindicon"
+                  style="font-size: 14px">&#xf0c1</span>已互粉</button>
+              <button type="button" class="sbtn" @click="userFollow(userInfo.user_id)"
+                v-if="userInfo.relationship == 1"><span class="kindicon"
                   style="font-size: 14px">&#xf00c</span>已关注</button>
-              <button type="button" class="sbtn" @click=""><span class="kindicon"
+              <button type="button" class="sbtn" @click="sendUserMessage"><span class="kindicon"
                   style="font-size: 14px">&#xf0e0</span>私信</button>
             </div>
             <div class="infobox">
@@ -351,9 +417,9 @@ onBeforeUnmount(() => {
             <div class="projectinfobox">
               <div class="projectinfo">
                 {{ userInfo.nickname }} 编写于 {{ projectInfo.updatetime }}
-                <span class="kindicon" style="font-size: 14px; margin-left: 32px; font-weight: 500;">&#xf06e</span>阅读量
+                <!-- <span class="kindicon" style="font-size: 14px; margin-left: 32px; font-weight: 500;">&#xf06e</span>阅读量
                 {{
-                  projectInfo.browsenum }}
+                  projectInfo.browsenum }} -->
                 <span class="kindicon" style="font-size: 14px; margin-left: 32px; font-weight: 500;">&#xf005</span>点赞 {{
                   projectInfo.starnum }}
               </div>

@@ -426,15 +426,18 @@ onMounted(() => {
       <div class="mainprojects" v-if="currentkind == 1">
         <div style="font-weight: 700; color: #333333; width: fit-content; margin: 0 auto; font-size: 18px;">我的 Starred
         </div>
-        <div style="font-size: 15px; color: #333333; font-weight: 700;" v-if="todayStarList.length > 0">· 今天</div>
-        <ProjectItem v-for="project in todayStarList" :key="project.id" :project="project" :starred="starred"
-          @starProject="starProject" />
-        <div style="font-size: 15px; color: #333333; font-weight: 700;" v-if="yesterdayStarList.length > 0">· 昨天</div>
-        <ProjectItem v-for="project in yesterdayStarList" :key="project.id" :project="project" :starred="starred"
-          @starProject="starProject" />
-        <div style="font-size: 15px; color: #333333; font-weight: 700;" v-if="earlierStarList.length > 0">· 更早</div>
-        <ProjectItem v-for="project in earlierStarList" :key="project.id" :project="project" :starred="starred"
-          @starProject="starProject" />
+        <div v-if="projects.length > 0" class="mainprojects">
+          <div style="font-size: 15px; color: #333333; font-weight: 700;" v-if="todayStarList.length > 0">· 今天</div>
+          <ProjectItem v-for="project in todayStarList" :key="project.id" :project="project" :starred="starred"
+            @starProject="starProject" />
+          <div style="font-size: 15px; color: #333333; font-weight: 700;" v-if="yesterdayStarList.length > 0">· 昨天</div>
+          <ProjectItem v-for="project in yesterdayStarList" :key="project.id" :project="project" :starred="starred"
+            @starProject="starProject" />
+          <div style="font-size: 15px; color: #333333; font-weight: 700;" v-if="earlierStarList.length > 0">· 更早</div>
+          <ProjectItem v-for="project in earlierStarList" :key="project.id" :project="project" :starred="starred"
+            @starProject="starProject" />
+        </div>
+        <div v-else style="display: flex; align-items: end; justify-content: center; color: #666666;height: 40vh;">空空如也</div>
       </div>
       <div class="mainprojects" v-if="currentkind == 2">
         <el-tabs v-model="userActiveName" class="demo-tabs" @tab-click="handleClick">

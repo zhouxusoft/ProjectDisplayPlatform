@@ -124,6 +124,11 @@ function userFollow(userid) {
     })
 }
 
+const sendUserMessage = () => {
+  globalData.messageUserId = userInfo.value.user_id
+  router.push('/chat')
+}
+
 onMounted(() => {
   checkLogin()
   getUserInfo()
@@ -161,11 +166,15 @@ onMounted(() => {
           </div>
           <div class="btnbox" v-if="userInfo.relationship != -1">
             <button type="button" class="sbtn" @click="userFollow(userInfo.user_id)"
-              v-if="userInfo.relationship == 0 || userInfo.relationship == 2"><span class="kindicon"
+              v-if="userInfo.relationship == 0"><span class="kindicon"
                 style="font-size: 14px">&#x2b</span>关注</button>
-            <button type="button" class="sbtn" @click="userFollow(userInfo.user_id)" v-else><span class="kindicon"
+            <button type="button" class="sbtn" @click="userFollow(userInfo.user_id)"
+              v-if="userInfo.relationship == 2"><span class="kindicon"
+                style="font-size: 14px">&#xf0c1</span>已互粉</button>
+            <button type="button" class="sbtn" @click="userFollow(userInfo.user_id)"
+              v-if="userInfo.relationship == 1"><span class="kindicon"
                 style="font-size: 14px">&#xf00c</span>已关注</button>
-            <button type="button" class="sbtn" @click=""><span class="kindicon"
+            <button type="button" class="sbtn" @click="sendUserMessage"><span class="kindicon"
                 style="font-size: 14px">&#xf0e0</span>私信</button>
           </div>
           <div class="infobox">

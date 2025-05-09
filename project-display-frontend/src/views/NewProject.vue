@@ -5,7 +5,7 @@ import { ElMessage } from 'element-plus'
 import { useRouter } from 'vue-router'
 import { globalData } from './globalData'
 import LeftTagItem from '../components/LeftTagItem.vue'
-import { tagsAPI, languagesAPI, circleListAPI, uploadImageAPI, createProjectAPI } from '../api/api.js'
+import { tagsAPI, languagesAPI, circleListAPI, uploadImageAPI, createProjectAPI, summarizeTextAPI } from '../api/api.js'
 
 const router = useRouter()
 
@@ -336,6 +336,10 @@ const uploadProject = () => {
     able_look = 2
   }
 
+  if (!selectLanguage.value) {
+    selectLanguage.value = 0
+  }
+
   let data = {
     project_name: title.value,
     project_overview: userComment.value,
@@ -361,6 +365,99 @@ const uploadProject = () => {
     console.error('Error:', error)
     ElMessage.error('文章发布失败')
   })
+}
+
+const aiAnswer = ref('')
+const ailoading = ref(false)
+
+function gradualPrint(interval = 25) {
+  userComment.value = ''
+  for (let i = 0; i < aiAnswer.value.length; i++) {
+    setTimeout(() => {
+      userComment.value += aiAnswer.value[i]
+    }, i * interval)
+  }
+}
+
+const summarizeText = () => {
+  if (contentHtml.value.length < 100) {
+    ElMessage.warning('文章正文过短')
+    return
+  }
+  ailoading.value = true
+  summarizeTextAPI({ text: contentHtml.value }).then(res => {
+    if (res.success) {
+      ailoading.value = false
+      aiAnswer.value = truncateText(markdownToPlainText(res.message))
+      gradualPrint()
+    }
+  })
+}
+
+function truncateText(text, maxLength = 256) {
+  if (text.length <= maxLength) {
+    return text;
+  }
+  // 截取到 maxLength 长度以内的字符串
+  let truncated = text.slice(0, maxLength);
+
+  // 找到最后一个空白字符的位置，避免截断单词
+  const lastSpace = truncated.lastIndexOf('。');
+  if (lastSpace > 0) {
+    truncated = truncated.slice(0, lastSpace);
+  }
+  return truncated + '。';
+}
+
+function markdownToPlainText(markdown) {
+  let text = markdown;
+
+  // 1. 去除标题 #、##、### 等，保留文本内容
+  text = text.replace(/^#{1,6}\s*(.*)$/gm, '\$1');
+
+  // 2. 去除加粗 **text** 或 __text__
+  text = text.replace(/(\*\*|__)(.*?)\1/g, '\$2');
+
+  // 3. 去除斜体 *text* 或 _text_
+  text = text.replace(/(\*|_)(.*?)\1/g, '\$2');
+
+  // 4. 去除删除线 ~~text~~
+  text = text.replace(/~~(.*?)~~/g, '\$1');
+
+  // 5. 去除内联代码 `code`
+  text = text.replace(/`([^`]+)`/g, '\$1');
+
+  // 6. 去除多行代码块 ```code```
+  text = text.replace(/```[\s\S]*?```/g, '');
+
+  // 7. 去除图片 ![alt](url) 只保留 alt 文本
+  text = text.replace(/!\[(.*?)\]\((.*?)\)/g, '\$1');
+
+  // 8. 去除链接 [text](url)，只保留文本 text
+  text = text.replace(/\[(.*?)\]\((.*?)\)/g, '\$1');
+
+  // 9. 去除引用 >开头的行，保留内容
+  text = text.replace(/^>\s?(.*)$/gm, '\$1');
+
+  // 10. 去除无序列表符号 -, *, +
+  text = text.replace(/^(\s*)[-*+]\s+/gm, '\$1');
+
+  // 11. 去除有序列表序号 1. 2. 3.
+  text = text.replace(/^(\s*)\d+\.\s+/gm, '\$1');
+
+  // 12. 去除水平线 --- 或 *** 或 ___
+  text = text.replace(/^[-*_]{3,}\s*$/gm, '');
+
+  // 13. 转义 HTML 实体（如果需要，可以扩展）
+  // text = text.replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&amp;/g, '&');
+
+  // 14. 去除多余空行，最多保留一个空行
+  text = text.replace(/\n{3,}/g, '\n\n');
+
+  // 去除首尾空白
+  text = text.trim();
+
+  return text;
 }
 
 onMounted(() => {
@@ -479,10 +576,10 @@ onMounted(() => {
           <el-tooltip content="跳动灵魂的核心被凝聚成璀璨的星云碎片" placement="top-start" effect="dark">
             <div style="min-width: 80px;">文章摘要</div>
           </el-tooltip>
-          <el-input v-model="userComment" maxlength="128" style="width: 100%; font-size: 16px;" placeholder="说点什么吧"
-            show-word-limit type="textarea" :autosize="{ minRows: 3, maxRows: 10 }" />
-          <el-tooltip content="将正文前128字键入摘要文本框" placement="top-start" effect="dark">
-            <el-button style="margin-left: 10px; margin-top: auto;" @click="putComment()" plain>一键提取</el-button>
+          <el-input v-model="userComment" maxlength="256" style="width: 100%; font-size: 16px;" placeholder="说点什么吧"
+            show-word-limit type="textarea" :autosize="{ minRows: 3, maxRows: 10 }" v-loading="ailoading" />
+          <el-tooltip content="使用 AI 生成文章摘要" placement="top-start" effect="dark">
+            <el-button style="margin-left: 10px; margin-top: auto;" @click="summarizeText" plain :disabled="ailoading">一键生成</el-button>
           </el-tooltip>
         </div>
       </div>

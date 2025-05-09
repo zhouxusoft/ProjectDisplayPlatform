@@ -67,12 +67,25 @@ const chatUserList = ref()
 
 let allChatMessage = []
 
+let selectUserId = ''
+
 const getmessageUser = () => {
   messageUserAPI().then(res => {
     if (res.success) {
       allChatMessage = res.data
       chatUserList.value = res.chartUserList
       setUserLastMessage()
+      let flag = 0
+      if (selectUserId != '') {
+        for (let i = 0; i < chatUserList.value.length; i++) {
+          if (chatUserList.value[i].user_id == selectUserId) {
+            flag = 1
+            selectUserId = ''
+            selectUser(chatUserList.value[i])
+            break
+          }
+        }
+      }
       if (haveUser.value) {
         getUserMessage()
       }
@@ -301,8 +314,16 @@ function scrollToBottom() {
   }
 }
 
+const getCheckUserInfo = () => {
+  
+}
+
 onMounted(() => {
   checkLogin()
+  if (globalData.messageUserId != '') {
+    selectUserId = globalData.messageUserId
+    globalData.messageUserId = ''
+  }
   getmessageUser()
   if (boxcontent.value) {
     resizeObserver = new ResizeObserver(async () => {

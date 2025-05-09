@@ -14,6 +14,7 @@ import Chat from './views/Chat.vue'
 import Circle from './views/Circle.vue'
 import User from './views/User.vue'
 import { globalData } from './views/globalData.js'
+import 'bootstrap/dist/css/bootstrap.min.css'
 
 // 定义路由
 const router = createRouter(

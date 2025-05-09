@@ -2,7 +2,7 @@
 import { onMounted, ref } from 'vue'
 import ProjectItem from '../components/ProjectItem.vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
-import { circleDetailAPI, uploadImageAPI, updateCircleAPI, inviteUserListAPI } from '../api/api'
+import { circleDetailAPI, uploadImageAPI, updateCircleAPI, inviteUserListAPI, orderCircleAPI } from '../api/api'
 import { useRouter } from 'vue-router'
 import { globalData } from './globalData'
 
@@ -274,6 +274,27 @@ const yesRemoveUser = () => {
   }
 }
 
+const joinCircle = () => {
+  ElMessage.success('申请已发送')
+}
+
+const orderCircle = () => {
+  let toSend = {
+    circleid: circleInfo.value.id
+  }
+  orderCircleAPI(toSend).then(res => {
+    if (res.success) {
+      ElMessage.success(res.message)
+      getCircleDetail()
+    } else {
+      ElMessage.error(res.message)
+    }
+  }).catch(error => {
+    console.error('Error:', error)
+    ElMessage.error('出错了')
+  })
+}
+
 onMounted(() => {
   getCircleDetail()
 })
@@ -380,11 +401,11 @@ onMounted(() => {
           </div>
         </div>
         <div class="btnbox">
-          <el-button size="small" plain v-if="circleInfo.flag == 4">申请加入</el-button>
+          <el-button size="small" plain v-if="circleInfo.flag == 4" @click="joinCircle">申请加入</el-button>
           <el-button size="small" plain v-if="circleInfo.flag == 2"><span class="kindicon"
               style="font-size: 14px">&#xf00c</span>已加入</el-button>
-          <el-button size="small" plain v-if="circleInfo.flag == 4">订阅圈子</el-button>
-          <el-button size="small" plain v-if="circleInfo.flag == 3"><span class="kindicon"
+          <el-button size="small" plain v-if="circleInfo.flag == 4" @click="orderCircle">订阅圈子</el-button>
+          <el-button size="small" plain v-if="circleInfo.flag == 3" @click="orderCircle"><span class="kindicon"
               style="font-size: 14px">&#xf0e0</span>已订阅</el-button>
           <el-button size="small" plain v-if="circleInfo.flag == 1" @click="outerVisible = true"><span class="kindicon"
               style="font-size: 14px">&#xf0c9</span>管理圈子</el-button>

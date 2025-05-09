@@ -2,7 +2,7 @@
 import { onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { ElMessage, ElMessageBox } from 'element-plus'
-import { checkLoginAPI, clearCookieAPI, myInfoAPI, uploadImageAPI, updateProfileAPI } from '../api/api'
+import { checkLoginAPI, clearCookieAPI, myInfoAPI, uploadImageAPI, updateProfileAPI, unreadMessageNumAPI, systemMessageAPI, readSystemMessageAPI } from '../api/api'
 import ProjectItem from '../components/ProjectItem.vue'
 
 const router = useRouter()
@@ -56,11 +56,11 @@ const currentSortMode = ref({
 const messageList = ref([
   {
     id: 1,
-    content: '<div>你的文章 <span style="color: #0349B4; text-decoration: underline">RainManGO/vue3-composition-admin</span> 被 <span style="color: #0349B4; text-decoration: underline"> OuYangPeng </span>等3个人点赞</div>',
+    content: '<div>你的文章 <span style="color: #0349B4; text-decoration: underline">RainManGO/vue3-composition-admin</span> 被3个人点赞</div>',
   },
   {
     id: 2,
-    content: '<div>你的文章 <span style="color: #0349B4; text-decoration: underline">RainManGO/vue3-composition-admin</span> 被 <span style="color: #0349B4; text-decoration: underline"> OuYangPeng </span>等2个人评论</div>',
+    content: '<div>你的文章 <span style="color: #0349B4; text-decoration: underline">RainManGO/vue3-composition-admin</span> 被2个人评论</div>',
   },
   {
     id: 3,
@@ -71,16 +71,13 @@ const messageList = ref([
 const messageBoxHeight = ref([0])
 
 const setMessageBoxHeight = () => {
-  if (messageList.value.length == 0) {
+  if (systemMessageNum.value == 0) {
     messageBoxHeight.value = 66
+  } else if (systemMessageNum.value > 5) {
+    messageBoxHeight.value = 5 * 66
   } else {
-    messageBoxHeight.value = messageList.value.length * 66
+    messageBoxHeight.value = systemMessageNum.value * 66
   }
-}
-
-const readMessage = (messageid) => {
-  messageList.value = messageList.value.filter((item) => item.id != messageid)
-  setMessageBoxHeight()
 }
 
 /**
@@ -141,6 +138,8 @@ const checkLogin = () => {
     if (res.success) {
       isLogin.value = 1
       getMyInfo()
+      getUnreadMessageNum()
+      getSystemMessage()
     } else {
       isLogin.value = 0
     }
@@ -355,6 +354,83 @@ const uploadCoverAction = (file) => {
     })
 }
 
+const unreadMessageNum = ref(0)
+
+const getUnreadMessageNum = () => {
+  unreadMessageNum.value = 0
+  unreadMessageNumAPI().then(res => {
+    if (res.success) {
+      unreadMessageNum.value = res.data
+    } else {
+      unreadMessageNum.value = 0
+    }
+  }).catch(_ => {
+    unreadMessageNum.value = 0
+  })
+}
+
+const systemMessageNum = ref(0)
+const starMessageList = ref([])
+const commentMessageList = ref([])
+const followMessageList = ref('')
+const inviteMessageList = ref([])
+const removeMessageList = ref([])
+
+const getSystemMessage = () => {
+  systemMessageAPI().then(res => {
+    if (res.success) {
+      starMessageList.value = res.data.star
+      commentMessageList.value = res.data.comment
+      followMessageList.value = res.data.follow
+      inviteMessageList.value = res.data.invite
+      removeMessageList.value = res.data.remove
+      systemMessageNum.value += starMessageList.value.length
+      systemMessageNum.value += commentMessageList.value.length
+      systemMessageNum.value += inviteMessageList.value.length
+      systemMessageNum.value += removeMessageList.value.length
+      if (followMessageList.value != '') {
+        systemMessageNum.value += 1
+      }
+      setMessageBoxHeight()
+      console.log(systemMessageNum.value)
+    }
+  })
+}
+
+const readMessage = (message, type) => {
+  let toSend = {}
+  if (type == 1) {
+    toSend = {
+      type: 1,
+      content: message.id,
+    }
+  } else if (type == 2) {
+    toSend = {
+      type: 2,
+      content: message.id,
+    }
+  } else if (type == 3) {
+    toSend = {
+      type: 3,
+    }
+  } else if (type == 4) {
+    toSend = {
+      type: 4,
+      content: message.id,
+    }
+  } else if (type == 5) {
+    toSend = {
+      type: 5,
+      content: message.id,
+    }
+  }
+  readSystemMessageAPI(toSend).then(res => {
+    if (res.success) {
+      getSystemMessage()
+    }
+  })
+}
+
 onMounted(() => {
   checkLogin()
   setMessageBoxHeight()
@@ -405,17 +481,48 @@ onMounted(() => {
           <div class="projectboxborder">
             <div class="projectboxtitlebox">
               <div class="projectboxtitle">Messages of Mine</div>
-              <el-badge :value="messageList.length" :max="10" class="item">
+              <el-badge :value="unreadMessageNum" :max="99" class="item" v-if="unreadMessageNum > 0">
                 <el-button @click="this.$router.push('/chat')"><span class="kindicon"
                     style="font-size: 14px">&#xf0e0</span>My Messages</el-button>
               </el-badge>
+              <el-button @click="this.$router.push('/chat')" v-else><span class="kindicon"
+                style="font-size: 14px">&#xf0e0</span>My Messages</el-button>
             </div>
             <div class="messagebox" :style="{ height: messageBoxHeight + 'px' }">
-              <div class="messageitem" v-for="message in messageList">
+              <div class="messageitem" v-for="message in starMessageList">
+                <div>你的文章 <span style="color: #0349B4; text-decoration: underline">{{ message.project_name }}</span> 被 {{ message.num }} 个人点赞</div>
+                <button type="button" class="dbtn" @click="readMessage(message, 1)"><span class="kindicon"
+                  style="font-size: 12px; margin-right: 2px;">&#xf00c</span>已阅</button>
+              </div>
+              <div class="messageitem" v-for="message in commentMessageList">
+                <div>你的文章 <span style="color: #0349B4; text-decoration: underline">{{ message.project_name }}</span> 被 {{ message.num }} 个人评论</div>
+                <button type="button" class="dbtn" @click="readMessage(message, 2)"><span class="kindicon"
+                  style="font-size: 12px; margin-right: 2px;">&#xf00c</span>已阅</button>
+              </div>
+              <div class="messageitem" v-for="message in followMessageList">
+                <div>{{ message }} 个人关注了你</div>
+                <button type="button" class="dbtn" @click="readMessage(message, 3)"><span class="kindicon"
+                  style="font-size: 12px; margin-right: 2px;">&#xf00c</span>已阅</button>
+              </div>
+              <div class="messageitem" v-for="message in inviteMessageList">
+                <div><span style="color: #0349B4; text-decoration: underline">{{ message.nickname }}</span> 邀请你加入圈子 <span style="color: #0349B4; text-decoration: underline">{{ message.circle_name }}</span></div>
+                <div style="display: flex;">
+                  <button type="button" class="dbtn" @click="readMessage(message, 4)" style="margin-right: 8px;"><span class="kindicon"
+                  style="font-size: 12px; margin-right: 2px;">&#xf00c</span>同意</button>
+                  <button type="button" class="dbtn" @click="readMessage(message, 5)"><span class="kindicon"
+                    style="font-size: 12px; margin-right: 2px;">&#xf00d</span>拒绝</button>
+                </div>
+              </div>
+              <div class="messageitem" v-for="message in removeMessageList">
+                <div>你被移出圈子 <span style="color: #0349B4; text-decoration: underline">{{ message.circle_name }}</span></div>
+                <button type="button" class="dbtn" @click="readMessage(message, 6)"><span class="kindicon"
+                  style="font-size: 12px; margin-right: 2px;">&#xf00c</span>已阅</button>
+              </div>
+              <!-- <div class="messageitem" v-for="message in messageList">
                 <div v-html="message.content"></div>
                 <button type="button" class="dbtn" @click="readMessage(message.id)"><span class="kindicon"
                   style="font-size: 12px; margin-right: 2px;">&#xf00c</span>已阅</button>
-              </div>
+              </div> -->
               <div v-if="messageList.length == 0" class="messageitem" style="display: flex; justify-content: center;">暂无通知</div>
             </div>
           </div>
@@ -484,7 +591,9 @@ onMounted(() => {
 <style scoped>
 .messagebox {
   padding-top: 2px;
+  padding-right: 4px;
   transition: all 0.4s ease;
+  overflow-y: auto;
 }
 
 .messageitem {

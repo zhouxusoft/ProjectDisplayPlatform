@@ -154,3 +154,23 @@ export function updateCircleAPI(data) {
 export function inviteUserListAPI(data) {
   return api.post('/inviteUserList', data)
 }
+
+// 订阅圈子
+export function orderCircleAPI(data) {
+  return api.post('/orderCircle', data)
+}
+
+// 获取未读私信数量
+export function unreadMessageNumAPI(data) {
+  return api.post('/unreadMessageNum', data)
+}
+
+// 获取未读通知
+export function systemMessageAPI(data) {
+  return api.post('/systemMessage', data)
+}
+
+// 已读通知
+export function readSystemMessageAPI(data) {
+  return api.post('/readSystemMessage', data)
+}
