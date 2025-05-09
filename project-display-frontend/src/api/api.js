@@ -144,3 +144,13 @@ export function summarizeTextAPI(data) {
 export function explainTextAPI(data) {
   return api.post('/explainText', data)
 }
+
+// 更新圈子信息
+export function updateCircleAPI(data) {
+  return api.post('/updateCircle', data)
+}
+
+// 获取可邀请用户列表
+export function inviteUserListAPI(data) {
+  return api.post('/inviteUserList', data)
+}

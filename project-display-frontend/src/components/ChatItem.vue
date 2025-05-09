@@ -53,7 +53,7 @@ const props = defineProps({
   max-width: 240px;
   overflow: hidden;
   border-radius: 6px;
-  border: 1px solid #aaaaaa;
+  /* border: 1px solid #aaaaaa; */
 }
 
 .timebox {

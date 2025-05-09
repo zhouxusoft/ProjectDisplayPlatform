@@ -290,6 +290,7 @@ const bioNew = ref('')
 const coverInput = ref(null)
 const isUploadCover = ref(false)
 const uploadCoverUrl = ref('')
+const circleVisibleType = ref('2')
 
 function uploadCover() {
   if (coverInput.value) {
@@ -367,7 +368,8 @@ const createCircle = () => {
   let toSend = {
     name: nicknameNew.value,
     description: bioNew.value,
-    cover: uploadCoverUrl.value
+    cover: uploadCoverUrl.value,
+    type: circleVisibleType.value
   }
   createCircleAPI(toSend).then(res => {
     if (res.success) {
@@ -495,6 +497,18 @@ onMounted(() => {
       <el-form label-width="100px">
         <el-form-item label="圈子简介" prop="roleName">
           <el-input placeholder="圈子简介" v-model="bioNew" type="textarea" maxlength="42" show-word-limit />
+        </el-form-item>
+      </el-form>
+      <el-form label-width="100px">
+        <el-form-item label="可见范围" prop="roleName">
+          <el-radio-group v-model="circleVisibleType" size="default">
+            <el-radio-button label="所有人" value="2" />
+            <el-radio-button label="仅成员" value="0" />
+            <el-radio-button label="需订阅" value="1" />
+          </el-radio-group>
+          <div style="display: flex; align-items: end;">
+            <span style="font-size: 12px; color: #F56C6C; margin-left: 12px; height: 18px;">可见范围后续无法修改</span>
+          </div>
         </el-form-item>
       </el-form>
       <el-form label-width="100px" v-loading="isUploadCover">

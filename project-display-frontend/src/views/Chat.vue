@@ -408,16 +408,16 @@ onBeforeUnmount(() => {
 
 .chatinput {
   width: 100%;
-  height: 76px;
+  height: 64px;
   border: none;
   outline: none;
   resize: none;
 }
 
 .chatfooter {
-  height: 132px;
+  height: 120px;
   border: 1px solid #666666;
-  border-radius: 2px;
+  border-radius: 0 0 4px 4px;
   margin-bottom: 12px;
   padding: 8px;
 }
@@ -439,7 +439,7 @@ onBeforeUnmount(() => {
   font-weight: 700;
   color: #666666;
   border: 1px solid #666666;
-  border-radius: 2px;
+  border-radius: 4px 4px 0 0;
 }
 
 .chatbox {

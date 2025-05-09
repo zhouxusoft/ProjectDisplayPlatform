@@ -811,9 +811,10 @@ def circleDetail():
         'cover': result[3],
         'type': result[4],
         'description': result[5],
-        'member_count': result[6],
-        'follower_count': result[7],
-        'project_count': result[8],
+        'notice': result[6],
+        'member_count': result[7],
+        'follower_count': result[8],
+        'project_count': result[9],
         'flag': flag
     }
 
@@ -1028,8 +1029,8 @@ def createCircle():
         if len(result) > 0:
             return jsonify({'success': False, 'message': '圈子名称重复', 'code': 400})
         
-        sql = "INSERT INTO `circles` (`creater_id`, `name`, `cover`, `description`) VALUES (%s, %s, %s, %s)"
-        val = (check['userid'], data['name'], data['cover'], data['description'])
+        sql = "INSERT INTO `circles` (`creater_id`, `name`, `cover`, `description`, `type`) VALUES (%s, %s, %s, %s, %s)"
+        val = (check['userid'], data['name'], data['cover'], data['description'], data['type'])
         dbcursor.execute(sql, val)
         db.commit()
         return jsonify({'success': True, 'message': '创建成功', 'code': 200})
@@ -1168,7 +1169,65 @@ def summarizeText():
         print(e)
         return jsonify({'success': False, 'message': '总结失败', 'code': 400})
 
+# 更新圈子信息
+@app.route('/updateCircle', methods=['POST'])
+def updateCircle():
+    data = request.get_json()
+    # 获取前端的 cookie
+    token = request.cookies.get('access-token')
+    # 判断该 cookie 是否有效
+    check = checkCookie(token)
+    if not check['success']:
+        return jsonify({'success': False, 'message': '用户未登录', 'code': 401})
+    
+    try:
+        db, dbcursor = get_db()
+        sql = "UPDATE `circles` SET `description` = %s, `cover` = %s, `notice` = %s  WHERE `id` = %s"
+        val = (data['description'], data['cover'], data['notice'], data['circleid'])
+        dbcursor.execute(sql, val)
+        db.commit()
+        return jsonify({'success': True, 'message': '更新成功', 'code': 200})
+    except Exception as e:
+        print(e)
+        return jsonify({'success': False, 'message': '更新失败', 'code': 400})
 
+# 获取可邀请列表
+@app.route('/inviteUserList', methods=['POST'])
+def inviteUserList():
+    data = request.get_json()
+    # 获取前端的 cookie
+    token = request.cookies.get('access-token')
+    # 判断该 cookie 是否有效
+    check = checkCookie(token)
+    if not check['success']:
+        return jsonify({'success': False, 'message': '用户未登录', 'code': 401})
+    
+    try:
+        db, dbcursor = get_db()
+        sql = "SELECT `user_id` FROM `user_circle` WHERE `circle_id`= %s"
+        val = (data['circleid'],)
+        dbcursor.execute(sql, val)
+        circleuseridlist = dbcursor.fetchall()
+        sql = "SELECT `follow_id` FROM `user_follow` WHERE `user_id`= %s"
+        val = (check['userid'],)
+        dbcursor.execute(sql, val)
+        followuseridlist = dbcursor.fetchall()
+        
+        # 提取ID集合
+        circle_ids = set(user_id[0] for user_id in circleuseridlist)
+        follow_ids = set(follow_id[0] for follow_id in followuseridlist)
+
+        # 求差集
+        diff_ids = follow_ids - circle_ids
+        
+        invitelist = []
+        for id in diff_ids:
+            invitelist.append(getUserInfo(id, check['userid']))
+        
+        return jsonify({'success': True, 'data': invitelist, 'code': 200})
+    except Exception as e:
+        print(e)
+        return jsonify({'success': False, 'message': '获取失败', 'code': 400})
 
 
 def get_client_ip():

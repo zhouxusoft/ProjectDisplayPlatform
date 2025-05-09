@@ -244,8 +244,9 @@ def create_database():
                         `cover` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '头像',
                         `type` int NOT NULL DEFAULT 2 COMMENT '0:仅成员可见\r\n1：关注可见\r\n2：所有人可见',
                         `description` text CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL COMMENT '圈子简介',
+                        `notice` text CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL COMMENT '圈子公告',
                         PRIMARY KEY (`id`) USING BTREE
-                        ) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci ROW_FORMAT = Dynamic;""")
+                        ) ENGINE = InnoDB AUTO_INCREMENT = 5 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci ROW_FORMAT = DYNAMIC;""")
     # `user_circle` 用于存储用户和圈子关系信息
     dbcursor.execute("""CREATE TABLE IF NOT EXISTS `user_circle` (
                         `id` int NOT NULL AUTO_INCREMENT COMMENT '自增id',

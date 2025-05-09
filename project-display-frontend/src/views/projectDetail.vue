@@ -407,7 +407,7 @@ onBeforeUnmount(() => {
       <div v-else v-html="showAnswer"></div>
     </div>
     <div class="addproject" @click="summarizeText">
-      <el-tooltip class="box-item" :content="showAibox? '停止生成' : '总结全文'" placement="left" :effect="showAibox? 'dark' : 'customized'" >
+      <el-tooltip class="box-item" :content="showAibox? '关闭窗口' : '总结全文'" placement="left" :effect="showAibox? 'dark' : 'customized'" >
         <img src="/AI.png" alt="" style="width: 40px;">
       </el-tooltip>
     </div>

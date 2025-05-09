@@ -2,7 +2,7 @@
 import { onMounted, ref } from 'vue'
 import ProjectItem from '../components/ProjectItem.vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
-import { circleDetailAPI } from '../api/api'
+import { circleDetailAPI, uploadImageAPI, updateCircleAPI, inviteUserListAPI } from '../api/api'
 import { useRouter } from 'vue-router'
 import { globalData } from './globalData'
 
@@ -51,7 +51,11 @@ const getCircleDetail = () => {
       circleProjects.value = res.data.projects
       circleCreater.value = [res.data.users[0]]
       circleUsers.value = res.data.users.slice(1)
+      uploadCoverUrl.value = circleInfo.value.cover
+      noticeNew.value = circleInfo.value.notice
+      circleInfotype.value = circleInfo.value.type + ''
       starnumFormat()
+      checkVisible()
     }
   }).catch(error => {
     console.error('Error:', error)
@@ -81,9 +85,193 @@ const disbandCircle = () => {
     }
   )
     .then(() => {
-      
+
     })
     .catch(() => { })
+}
+
+const coverInput = ref(null)
+const isUploadCover = ref(false)
+const uploadCoverUrl = ref('')
+
+function uploadCover() {
+  if (coverInput.value) {
+    coverInput.value.value = null; // 重置，防止选同一张文件时不触发change事件
+    coverInput.value.click();
+  }
+}
+
+function handleUpload(event) {
+  const file = event.target.files[0]
+  if (!file) return
+
+  // 文件类型校验
+  if (!file.type.startsWith('image/')) {
+    ElMessage.error('请选择图片文件')
+    return
+  }
+
+  // 文件大小校验，最大5MB
+  const maxSizeMB = 5;
+  if (file.size > maxSizeMB * 1024 * 1024) {
+    ElMessage.error(`图片大小不能超过${maxSizeMB}MB`)
+    return
+  }
+  
+  uploadCoverAction(file)
+}
+
+const uploadCoverAction = (file) => {
+  const formData = new FormData()
+  formData.append('image', file)
+
+  isUploadCover.value = true
+  uploadImageAPI(formData)
+    .then(res => {
+      if (res.success) {
+        uploadCoverUrl.value = res.filepath
+      }
+      isUploadCover.value = false
+    })
+    .catch(_ => {
+      deleteCover()
+      isUploadCover.value = false
+      ElMessage.error('上传失败')
+    })
+}
+
+const outerVisible = ref(false)
+const inviteVisible = ref(false)
+const removeVisible = ref(false)
+const noticeNew = ref('')
+const descriptionNew = ref('')
+const circleInfotype = ref('')
+
+const updateCircle = () => {
+  let descriptionNewTemp = descriptionNew.value
+  if (!descriptionNew.value) {
+    descriptionNewTemp = circleInfo.value.description
+  }
+  let uploadCoverUrlTemp = uploadCoverUrl.value
+  if (!uploadCoverUrl.value) {
+    uploadCoverUrlTemp = circleInfo.value.cover
+  }
+  let toSend = {
+    circleid: circleInfo.value.id,
+    notice: noticeNew.value,
+    description: descriptionNewTemp,
+    cover: uploadCoverUrlTemp
+  }
+  updateCircleAPI(toSend).then(res => {
+    if (res.code == 200) {
+      ElMessage.success(res.message)
+      outerVisible.value = false
+      descriptionNew.value = ''
+      getCircleDetail()
+    } else {
+      ElMessage.error(res.message)
+    }
+  }).catch(error => {
+    console.error('Error:', error)
+    ElMessage.error('出错了')
+  })
+}
+
+const projectVisible = ref(0)
+
+const checkVisible = () => {
+  if (circleInfo.value.flag == 1 || circleInfo.value.flag == 2) {
+    projectVisible.value = 1
+  } else if (circleInfo.value.flag == 3) {
+      if (circleInfo.value.type == 0) {
+        projectVisible.value = 3
+      } else if (circleInfo.value.type == 1) {
+        projectVisible.value = 3
+      } else if (circleInfo.value.type == 2) {
+        projectVisible.value = 1
+      }
+  } else if (circleInfo.value.flag == 4) {
+    if (circleInfo.value.type == 0) {
+      projectVisible.value = 3
+    } else if (circleInfo.value.type == 1) {
+      projectVisible.value = 2
+    } else if (circleInfo.value.type == 2) {
+      projectVisible.value = 1
+    }
+  }
+}
+
+const inviteUserClick = () => {
+  inviteVisible.value = true
+  getInviteUserList()
+}
+
+const inviteUserList = ref([])
+const selectInviteUserList = ref([])
+const selectRemoveUserList = ref([])
+
+const getInviteUserList = () => {
+  let toSend = {
+    circleid: circleInfo.value.id
+  }
+  inviteUserListAPI(toSend).then(res => {
+    if (res.success) {
+      inviteUserList.value = res.data
+    }
+  })
+}
+
+const clickInviteUser = (user) => {
+  const index = selectInviteUserList.value.indexOf(user.user_id);
+  if (index !== -1) {
+    selectInviteUserList.value.splice(index, 1)
+  } else {
+    selectInviteUserList.value.push(user.user_id)
+  }
+  console.log(selectInviteUserList.value)
+}
+
+const clickRemoveUser = (user) => {
+  const index = selectRemoveUserList.value.indexOf(user.user_id);
+  if (index !== -1) {
+    selectRemoveUserList.value.splice(index, 1)
+  } else {
+    selectRemoveUserList.value.push(user.user_id)
+  }
+  console.log(selectRemoveUserList.value)
+}
+
+const yesInviteUser = () => {
+  if (selectInviteUserList.value.length == 0) {
+    ElMessage.warning('请选择要邀请的用户')
+  } else {
+    ElMessage.success('邀请已发送')
+    inviteVisible.value = false
+    selectInviteUserList.value = []
+  }
+}
+
+const yesRemoveUser = () => {
+  if (selectRemoveUserList.value.length == 0) {
+    ElMessage.warning('请选择要移除的用户')
+  } else {
+    ElMessageBox.confirm(
+    '确认移除这些用户?',
+    '提示',
+    {
+      confirmButtonText: '移除',
+      cancelButtonText: '取消',
+      type: 'warning',
+    }
+  )
+    .then(() => {
+      ElMessage({
+        type: 'success',
+        message: '移除成功',
+      })
+    })
+    .catch(() => {})
+  }
 }
 
 onMounted(() => {
@@ -106,7 +294,8 @@ onMounted(() => {
                 <div class="memberavatar"><img :src="user.usericon" alt="" style="width: 40px;"
                     referrerpolicy="no-referrer"></div>
                 <div class="userinfo">
-                  <div style="font-weight: 700; font-size: 15px; cursor: pointer;" @click="toUserDetail(user.user_id)">{{ user.nickname }}
+                  <div style="font-weight: 700; font-size: 15px; cursor: pointer;" @click="toUserDetail(user.user_id)">
+                    {{ user.nickname }}
                     <el-tag effect="plain" type="info" size="small" style="float: right;" v-if="user.flag == 4">
                       我
                     </el-tag>
@@ -132,7 +321,8 @@ onMounted(() => {
                 <div class="memberavatar"><img :src="user.usericon" alt="" style="width: 40px;"
                     referrerpolicy="no-referrer"></div>
                 <div class="userinfo">
-                  <div style="font-weight: 700; font-size: 15px; cursor: pointer;" @click="toUserDetail(user.user_id)">{{ user.nickname }}
+                  <div style="font-weight: 700; font-size: 15px; cursor: pointer;" @click="toUserDetail(user.user_id)">
+                    {{ user.nickname }}
                     <el-tag effect="plain" type="info" size="small" style="float: right;" v-if="user.flag == 4">
                       我
                     </el-tag>
@@ -158,9 +348,17 @@ onMounted(() => {
     </div>
     <div class="straightline"></div>
     <div class="mainprojects px-4 py-3">
-      <ProjectItem v-for="project in circleProjects" :key="project.id" :project="project" :starred="starred" />
-      <div style="width: fit-content; margin: 10px auto; color: #666666" v-if="circleProjects.length > 0">没有更多了...</div>
-      <div style="width: fit-content; margin: 10px auto; color: #666666; margin-top: 40vh" v-else>空空如也</div>
+      <div v-if="projectVisible == 1">
+        <ProjectItem v-for="project in circleProjects" :key="project.id" :project="project" :starred="starred" />
+        <div style="width: fit-content; margin: 10px auto; color: #666666" v-if="circleProjects.length > 0">没有更多了...</div>
+        <div style="width: fit-content; margin: 10px auto; color: #666666; margin-top: 40vh" v-else>空空如也</div>
+      </div>
+      <div v-if="projectVisible == 2">
+        <div style="width: fit-content; margin: 10px auto; color: #666666; margin-top: 40vh">圈子内容仅成员可见</div>
+      </div>
+      <div v-if="projectVisible == 3">
+        <div style="width: fit-content; margin: 10px auto; color: #666666; margin-top: 40vh">圈子内容订阅后可见</div>
+      </div>
     </div>
     <div class="rightnav d-none d-xl-block">
       <div class="circlebox">
@@ -175,7 +373,7 @@ onMounted(() => {
         <div style="display: flex; justify-content: center; align-items: center; margin-top: 8px;">
           <div
             style="color: #333333; margin-top: 4px; font-size: 13px; display: flex; align-items: center; white-space: nowrap;">
-            <span class="kindicon" style="font-size: 13px;">&#xf0c0</span>成员：{{ circleInfo.member_count
+            <span class="kindicon" style="font-size: 13px;">&#xf0c0</span>成员：{{ circleInfo.member_count + 1
             }}&nbsp;&nbsp;&nbsp;&nbsp;<span class="kindicon" style="font-size: 13px">&#xf06e</span>粉丝：{{
               circleInfo.follower_count }}&nbsp;&nbsp;&nbsp;&nbsp;<span class="kindicon"
               style="font-size: 13px">&#xf1ea</span>作品：{{ circleInfo.project_count }}
@@ -188,15 +386,21 @@ onMounted(() => {
           <el-button size="small" plain v-if="circleInfo.flag == 4">订阅圈子</el-button>
           <el-button size="small" plain v-if="circleInfo.flag == 3"><span class="kindicon"
               style="font-size: 14px">&#xf0e0</span>已订阅</el-button>
-          <el-button size="small" plain v-if="circleInfo.flag == 1"><span class="kindicon"
+          <el-button size="small" plain v-if="circleInfo.flag == 1" @click="outerVisible = true"><span class="kindicon"
               style="font-size: 14px">&#xf0c9</span>管理圈子</el-button>
           <el-button size="small" plain v-if="circleInfo.flag == 1" @click="disbandCircle"><span class="kindicon"
               style="font-size: 14px">&#xf00d</span>解散圈子</el-button>
         </div>
       </div>
 
-      <div class="rightnotitlebox">
-        暂无公告
+      <div class="rightnotitlebox" v-if="circleInfo.flag == 1 || circleInfo.flag == 2">
+        <div style="display: flex; align-items: center; justify-content: center; height: 86px;"
+          v-if="!circleInfo.notice">
+          暂无公告
+        </div>
+        <div v-else>
+          {{ circleInfo.notice }}
+        </div>
       </div>
       <div class="rightnotitlebox">
         广告位招租
@@ -206,10 +410,168 @@ onMounted(() => {
         RBAC 动态权限、数据权限、SaaS 多租户、Flowable 工作流、三方登录、支付、短信、商城等功能。你的 ⭐️ Star ⭐️，是作者生发的动力！
       </div>
     </div>
+    <el-dialog v-model="outerVisible" title="管理圈子" width="500" align-center>
+      <el-form label-width="80px">
+        <el-form-item label="圈子公告" prop="roleName">
+          <el-input :placeholder="circleInfo.notice ? circleInfo.notice : '暂无公告'" v-model="noticeNew" type="textarea"
+            maxlength="100" show-word-limit :rows="3" />
+        </el-form-item>
+      </el-form>
+      <el-form label-width="80px">
+        <el-form-item label="圈子简介" prop="roleName">
+          <el-input :placeholder="circleInfo.description" v-model="descriptionNew" type="textarea" maxlength="42"
+            show-word-limit />
+        </el-form-item>
+      </el-form>
+      <el-form label-width="80px">
+        <el-form-item label="可见范围" prop="roleName">
+          <!-- <el-tag size="large" effect="dark" v-if="circleInfo.type == 2" >所有人</el-tag>
+          <el-tag size="default" effect="dark" v-if="circleInfo.type == 0" style="font-size: 14px;">仅成员</el-tag>
+          <el-tag size="large" effect="dark" v-if="circleInfo.type == 1">需订阅</el-tag> -->
+          <el-radio-group v-model="circleInfotype" size="default">
+            <el-radio-button label="所有人" value="2" :disabled="circleInfo.type != 2" />
+            <el-radio-button label="仅成员" value="0" :disabled="circleInfo.type != 0" />
+            <el-radio-button label="需订阅" value="1" :disabled="circleInfo.type != 1" />
+          </el-radio-group>
+        </el-form-item>
+      </el-form>
+      <el-form label-width="80px" v-loading="isUploadCover">
+        <el-form-item label="圈子头像" prop="roleName">
+          <div style="width: 100px; height: 100px; background-color: #E7ECF0;" v-if="!uploadCoverUrl"></div>
+          <el-image v-else style="width: 100px; height: 100px" :src="uploadCoverUrl" :zoom-rate="1.2" :max-scale="7"
+            :min-scale="0.2" show-progress :initial-index="4" fit="cover"
+            referrerpolicy="no-referrer" />
+          <el-button style="position: absolute; bottom: 0px; left: 110px;" @click="uploadCover">上传头像</el-button>
+          <input type="file" ref="coverInput" style="display: none" accept="image/*" @change="handleUpload" />
+        </el-form-item>
+      </el-form>
+      <el-dialog v-model="inviteVisible" width="500" title="邀请成员" append-to-body align-center style="min-height: 450px;">
+        <span>仅可邀请我关注的用户</span>
+        <div class="invitetaggroupbox" v-if="inviteUserList.length > 0">
+          <div class="invitememberbox" v-for="user in inviteUserList" :key="user.nickname" @click="clickInviteUser(user)" :class="{ selectactive: selectInviteUserList.includes(user.user_id) }">
+            <div style="display: flex; justify-content: space-between;">
+              <div class="memberavatar"><img :src="user.usericon" alt="" style="width: 40px;"
+                  referrerpolicy="no-referrer"></div>
+              <div class="userinfo">
+                <div style="font-weight: 700; font-size: 15px; cursor: pointer;">
+                  {{ user.nickname }}
+                </div>
+                <div style="display: flex; align-items: center;">
+                  <div
+                    style="color: #333333; margin-top: 2px; font-size: 12px; display: flex; align-items: center; white-space: nowrap;">
+                    粉丝：{{ user.follower }}&nbsp;&nbsp;
+                    关注：{{ user.following }}&nbsp;&nbsp;
+                    作品：{{ user.projectnum }}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="invitetaggroupbox" v-else>
+          <div style="width: 100%; text-align: center; color: #999999; padding-top: 110px;">暂无可邀请用户</div>
+        </div>
+        <template #footer>
+          <div class="dialog-footer">
+            <el-button @click="inviteVisible = false">取 消</el-button>
+            <el-button type="primary" @click="yesInviteUser">邀 请</el-button>
+          </div>
+        </template>
+      </el-dialog>
+      <el-dialog v-model="removeVisible" width="500" title="移除成员" append-to-body align-center style="min-height: 450px;">
+        <div class="invitetaggroupbox" v-if="circleUsers.length > 0">
+          <div class="removememberbox" v-for="user in circleUsers" :key="user.nickname" @click="clickRemoveUser(user)" :class="{ selectactive: selectRemoveUserList.includes(user.user_id) }">
+            <div style="display: flex; justify-content: space-between;">
+              <div class="memberavatar"><img :src="user.usericon" alt="" style="width: 40px;"
+                  referrerpolicy="no-referrer"></div>
+              <div class="userinfo">
+                <div style="font-weight: 700; font-size: 15px; cursor: pointer;">
+                  {{ user.nickname }}
+                </div>
+                <div style="display: flex; align-items: center;">
+                  <div
+                    style="color: #333333; margin-top: 2px; font-size: 12px; display: flex; align-items: center; white-space: nowrap;">
+                    粉丝：{{ user.follower_num }}&nbsp;&nbsp;
+                    关注：{{ user.following_num }}&nbsp;&nbsp;
+                    作品：{{ user.projects_num }}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="invitetaggroupbox" v-else>
+          <div style="width: 100%; text-align: center; color: #999999; padding-top: 110px;">暂无可移除用户</div>
+        </div>
+        <template #footer>
+          <div class="dialog-footer">
+            <el-button @click="removeVisible = false">取 消</el-button>
+            <el-button type="primary" @click="yesRemoveUser">移 除</el-button>
+          </div>
+        </template>
+      </el-dialog>
+      <template #footer>
+        <div class="dialog-footer">
+          <div style="display: flex; justify-content: space-between">
+            <div style="margin-top: auto;">
+              <el-button type="success" @click="inviteUserClick" size="default">邀请成员</el-button>
+              <el-button type="warning" @click="removeVisible = true" size="default">移除成员</el-button>
+            </div>
+            <div>
+              <el-button @click="outerVisible = false">取 消</el-button>
+              <el-button type="primary" @click="updateCircle">
+                保 存
+              </el-button>
+            </div>
+          </div>
+        </div>
+      </template>
+    </el-dialog>
   </div>
 </template>
 
 <style scoped>
+.selectactive {
+  background-color: #E0E6EB !important;
+  border-color: #0349B4 !important;
+}
+
+.removememberbox {
+  padding: 8px;
+  border: 1px solid #aaaaaa;
+  border-radius: 4px;
+  width: 100%;
+  cursor: pointer;
+  height: fit-content;
+}
+
+.removememberbox:hover {
+  background-color: #F8F8F8;
+}
+
+.invitetaggroupbox {
+  padding: 16px 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  height: 329px;
+  overflow-y: scroll;
+}
+
+.invitememberbox {
+  padding: 8px;
+  border: 1px solid #aaaaaa;
+  border-radius: 4px;
+  width: 100%;
+  cursor: pointer;
+  height: fit-content;
+}
+
+.invitememberbox:hover {
+  background-color: #F5F5F5;
+}
+
+
 .memberavatar {
   border-radius: 50%;
   overflow: hidden;
@@ -372,9 +734,7 @@ onMounted(() => {
   padding: 16px;
   margin-bottom: 16px;
   min-height: 120px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
+
 }
 
 .leftnavborder {
