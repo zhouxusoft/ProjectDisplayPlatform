@@ -369,7 +369,7 @@ onMounted(() => {
     </div>
     <div class="straightline"></div>
     <div class="mainprojects px-4 py-3">
-      <div v-if="projectVisible == 1">
+      <div v-if="projectVisible == 1" class="mainprojects">
         <ProjectItem v-for="project in circleProjects" :key="project.id" :project="project" :starred="starred" />
         <div style="width: fit-content; margin: 10px auto; color: #666666" v-if="circleProjects.length > 0">没有更多了...</div>
         <div style="width: fit-content; margin: 10px auto; color: #666666; margin-top: 40vh" v-else>空空如也</div>

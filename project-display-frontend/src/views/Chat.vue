@@ -254,6 +254,11 @@ const isUploadCover = ref(false)
 const uploadCoverUrl = ref('')
 
 function uploadCover() {
+  let flag = nowChatMessage.value.find(item => item.sender_id == nowChatUser.value.user_id)
+  if (nowChatUser.value.relationship == 0 && !flag) {
+    ElMessage.error('对方未主动回复或关注你之前无法发送图片')
+    return
+  }
   if (coverInput.value) {
     coverInput.value.value = null; // 重置，防止选同一张文件时不触发change事件
     coverInput.value.click();

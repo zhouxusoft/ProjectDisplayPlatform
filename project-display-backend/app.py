@@ -672,9 +672,10 @@ def circleList():
             'cover': result[i][3],
             'type': result[i][4],
             'description': result[i][5],
-            'member_count': result[i][6],
-            'follower_count': result[i][7],
-            'project_count': result[i][8],
+            'notice': result[i][6],
+            'member_count': result[i][7],
+            'follower_count': result[i][8],
+            'project_count': result[i][9],
             'flag': flag
         }
         if flag != 0:
@@ -1484,15 +1485,15 @@ def readSystemMessage():
         return jsonify({'success': True, 'code': 200})
     
     if data['type'] == 4:
-        sql = "UPDATE `system_notification` SET `is_read` = 1 WHERE `id`"
-        val = (data['noticeid'])
+        sql = "UPDATE `system_notification` SET `is_read` = 1 WHERE `id` = %s"
+        val = (data['content'])
         dbcursor.execute(sql, val)
         db.commit()
         return jsonify({'success': True, 'code': 200})
     
     if data['type'] == 5:
-        sql = "UPDATE `system_notification` SET `is_read` = 1 WHERE `id`"
-        val = (data['noticeid'])
+        sql = "UPDATE `system_notification` SET `is_read` = 1 WHERE `id` = %s"
+        val = (data['content'])
         dbcursor.execute(sql, val)
         db.commit()
         return jsonify({'success': True, 'code': 200})

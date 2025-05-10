@@ -390,7 +390,13 @@ const summarizeText = () => {
       ailoading.value = false
       aiAnswer.value = truncateText(markdownToPlainText(res.message))
       gradualPrint()
+    } else {
+      ailoading.value = false
     }
+  }).catch(error => {
+    console.error('Error:', error)
+    ElMessage.error('服务繁忙，请稍后再试')
+    ailoading.value = false
   })
 }
 

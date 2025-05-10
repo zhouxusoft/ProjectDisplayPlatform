@@ -72,11 +72,11 @@ const messageBoxHeight = ref([0])
 
 const setMessageBoxHeight = () => {
   if (systemMessageNum.value == 0) {
-    messageBoxHeight.value = 66
+    messageBoxHeight.value = 66 + 2
   } else if (systemMessageNum.value > 5) {
-    messageBoxHeight.value = 5 * 66
+    messageBoxHeight.value = 5 * 66 + 2
   } else {
-    messageBoxHeight.value = systemMessageNum.value * 66
+    messageBoxHeight.value = systemMessageNum.value * 66 + 2
   }
 }
 
@@ -384,6 +384,7 @@ const getSystemMessage = () => {
       followMessageList.value = res.data.follow
       inviteMessageList.value = res.data.invite
       removeMessageList.value = res.data.remove
+      systemMessageNum.value = 0
       systemMessageNum.value += starMessageList.value.length
       systemMessageNum.value += commentMessageList.value.length
       systemMessageNum.value += inviteMessageList.value.length
@@ -509,13 +510,13 @@ onMounted(() => {
                 <div style="display: flex;">
                   <button type="button" class="dbtn" @click="readMessage(message, 4)" style="margin-right: 8px;"><span class="kindicon"
                   style="font-size: 12px; margin-right: 2px;">&#xf00c</span>同意</button>
-                  <button type="button" class="dbtn" @click="readMessage(message, 5)"><span class="kindicon"
+                  <button type="button" class="dbtn" @click="readMessage(message, 4)"><span class="kindicon"
                     style="font-size: 12px; margin-right: 2px;">&#xf00d</span>拒绝</button>
                 </div>
               </div>
               <div class="messageitem" v-for="message in removeMessageList">
                 <div>你被移出圈子 <span style="color: #0349B4; text-decoration: underline">{{ message.circle_name }}</span></div>
-                <button type="button" class="dbtn" @click="readMessage(message, 6)"><span class="kindicon"
+                <button type="button" class="dbtn" @click="readMessage(message, 5)"><span class="kindicon"
                   style="font-size: 12px; margin-right: 2px;">&#xf00c</span>已阅</button>
               </div>
               <!-- <div class="messageitem" v-for="message in messageList">
@@ -523,13 +524,13 @@ onMounted(() => {
                 <button type="button" class="dbtn" @click="readMessage(message.id)"><span class="kindicon"
                   style="font-size: 12px; margin-right: 2px;">&#xf00c</span>已阅</button>
               </div> -->
-              <div v-if="messageList.length == 0" class="messageitem" style="display: flex; justify-content: center;">暂无通知</div>
+              <div v-if="systemMessageNum == 0" class="messageitem" style="display: flex; justify-content: center;">暂无通知</div>
             </div>
           </div>
           <div class="projectboxborder mt-4">
             <div class="projectboxtitlebox">
               <div class="projectboxtitle">Projects of Mine</div>
-              <div class="projectsortbox">Sort by:
+              <!-- <div class="projectsortbox">Sort by:
                 <button id="sortitembox" class="projectsortitembox" @click="">
                   <span class="dropdownname">{{ currentSortMode.name }}</span>
                   <span class="dropdownicon">&#xf0d7</span>
@@ -544,7 +545,7 @@ onMounted(() => {
                     </div>
                   </div>
                 </button>
-              </div>
+              </div> -->
             </div>
             <div v-if="projects.length > 0" class="projectbox mt-1 px-3 py-3">
               <ProjectItem v-for="project in projects" :key="project.id" :project="project" :starred="starred" />
