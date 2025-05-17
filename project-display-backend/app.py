@@ -1201,10 +1201,12 @@ def sendMessage():
         return jsonify({'success': False, 'message': '用户未登录', 'code': 401})
     
     try:
-        res = text_moderation_sdk(data['content'])
-        res_dict = json.loads(res)
-        if res_dict.get('Suggestion') != 'pass':
-            return jsonify({'success': False, 'message': '内容违规，请文明发言', 'code': 400})
+        if data['type'] == 1:
+            res = text_moderation_sdk(data['content'])
+            res_dict = json.loads(res)
+            # print(res)
+            if res_dict.get('Suggestion') != 'Pass':
+                return jsonify({'success': False, 'message': '内容违规，请文明发言', 'code': 400})
         db, dbcursor = get_db()
         sql = "INSERT INTO `user_message` (`sender_id`, `receiver_id`, `message_type`, `message_content`) VALUES (%s, %s, %s, %s)"
         val = (check['userid'], data['userid'], data['type'], data['content'])
@@ -2026,6 +2028,10 @@ def saveFile(file):
     fullpath = os.path.join(HOST or '', app.config['UPLOAD_FOLDER'], unique_filename)
     try:
         file.save(filepath)
+        res = image_moderation_sdk(filepath)
+        res_dict = json.loads(res)
+        if res_dict.get('Suggestion') != 'Pass':
+            return {'success': False, 'message': '图片内容违规', 'code': 400}
         return {'success': True, 'message': '上传成功', 'filename': unique_filename, 'filepath': fullpath}
     except Exception as e:
         return {'success': False, 'message': f'保存文件失败: {e}'}
