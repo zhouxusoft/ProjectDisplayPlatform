@@ -1,3 +1,4 @@
+import json
 from flask import Flask, request, jsonify, make_response, g, send_from_directory
 from flask_cors import CORS
 from dotenv import load_dotenv
@@ -7,6 +8,7 @@ from datetime import datetime
 from werkzeug.utils import secure_filename
 from ai import summary, explain
 from collections import Counter
+from audit import text_moderation_sdk, image_moderation_sdk
 import pymysql
 import bcrypt
 import os
@@ -1199,6 +1201,10 @@ def sendMessage():
         return jsonify({'success': False, 'message': '用户未登录', 'code': 401})
     
     try:
+        res = text_moderation_sdk(data['content'])
+        res_dict = json.loads(res)
+        if res_dict.get('Suggestion') != 'pass':
+            return jsonify({'success': False, 'message': '内容违规，请文明发言', 'code': 400})
         db, dbcursor = get_db()
         sql = "INSERT INTO `user_message` (`sender_id`, `receiver_id`, `message_type`, `message_content`) VALUES (%s, %s, %s, %s)"
         val = (check['userid'], data['userid'], data['type'], data['content'])
