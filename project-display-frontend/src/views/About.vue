@@ -328,6 +328,8 @@ const uploadCoverAction = (file) => {
     .then(res => {
       if (res.success) {
         uploadCoverUrl.value = res.filepath
+      } else {
+        ElMessage.error(res.message)
       }
       isUploadCover.value = false
     })

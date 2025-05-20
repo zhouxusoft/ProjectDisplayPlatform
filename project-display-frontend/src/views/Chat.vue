@@ -300,6 +300,8 @@ const uploadCoverAction = (file) => {
         console.log(uploadCoverUrl.value);
 
         sendMessage(2, res.filepath)
+      } else {
+        ElMessage.error(res.message)
       }
       isUploadCover.value = false
     })

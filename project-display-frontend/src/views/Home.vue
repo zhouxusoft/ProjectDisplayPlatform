@@ -344,11 +344,14 @@ const uploadCoverAction = (file) => {
     .then(res => {
       if (res.success) {
         uploadCoverUrl.value = res.filepath
+      } else {
+        coverPreview.value = ''
+        ElMessage.error(res.message)
       }
       isUploadCover.value = false
     })
     .catch(_ => {
-      deleteCover()
+      coverPreview.value = ''
       isUploadCover.value = false
       ElMessage.error('上传失败')
     })
